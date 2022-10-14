@@ -7,7 +7,7 @@
 
 namespace Eggy
 {
-	IRenderDevice* GRenderDevice = new D3D11Device();
+	// IRenderDevice* GRenderDevice = new D3D11Device();
 
 	D3D11Device::D3D11Device()
 	{
@@ -49,13 +49,13 @@ namespace Eggy
 			hr = D3D11CreateDevice(pAdapter, driverType, nullptr, Flags, featureLevels, numFeatureLevels - 1, 
 				D3D11_SDK_VERSION, ppDevice, &featureLevel, ppImmediateContext);
 
-			if (hr == E_INVALIDARG)
+			if (hr == S_FALSE)
 			{
 				hr = D3D11CreateDevice(pAdapter, driverType, nullptr, Flags, featureLevels, numFeatureLevels - 1,
 					D3D11_SDK_VERSION, ppDevice, &featureLevel, ppImmediateContext);
 			}
 
-			if (SUCCEEDED(hr))
+			if (hr == S_OK)
 				break;
 		}
 
