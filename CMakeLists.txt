@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10) 
 
 # set the project name 
-project(CuteEngine)
+project(EggyEngine)
 
 # set character set to unicode
 ADD_DEFINITIONS(-DUNICODE)
@@ -54,6 +54,12 @@ set(
     libfbxsdk.lib
     glfw3.lib
     vulkan-1.lib
+# dx11
+    d3d11.lib
+    dxgi.lib
+    dxguid.lib
+    D3DCompiler.lib
+    winmm.lib
 )
 target_link_libraries(CuteEngine ${ADDITIONAL_DEP_LIB})
 
