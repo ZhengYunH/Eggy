@@ -22,3 +22,24 @@
 #if defined(_WIN32)
 #include "System/Win32.h"
 #endif
+
+#include <string>
+#include <map>
+#include <vector>
+#include <map>
+#include <functional>
+
+namespace Eggy
+{
+	using String = std::string;
+	using Name = std::string;
+
+	template<typename _TKey, typename _TValue>
+	using Map = std::unordered_map<_TKey, _TValue>;
+	
+	template<typename _Type>
+	using List = std::vector<_Type>;
+
+	using uint16 = uint16_t;
+	using uint32 = uint32_t;
+}
