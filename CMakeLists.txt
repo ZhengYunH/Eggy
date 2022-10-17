@@ -16,7 +16,7 @@ file (GLOB_RECURSE HEADER_LIST "${CODE_SOURCE_DIR}/*.h")
 file (GLOB_RECURSE SOURCE_LIST "${CODE_SOURCE_DIR}/*.cpp")
 
 # add executable
-add_executable(CuteEngine ${SOURCE_LIST} ${HEADER_LIST})
+add_executable(EggyEngine ${SOURCE_LIST} ${HEADER_LIST})
 
 # group source / header files
 source_group(TREE ${CODE_SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_LIST})
@@ -36,7 +36,7 @@ set(
     ${LIBRARY_DIR}/stb-master
     ${LIBRARY_DIR}/boost/Include
 )
-target_include_directories(CuteEngine PUBLIC ${ADDITIONAL_INCLUDE_DIR})
+target_include_directories(EggyEngine PUBLIC ${ADDITIONAL_INCLUDE_DIR})
 
 # additional library directories
 set(
@@ -46,7 +46,7 @@ set(
     ${LIBRARY_DIR}/VulkanSDK/Lib
     ${LIBRARY_DIR}/FBX/Lib
 )
-target_link_directories(CuteEngine PUBLIC ${ADDITIONAL_LIB_DIR})
+target_link_directories(EggyEngine PUBLIC ${ADDITIONAL_LIB_DIR})
 
 # addtional dependencies
 set(
@@ -61,7 +61,7 @@ set(
     D3DCompiler.lib
     winmm.lib
 )
-target_link_libraries(CuteEngine ${ADDITIONAL_DEP_LIB})
+target_link_libraries(EggyEngine ${ADDITIONAL_DEP_LIB})
 
 # other feature
-target_compile_features(CuteEngine PRIVATE cxx_std_20)
+target_compile_features(EggyEngine PRIVATE cxx_std_20)
