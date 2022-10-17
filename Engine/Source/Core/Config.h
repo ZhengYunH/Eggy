@@ -5,10 +5,18 @@
 #if DEBUG_MODE
 	#include <assert.h>
 	#define HYBRID_CHECK(X, ...) assert((X))
+	#define HYBRID_RUN(X, ...) HYBRID_CHECK(X, ##__VA_ARGS__)
 	#define DEBUG_RUN(X) X
 #else
 	#define HYBRID_CHECK(X, ...) 
+	#define HYBRID_RUN(X, ...) (X)
 	#define DEBUG_RUN(X)
+#endif
+
+#if D3D11_DEVICE
+	#define HR(X, ...)	HYBRID_RUN(SUCCEEDED(X),  ##__VA_ARGS__)
+#else
+
 #endif
 
 
@@ -42,4 +50,11 @@ namespace Eggy
 
 	using uint16 = uint16_t;
 	using uint32 = uint32_t;
+}
+
+namespace Eggy
+{
+	extern const uint32 SCREEN_INIT_WIDTH;
+	extern const uint32 SCREEN_INIT_HEIGHT;
+	extern const uint32 SCREEN_REFRESH_RATE;
 }
