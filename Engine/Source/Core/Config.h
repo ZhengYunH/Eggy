@@ -1,3 +1,4 @@
+#pragma once
 #define D3D11_DEVICE 1
 #define VULKAN_DEVICE 0
 #define DEBUG_MODE 1
@@ -28,7 +29,7 @@
 
 // platform
 #if defined(_WIN32)
-#include "System/Win32.h"
+#include "Platform/Win32.h"
 #endif
 
 #include <string>
@@ -57,4 +58,12 @@ namespace Eggy
 	extern const uint32 SCREEN_INIT_WIDTH;
 	extern const uint32 SCREEN_INIT_HEIGHT;
 	extern const uint32 SCREEN_REFRESH_RATE;
+}
+
+namespace Eggy
+{
+	namespace Tool
+	{
+		LPCWSTR stringToLPCWSTR(const std::string& orig);
+	}
 }

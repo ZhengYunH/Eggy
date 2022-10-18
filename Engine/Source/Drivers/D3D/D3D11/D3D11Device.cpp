@@ -1,8 +1,8 @@
 #include "D3D11Device.h"
+#include "Core/Engine/Engine.h"
 
 
 // reference: https://www.cnblogs.com/X-Jun/p/9069608.html
-
 namespace Eggy
 {
 	IRenderDevice* GRenderDevice = nullptr;
@@ -53,6 +53,7 @@ namespace Eggy
 		mDevice_->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8_UNORM, 4, &m4xMsaaQaulity_);
 		HYBRID_CHECK(m4xMsaaQaulity_ > 0);
 
+		mMainWnd_ = Engine::Get()->Platform->GetWindow();
 		CreateSwapChain();
 	}
 
@@ -169,7 +170,7 @@ namespace Eggy
 		const UINT height = SCREEN_INIT_HEIGHT;
 
 		HR(mSwapChain_->ResizeBuffers(1, width, height, mSwapchainFormat_, 0));
-		HR(mSwapChain_->GetBuffer(1, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
+		HR(mSwapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
 		HR(mDevice_->CreateRenderTargetView(backBuffer.Get(), nullptr, mRenderTargetView_.GetAddressOf()));
 
 		backBuffer.Reset();
