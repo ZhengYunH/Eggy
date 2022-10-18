@@ -13,17 +13,19 @@ namespace Eggy
 		public:
 			ReflectionClassTesterClassInfo()
 			{
-				List<FieldInfo*>* fieldInfos = new List<FieldInfo*>
-				({
-					new FieldInfo("TestFieldInt", IntegerType::GetDefaultObject()),
-					new FieldInfo("TestFieldFloat", FloatType::GetDefaultObject()),
-					new FieldInfo("TestFieldBool", BoolType::GetDefaultObject()),
-				});
-				FunctionInfo** funcInfos = nullptr;
+				FieldInfo fieldInfos[]{
+					FieldInfo("TestFieldInt", IntegerType::GetDefaultObject()),
+					FieldInfo("TestFieldFloat", FloatType::GetDefaultObject()),
+					FieldInfo("TestFieldBool", BoolType::GetDefaultObject()),
+				};
+				uint16 numFieldInfos = 3;
+				FunctionInfo* funcInfos = nullptr;
 
-				Reflection::RegisterClass<ReflectionClassTester, ReflectionClassTesterNameStr>(
-					fieldInfos->data(), 
-					static_cast<uint16>(fieldInfos->size()), 
+				Reflection::RegisterClass(
+					"ReflectionClassTester",
+					[] {return new ReflectionClassTester(); },
+					fieldInfos, 
+					numFieldInfos,
 					funcInfos, 
 					0
 				);
@@ -31,11 +33,7 @@ namespace Eggy
 		};
 		static ReflectionClassTesterClassInfo __mClassInfo;
 		
-
-		static const ClassType<ReflectionClassTester, ReflectionClassTesterNameStr>* GetClass()
-		{
-			return static_cast<const ClassType<ReflectionClassTester, ReflectionClassTesterNameStr>*>(IObject::GetClassInfo(ReflectionClassTesterNameStr));
-		}
+		IMP_GETCLASS(ReflectionClassTester);
 
 		int TestFieldInt;
 		float TestFieldFloat;

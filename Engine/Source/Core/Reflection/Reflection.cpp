@@ -2,20 +2,16 @@
 
 namespace Eggy
 {
-	Map<Name, IType*> Reflection::GRegistrationDict;
+	Map<String, Type*> Reflection::GRegistrationDict;
 
-#define DEFINE_INTRINSIC_TYPE(Name, Type)  \
-	const char __StrIntrinsicType__##Name[] = #Name; \
-	template<> \
-	struct IntrinsicType<Type, __StrIntrinsicType__##Name> \
-	{ \
-		struct IntrinsicTypeRegister \
-		{ \
-			IntrinsicTypeRegister() { Reflection::RegisterType<Type, __StrIntrinsicType__##Name>(); } \
-		}; \
-		static IntrinsicTypeRegister __mRegister; \
-	};\
-	IntrinsicType<Type, __StrIntrinsicType__##Name>::IntrinsicTypeRegister IntrinsicType<Type, __StrIntrinsicType__##Name>::__mRegister;
+	void Reflection::RegisterClass(String name, PConstuctor generator, FieldInfo* fields, uint16 numFieldInfo, FunctionInfo* functions, uint16 numFunctionInfo)
+	{
+		ClassType* info = new ClassType(name, generator, fields, numFieldInfo, functions, numFunctionInfo);
+		AddReflectionInfo(name, info);
+	}
+
+#define DEFINE_INTRINSIC_TYPE(AliasName, Type)  \
+	AliasName::IntrinsicTypeRegister AliasName::__mRegister; \
 
 	DEFINE_INTRINSIC_TYPE(IntegerType, int);
 	DEFINE_INTRINSIC_TYPE(FloatType, float);

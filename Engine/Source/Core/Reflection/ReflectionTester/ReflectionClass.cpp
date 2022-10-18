@@ -8,14 +8,15 @@ namespace Eggy
 	{
 		ReflectionClassTester tester;
 		std::cout << "ReflectionClassTester Start " << std::endl;
-		std::cout << "Name: " << tester.GetClass()->Name << std::endl;
+		std::cout << "Name: " << tester.GetClass()->GetName() << std::endl;
 		
 		auto ClassInfo = ReflectionClassTester::GetClass();
+		ReflectionClassTester* ctorTester = reinterpret_cast<ReflectionClassTester*>(ClassInfo->Construct());
 		std::cout << "Fields: " << std::endl;
-		for (uint16 i = 0; i < ClassInfo->NumFieldInfo; ++i)
+		for (uint16 i = 0; i < ClassInfo->NumFields; ++i)
 		{
-			const IType* t = ClassInfo->Fields[i]->GetType();
-			std::cout << i << ": " << ClassInfo->Fields[i]->GetName() << std::endl;
+			auto t = ClassInfo->Fields[i].Type;
+			std::cout << i << ": " << ClassInfo->Fields[i].Name << std::endl;
 		}
 		
 		std::cout << "ReflectionClassTester End " << std::endl;
