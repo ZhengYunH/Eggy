@@ -5,7 +5,12 @@
 
 namespace Eggy
 {
-	IRenderDevice* GRenderDevice = new D3D11Device();
+	IRenderDevice* GRenderDevice = nullptr;
+	extern void CreateRenderDevice()
+	{
+		SafeDestroy(GRenderDevice);
+		GRenderDevice = new D3D11Device();
+	}
 
 	D3D11Device::D3D11Device()
 	{

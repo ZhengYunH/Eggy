@@ -16,5 +16,6 @@ namespace Eggy
 		virtual void OnResize() {};
 
 	};
+	extern void CreateRenderDevice();
 	extern IRenderDevice* GRenderDevice;
 }

@@ -5,6 +5,6 @@
 
 int main()
 {
-	Eggy::GRenderDevice->DrawFrame();
+	Eggy::DoTest();
 	return 0;
 }

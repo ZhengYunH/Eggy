@@ -55,7 +55,5 @@ namespace Eggy
 		TComPtr<ID3D11RenderTargetView> mRenderTargetView_;
 		TComPtr<ID3D11DepthStencilView> mDepthStencilView_;
 		D3D11_VIEWPORT mScreenViewport_;
-
-
 	};
 }
