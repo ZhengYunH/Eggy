@@ -24,6 +24,7 @@ namespace Eggy
 
 	void Engine::TickLoop()
 	{
+		GRenderDevice->PrepareResource();
 		GRenderDevice->DrawFrame();
 	}
 }

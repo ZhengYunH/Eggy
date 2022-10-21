@@ -20,6 +20,6 @@ namespace Eggy
 		void TickLoop();
 
 	public:
-		IPlatform* Platform;
+		IPlatform* Platform{ nullptr };
 	};
 }

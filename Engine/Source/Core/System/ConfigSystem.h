@@ -1,3 +1,4 @@
+#pragma once
 #include "Core/Config.h"
 #include "Core/Interface/ISystem.h"
 #include "Core/Reflection/Reflection.h"
@@ -18,9 +19,6 @@ namespace Eggy
 	class ConfigSystem : public ISystem<ConfigSystem>
 	{
 		DeclareSystem(ConfigSystem);
-	public:
-		ConfigSystem() { HYBRID_CHECK(!GInstance); GInstance = this; }
-
 	public:
 		template<typename _TType>
 		_TType GetData(const Name& config, const Name& key);
