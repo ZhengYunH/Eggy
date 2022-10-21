@@ -24,7 +24,6 @@ namespace Eggy
 			Vector2 v21(1, 2);
 			Vector2 v22(3, 4);
 			Vector2 v = v21 + v22;
-
 		}
 	};
 }

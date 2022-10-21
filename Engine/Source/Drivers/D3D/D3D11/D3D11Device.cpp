@@ -63,6 +63,17 @@ namespace Eggy
 			mImmediateContext_->ClearState();
 	}
 
+	void D3D11Device::PrepareResource()
+	{
+
+	}
+	
+	void D3D11Device::DrawFrame()
+	{
+		ClearScreen();
+		Present();
+	}
+
 	void D3D11Device::CreateSwapChain()
 	{
 		TComPtr<IDXGIDevice> DXGIDevice = nullptr;
@@ -211,12 +222,6 @@ namespace Eggy
 		mScreenViewport_.MaxDepth = 1.0;
 
 		mImmediateContext_->RSSetViewports(1, &mScreenViewport_);
-	}
-
-	void D3D11Device::DrawFrame()
-	{
-		ClearScreen();
-		Present();
 	}
 
 	void D3D11Device::ClearScreen()

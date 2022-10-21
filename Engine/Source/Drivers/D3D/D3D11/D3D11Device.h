@@ -18,17 +18,16 @@ namespace Eggy
 		~D3D11Device();
 	
 	public:
+		void PrepareResource() override final;
 		void DrawFrame() override final;
 
 	private:
 		void CreateSwapChain() override final;
 		void OnResize() override final;
 		
-
 	private:
 		void ClearScreen();
 		void Present();
-
 
 	private:
 		DXGI_FORMAT mSwapchainFormat_{ DXGI_FORMAT_R8G8B8A8_UNORM };

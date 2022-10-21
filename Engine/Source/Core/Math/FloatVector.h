@@ -61,7 +61,7 @@ namespace Eggy
 			return dot;
 		}
 
-		constexpr FORCEINLINE bool operator ==(const RealType& rhs)
+		constexpr FORCEINLINE bool operator ==(const RealType& rhs) const noexcept
 		{
 			const _ScalarType* left = GetPointer();
 			const _ScalarType* right = rhs.GetPointer();
@@ -113,11 +113,11 @@ namespace Eggy
 		constexpr FORCEINLINE RealType operator *(const _ScalarType& rhs) const noexcept
 		{
 			const _ScalarType* left = GetPointer();
-			RealType	ret = false;
-			_ScalarType* dst = ret.GetPoint();
+			RealType	ret;
+			_ScalarType* dst = ret.GetPointer();
 			for (int i = 0; i < DIMENSION; ++i)
 			{
-				dst = left[i] * rhs;
+				dst[i] = left[i] * rhs;
 			}
 			return ret;
 		}

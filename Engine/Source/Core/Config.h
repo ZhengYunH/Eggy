@@ -32,14 +32,9 @@ namespace Eggy
 	template<typename _Type>
 	using List = std::vector<_Type>;
 
+	using uint8 = uint8_t;
 	using uint16 = uint16_t;
 	using uint32 = uint32_t;
-
-	template<typename _TType>
-	using SharedPtr = std::shared_ptr<_TType>;
-
-	/*template<typename _TType>
-	using SharedFrom = std::make_shared<_TType>;*/
 }
 
 namespace Eggy
