@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Foundation.h"
 #include "MathUtil.h"
+#include "boost/functional/hash.hpp"
 
 
 namespace Eggy
@@ -126,6 +127,17 @@ namespace Eggy
 		{
 			HYBRID_CHECK(index < DIMENSION);
 			return GetPointer()[index];
+		}
+
+		constexpr FORCEINLINE std::size_t Hash() const noexcept
+		{
+			const _ScalarType* pSrc = GetPointer();
+			std::size_t hash = boost::hash_value(pSrc[0]);
+
+			for (int i = 1; i < DIMENSION; ++i)
+				boost::hash_combine(hash, pSrc[i]);
+
+			return hash;
 		}
 	};
 }

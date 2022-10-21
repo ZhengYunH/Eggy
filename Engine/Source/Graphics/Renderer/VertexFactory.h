@@ -111,7 +111,7 @@ namespace std
 	{
 		size_t operator()(Color4B const& color) const noexcept
 		{
-			return size_t(color.u32);
+			return boost::hash_value(color.u32);
 		}
 	};
 
@@ -119,7 +119,7 @@ namespace std
 	{
 		size_t operator()(Vector3 const& vec3) const noexcept
 		{
-			return size_t(vec3.x + vec3.y + vec3.z);
+			return vec3.Hash();
 		}
 	};
 
@@ -127,7 +127,7 @@ namespace std
 	{
 		size_t operator()(Vector2 const& vec2) const noexcept
 		{
-			return size_t(vec2.x + vec2.y);
+			return vec2.Hash();
 		}
 	};
 
@@ -135,7 +135,10 @@ namespace std
 	{
 		size_t operator()(TVertexType<EVF_P3F_N4B_T2F> const& vertexType) const noexcept
 		{
-			return hash<Vector3>()(vertexType.Position) + hash<Color4B>()(vertexType.Normal) + hash<Vector2>()(vertexType.ST);
+			size_t v = boost::hash_value(hash<Vector3>()(vertexType.Position));
+			boost::hash_combine(v, hash<Color4B>()(vertexType.Normal));
+			boost::hash_combine(v, hash<Vector2>()(vertexType.ST));
+			return v;
 		}
 	};
 }
