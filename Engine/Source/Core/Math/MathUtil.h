@@ -21,4 +21,20 @@ namespace Eggy
 
 	template<typename _Scaler>
 	static constexpr inline _Scaler Sqrt(_Scaler a) noexcept { return std::sqrt(a); }
+
+	template<typename _Type> 
+	static constexpr FORCEINLINE _Type Clamp(_Type value, _Type minimum, _Type maximum) noexcept
+	{
+		if (value < minimum)
+			return minimum;
+		if (value > maximum)
+			return maximum;
+		return value;
+	}
+
+	template<typename _Type> 
+	static constexpr FORCEINLINE _Type MapUnitToRange(_Type value, _Type range) noexcept
+	{
+		return Clamp(value, _Type(0), _Type(1)) * range;
+	}
 }

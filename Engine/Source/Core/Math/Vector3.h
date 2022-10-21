@@ -1,6 +1,7 @@
 #pragma once
 #include "VectorBase.h"
 
+
 namespace Eggy
 {
 	template<typename _ScalarType, typename _FinalType>
@@ -59,6 +60,7 @@ namespace Eggy
 		}
 	};
 
+	using Vector3 = TVec3<float>;
 	using Vector3F = TVec3<float>;
-	// using Vector3D = TVec3<double>;
+	using Vector3D = TVec3<double>;
 }
