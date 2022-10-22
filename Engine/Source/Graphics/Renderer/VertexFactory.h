@@ -74,8 +74,6 @@ namespace Eggy
 
 	struct VF_P3F_N4B_T2F
 	{
-		
-
 		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_N4B_T2F;
 	};
 
@@ -97,9 +95,23 @@ namespace Eggy
 		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_N4B_T2F;
 	};
 
-	
+	struct VertexInfo
+	{
+		uint16 DataSize{ 0 };
+	};
+
+	static Map<EVertexFormat, VertexInfo> GVertexInfoMap = {
+		{ EVF_P3F_N4B_T2F, {sizeof(Vector3) + sizeof(Color4B) + sizeof(Vector2) }}
+	};
+
 	class VertexFactory
 	{
+	public:
+		static size_t GetDataTypeSize(EVertexFormat format) 
+		{
+			HYBRID_CHECK(GVertexInfoMap.find(format) != GVertexInfoMap.end());
+			return GVertexInfoMap[format].DataSize;
+		}
 	};
 }
 

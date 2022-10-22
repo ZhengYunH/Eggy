@@ -5,13 +5,6 @@
 
 namespace Eggy
 {
-	enum class EFileType
-	{
-		NONE=0,
-		OBJ=1,
-		FBX=2
-	};
-
 	class FileSystem : public ISystem<FileSystem>
 	{
 		DeclareSystem(FileSystem);

@@ -5,10 +5,8 @@
 #include <memory>
 
 #include "Graphics/Renderer/VertexFactory.h"
-
-// For ObjFile
-#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+
 
 
 namespace Eggy
@@ -20,6 +18,25 @@ namespace Eggy
 		OPEN,
 		CLOSE,
 	};
+	
+	enum EFileType : uint16
+	{
+		NONE = 0,
+		OBJ = 1,
+		FBX = 2
+	};
+
+	template<EFileType _FileType> 
+	class SelectVertexType {};
+	
+	template<>
+	class SelectVertexType<OBJ>
+	{
+	public:
+		using type = TVertexType<EVF_P3F_N4B_T2F>;
+	};
+
+	
 
 	class IFile
 	{
@@ -30,10 +47,12 @@ namespace Eggy
 		bool IsOpen() { return mState_ == EFileState::OPEN; }
 		virtual void Read(void* buffer, size_t& inOutDataSize) = 0;
 		size_t GetSize() { return mDataSize_; }
+		const EFileType GetType() { return mFileType_; }
 
 	protected:
 		String mFilePath_;
 		EFileState mState_{ EFileState::INIT };
+		EFileType mFileType_{ EFileType::NONE };
 		size_t mDataSize_;
 
 		DEBUG_RUN(String  mErrorMsg_;)
@@ -76,83 +95,28 @@ namespace Eggy
 		std::ifstream mStream_;
 	};
 
+
 	class ObjFile : public IFile
 	{
 	public:
-		using VertexType = TVertexType<EVF_P3F_N4B_T2F>;
+		constexpr const static EFileType FileType = EFileType::OBJ;
+		using VertexType = SelectVertexType<FileType>::type;
 		using IndexType = uint32;
 
 	public:
-		ObjFile(const String& filePath) : IFile(filePath)
+		ObjFile(const String& filePath);
+
+		// for vertex data
+		void Read(void* buffer, size_t& inOutDataSize) override;
+
+		void GetIndex(List<List<IndexType>>& indexs)
 		{
-			tinyobj::attrib_t attrib;
-			std::string err;
-
-			if (!tinyobj::LoadObj(&mAttrib_, &mShapes_, &mMaterials_, &mErrorMsg_, filePath.c_str()))
-			{
-				mState_ = EFileState::FAIL_TO_OPEN;
-				return;
-			}
-
-			mState_ = EFileState::OPEN;
+			LoadFileData();
+			indexs = mIndexs_;
 		}
-
-		void Read(void* buffer, size_t& inOutDataSize) override
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
 
 	protected:
-		bool LoadFileData()
-		{
-			if (mbLoadedFileData_)
-				return true;
-
-			mVertexs_.resize(mShapes_.size());
-			mIndexs_.resize(mShapes_.size());
-
-			std::unordered_map<VertexType, uint32_t> uniqueVertices{};
-			for (size_t i =0; i< mShapes_.size(); ++i)
-			{
-				const auto& shape = mShapes_[i];
-				auto& vertexList = mVertexs_[i];
-				auto& indexList = mIndexs_[i];
-				for (const auto& index : shape.mesh.indices)
-				{
-					VertexType vertex
-					{
-						// Position
-						Vector3(
-							float(mAttrib_.vertices[3 * index.vertex_index + 0]),
-							float(mAttrib_.vertices[3 * index.vertex_index + 1]),
-							float(mAttrib_.vertices[3 * index.vertex_index + 2])
-						),
-						// Normal
-						Vector3(
-							float(mAttrib_.normals[3 * index.normal_index + 0]),
-							float(mAttrib_.normals[3 * index.normal_index + 1]),
-							float(mAttrib_.normals[3 * index.normal_index + 2])
-						),
-						// ST
-						Vector2(
-							float(mAttrib_.texcoords[3 * index.texcoord_index + 0]),
-							float(mAttrib_.texcoords[3 * index.texcoord_index + 1])
-						)
-					};
-					
-					if(uniqueVertices.count(vertex) == 0)
-					{
-						uniqueVertices[vertex] = static_cast<IndexType>(vertexList.size());
-						vertexList.push_back(vertex);
-					}
-
-					indexList.push_back(uniqueVertices[vertex]);
-				}
-			}
-
-			mbLoadedFileData_ = true;
-		}
+		bool LoadFileData();
 
 	protected:
 		tinyobj::attrib_t mAttrib_;
@@ -161,7 +125,6 @@ namespace Eggy
 		
 		List<List<VertexType>> mVertexs_;
 		List<List<IndexType>> mIndexs_;
-
 
 		bool mbLoadedFileData_;
 	};
@@ -172,6 +135,7 @@ namespace Eggy
 	public:
 		FbxFile(const String& filePath) : IFile(filePath)
 		{
+			mFileType_ = EFileType::FBX;
 
 		}
 
@@ -180,4 +144,15 @@ namespace Eggy
 			throw std::logic_error("The method or operation is not implemented.");
 		}
 	};
+
+	template<EFileType _FileType>
+	class SelectFileType {};
+
+	template<>
+	class SelectFileType<OBJ>
+	{
+	public:
+		using type = ObjFile;
+	};
+
 }
