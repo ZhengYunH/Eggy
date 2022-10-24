@@ -20,6 +20,6 @@ namespace Eggy
 		String GVersion{ "Unknown" };
 	};
 
-#define DeclareSystem(Type) private: static Type* GInstance; friend class ISystem; public: Type() { HYBRID_CHECK(!GInstance); GInstance = this; }
+#define DeclareSystem(Type) private: static Type* GInstance; friend class ISystem<Type>; public: Type() { HYBRID_CHECK(!GInstance); GInstance = this; }
 #define DefineSystem(Type) Type* Type::GInstance = nullptr;
 }

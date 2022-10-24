@@ -1,3 +1,4 @@
+#pragma once
 #include "Core/Config.h"
 
 
@@ -6,6 +7,7 @@ namespace Eggy
 	enum class EPixelFormat
 	{
 		UNDEFINED = 0,
+		R32G32B32,
 		A32R32G32B32F,
 		A16B16G16R16F,
 		R8G8B8A8,
@@ -31,14 +33,17 @@ namespace Eggy
 	enum class EInputClassification
 	{
 		None = 0,
-		PER_VERTEX
+		PER_VERTEX,
+		PER_INSTANCE
 	};
 
 	struct IRenderResource
 	{
+		virtual void CreateDeviceResource() {}
+		void* DeviceResource{ nullptr };
 	};
 
-	struct InputLayout : public IRenderResource
+	struct IInputLayout : public IRenderResource
 	{
 		struct InputElementDesc
 		{
@@ -53,9 +58,19 @@ namespace Eggy
 		List<InputElementDesc> Descs;
 	};
 
+	template<typename _TVertexType>
+	struct InputLayout : public IRenderResource 
+	{
+		InputLayout() 
+		{
+			_TVertexType::GetDesc(Descs);
+		}
+	};
+
+
 	struct IGeometry : IRenderResource
 	{
-		InputLayout* Layout;
+		IInputLayout* Layout;
 	};
 
 	struct ResourceBinding

@@ -7,6 +7,11 @@ namespace Eggy
 {
 	struct ConfigItem
 	{
+		ConfigItem(const Type* type, void* instance)
+			: Type(type), Instance(instance)
+		{
+		}
+
 		const Type* Type;
 		void* Instance;
 	};

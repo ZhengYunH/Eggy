@@ -4,12 +4,14 @@
 
 #include "Core/Config.h"
 #include "Graphics/RHI/IRenderDevice.h"
-
+#include "D3D11Resource.h"
 
 namespace Eggy
 {
 	class D3D11Device : public IRenderDevice
 	{
+		friend class D3D11ResourceFactory;
+
 		template <class T>
 		using TComPtr = Microsoft::WRL::ComPtr<T>;
 

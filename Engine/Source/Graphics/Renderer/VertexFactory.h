@@ -2,7 +2,7 @@
 #include "Core/Config.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Vector2.h"
-
+#include "Graphics/RHI/IRenderResource.h"
 #include <functional>
 
 
@@ -74,7 +74,6 @@ namespace Eggy
 	};
 
 	template<int _VertexFormat> class TVertexType {};
-	
 	template<>
 	class TVertexType<EVF_P3F>
 	{
@@ -87,6 +86,19 @@ namespace Eggy
 			return this->Position == rhs.Position && this->Color == rhs.Color;
 		}
 
+		constexpr static const size_t GetSize()
+		{
+			return sizeof(Vector3) + sizeof(Color4B);
+		}
+
+		static void GetDesc(List<IInputLayout::InputElementDesc>& Descs)
+		{
+			Descs = {
+				{"POSITION",  0, EPixelFormat::R32G32B32, 0, 0, EInputClassification::PER_VERTEX },
+				{"COLOR",  0, EPixelFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PER_VERTEX },
+			};
+		}
+
 		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F;
 	};
 
@@ -97,15 +109,20 @@ namespace Eggy
 		Vector3	Position;
 		Color4B	Normal;
 		Vector2 ST;
-		
+
 		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F_N4B_T2F>& rhs) const noexcept
 		{
 			return this->Position == rhs.Position && this->Normal == rhs.Normal && this->ST == rhs.ST;
 		}
 
+		constexpr static const size_t GetSize()
+		{
+			return sizeof(Vector3) + sizeof(Color4B) + sizeof(Vector2);
+		}
+
 		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_N4B_T2F;
 	};
-
+	
 	struct VertexInfo
 	{
 		uint16 DataSize{ 0 };
@@ -125,6 +142,7 @@ namespace Eggy
 		}
 	};
 }
+
 
 
 namespace std
