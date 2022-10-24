@@ -68,16 +68,27 @@ namespace Eggy
 		EVF_None = 0,
 		// Geometric vertex.
 		EVF_P3F = 1,					// Position(3F)
-		EVF_P3F_C4B_T2F = 2,			// Position(3F), Color(4B), TexCoord(2F)
-		EVF_P3F_N4B_T2F = 3				// Position(3F), Normal(4B), TexCoord(2F)
-	};
-
-	struct VF_P3F_N4B_T2F
-	{
-		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_N4B_T2F;
+		EVF_P3F_C4B = 2,				// Position(3F), Color(4B)
+		EVF_P3F_C4B_T2F = 3,			// Position(3F), Color(4B), TexCoord(2F)
+		EVF_P3F_N4B_T2F = 4				// Position(3F), Normal(4B), TexCoord(2F)
 	};
 
 	template<int _VertexFormat> class TVertexType {};
+	
+	template<>
+	class TVertexType<EVF_P3F>
+	{
+	public:
+		Vector3 Position;
+		Color4B Color;
+
+		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F>& rhs) const noexcept
+		{
+			return this->Position == rhs.Position && this->Color == rhs.Color;
+		}
+
+		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F;
+	};
 
 	template<>
 	class TVertexType<EVF_P3F_N4B_T2F>

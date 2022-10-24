@@ -11,18 +11,6 @@ namespace Eggy
 		
 	};
 
-	struct MeshObject
-	{
-		void LoadResource(String resource)
-		{
-			ResourceState = true;
-		}
-
-		bool ResourceState{ false };
-		List<Vertex> VertexData;
-		List<uint32> IndexData;
-	};
-
 	class RenderMeshElement : public RenderElements
 	{
 	public:
