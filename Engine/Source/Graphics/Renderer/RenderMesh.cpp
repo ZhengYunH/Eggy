@@ -13,5 +13,4 @@ namespace Eggy
 	{
 		return mRenderElements_.size();
 	}
-
 }

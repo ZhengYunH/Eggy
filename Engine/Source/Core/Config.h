@@ -19,6 +19,7 @@
 #include <map>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 
 
 namespace Eggy

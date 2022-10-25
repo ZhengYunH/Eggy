@@ -1,5 +1,11 @@
 #include "D3D11Device.h"
 #include "Core/Engine/Engine.h"
+#include "Graphics/Elements/RenderElements.h"
+#include "D3D11Shader.h"
+
+
+// just for render-test, will be deleted soon
+#include "Client/ClientScene.h"
 
 
 // reference: https://www.cnblogs.com/X-Jun/p/9069608.html
@@ -14,8 +20,9 @@ namespace Eggy
 
 	D3D11Device::D3D11Device()
 	{
-		// IDXGIFactory::EnumAdapters();
+		mResourceFactory_ = new D3D11ResourceFactory(this);
 
+		// IDXGIFactory::EnumAdapters();
 		IDXGIAdapter* pAdapter = nullptr;
 		D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
 		UINT Flags = 0;
@@ -65,12 +72,35 @@ namespace Eggy
 
 	void D3D11Device::PrepareResource()
 	{
-
+		List<IRenderElements*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
+		for (IRenderElements* element : elements)
+		{
+			element->CreateResource(GetResourceFactory());
+		}
 	}
 	
 	void D3D11Device::DrawFrame()
 	{
 		ClearScreen();
+		List<IRenderElements*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
+		for (IRenderElements* element : elements)
+		{
+			RenderElements* ele = dynamic_cast<RenderElements*>(element);
+			auto& vertexBuffer = ele->Geometry.VertexBuffer;
+			UINT stride = static_cast<UINT>(vertexBuffer.Stride);
+			UINT offset = 0;
+			UINT startVertexLocaltion = 0;
+
+			mImmediateContext_->IASetVertexBuffers(0, 1, ((D3D11Buffer*)vertexBuffer.DeviceResource)->ppBuffer.GetAddressOf(), &stride, &offset);
+			mImmediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			mImmediateContext_->IASetInputLayout(((D3D11InputLayout*)ele->Geometry.Layout.DeviceResource)->ppAddress.Get());
+
+			D3D11VertexShader* vertexShader = (D3D11VertexShader*)ele->ShaderCollection.GetShader(EShaderType::VS)->DeviceResource;
+			D3D11PixelShader* pixelShader = (D3D11PixelShader*)ele->ShaderCollection.GetShader(EShaderType::PS)->DeviceResource;
+			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
+			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
+			mImmediateContext_->Draw(static_cast<UINT8>(ele->Geometry.VertexBuffer.Size), startVertexLocaltion);
+		}
 		Present();
 	}
 

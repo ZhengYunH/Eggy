@@ -18,8 +18,10 @@ namespace Eggy
 	
 	public:
 		void TickLoop();
+		class ClientScene* GetClientScene() { return mClientScene_; }
 
 	public:
 		IPlatform* Platform{ nullptr };
+		class ClientScene* mClientScene_ { nullptr };
 	};
 }

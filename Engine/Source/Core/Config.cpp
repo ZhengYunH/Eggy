@@ -1,4 +1,5 @@
 #include "Config.h"
+#include <tchar.h>
 
 namespace Eggy
 {
@@ -9,8 +10,11 @@ namespace Eggy
 
 namespace Eggy::Tool
 {
+	static const wchar_t* emptyLPCWSTR = TEXT("");
 	LPCWSTR stringToLPCWSTR(const std::string& orig)
 	{
+		if (orig.empty())
+			return emptyLPCWSTR;
 		size_t origsize = orig.length() + 1;
 		const size_t newsize = 100;
 		size_t convertedChars = 0;

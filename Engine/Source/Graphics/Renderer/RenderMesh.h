@@ -6,11 +6,6 @@
 
 namespace Eggy
 {
-	struct Vertex
-	{
-		
-	};
-
 	class RenderMeshElement : public RenderElements
 	{
 	public:
@@ -22,10 +17,28 @@ namespace Eggy
 		String mResource_;
 	};
 
+
+	class RenderTriangleMesh : public IRenderMesh
+	{
+	public:
+		size_t GetElementsSize() noexcept override
+		{
+			return 1;
+		}
+
+		IRenderElements* GetRenderElement(size_t index) noexcept override
+		{
+			return &mElement_;
+		}
+
+	protected:
+		RenderTriangleElement mElement_;
+	};
+
 	class RenderMesh : public IRenderMesh
 	{
 	public:
-		RenderMesh();
+		RenderMesh() {}
 		
 		RenderMeshElement* GetRenderElement(size_t index) noexcept override;
 

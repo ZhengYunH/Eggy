@@ -1,7 +1,4 @@
-#include <d3d11_1.h>
-#include <d3dcommon.h>
-#include <wrl/client.h>
-
+#include "D3D11Common.h"
 #include "Core/Config.h"
 #include "Graphics/RHI/IRenderDevice.h"
 #include "D3D11Resource.h"
@@ -12,9 +9,6 @@ namespace Eggy
 	{
 		friend class D3D11ResourceFactory;
 
-		template <class T>
-		using TComPtr = Microsoft::WRL::ComPtr<T>;
-
 	public:
 		D3D11Device();
 		~D3D11Device();
@@ -22,6 +16,8 @@ namespace Eggy
 	public:
 		void PrepareResource() override final;
 		void DrawFrame() override final;
+
+		D3D11ResourceFactory* GetResourceFactory() override { return mResourceFactory_; }
 
 	private:
 		void CreateSwapChain() override final;
@@ -37,6 +33,9 @@ namespace Eggy
 
 		UINT m4xMsaaQaulity_{ 0 };
 		bool mEnable4xMsaa_{ true };
+
+	private:
+		D3D11ResourceFactory* mResourceFactory_;
 
 	private:
 		// Direct3D 11

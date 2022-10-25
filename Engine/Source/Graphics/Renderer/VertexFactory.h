@@ -46,6 +46,11 @@ namespace Eggy
 
 		Color4B() { u32 = 0; }
 
+		Color4B(float r, float g, float b, float a)
+		{
+			u32 = ARGB(Vector3(r, g, b), a).Argb();
+		}
+
 		Color4B(Vector3 v)
 		{
 			FromVector3(v);
@@ -75,13 +80,17 @@ namespace Eggy
 
 	template<int _VertexFormat> class TVertexType {};
 	template<>
-	class TVertexType<EVF_P3F>
+	class TVertexType<EVF_P3F_C4B>
 	{
 	public:
 		Vector3 Position;
 		Color4B Color;
 
-		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F>& rhs) const noexcept
+		TVertexType(const Vector3& position, const Color4B& color) 
+			: Position(position), Color(color)
+		{}
+
+		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F_C4B>& rhs) const noexcept
 		{
 			return this->Position == rhs.Position && this->Color == rhs.Color;
 		}
@@ -94,12 +103,12 @@ namespace Eggy
 		static void GetDesc(List<IInputLayout::InputElementDesc>& Descs)
 		{
 			Descs = {
-				{"POSITION",  0, EPixelFormat::R32G32B32, 0, 0, EInputClassification::PER_VERTEX },
-				{"COLOR",  0, EPixelFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PER_VERTEX },
+				{"POSITION",  0, EPixelFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
+				{"COLOR",  0, EPixelFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
 			};
 		}
 
-		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F;
+		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_C4B;
 	};
 
 	template<>
