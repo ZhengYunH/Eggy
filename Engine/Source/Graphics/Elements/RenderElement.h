@@ -13,6 +13,7 @@ namespace Eggy
 	public:
 		IGeometry Geometry;
 		IShaderCollection ShaderCollection;
+		IConstantBuffer ConstantBuffer;
 	};
 
 	class RenderHelperElement : public RenderElement
@@ -20,10 +21,7 @@ namespace Eggy
 	public:
 		using VertexType = TVertexType<EVF_P3F_C4B>;
 		using IndexType = uint16;
-		RenderHelperElement()
-		{
-			
-		}
+		RenderHelperElement() = default;
 
 		virtual void Initialize() override
 		{
@@ -36,9 +34,8 @@ namespace Eggy
 			VertexType::GetDesc(Geometry.Layout.Descs);
 
 			// file VertexBuffer Desc
-			GetVertexData(Geometry.VertexBuffer.Data, Geometry.VertexBuffer.Count, Geometry.VertexBuffer.Stride);
-			GetIndexData(Geometry.IndexBuffer.Data, Geometry.IndexBuffer.Count, Geometry.IndexBuffer.Format);
-			Geometry.VertexBuffer.Usage = EBufferUsage::Immutable;
+			GetVertexData(Geometry.VertexBuffer.Data, Geometry.VertexBuffer.Count, Geometry.VertexBuffer.ByteWidth);
+			GetIndexData(Geometry.IndexBuffer.Data, Geometry.IndexBuffer.Count, Geometry.IndexBuffer.ByteWidth);
 			Geometry.Layout.ShaderCollection = &ShaderCollection;
 
 		}
@@ -47,25 +44,29 @@ namespace Eggy
 		{
 			ShaderCollection.CreateDeviceResource(factory);
 			Geometry.CreateDeviceResource(factory);
+			ConstantBuffer.CreateDeviceResource(factory);
 		}
 
 
-		void GetVertexData(void*& Data, size_t& VertexCount, size_t& Stride) override
+		void GetVertexData(void*& Data, size_t& VertexCount, size_t& ByteWidth) override
 		{
 			HYBRID_CHECK(!mVertexs_.empty());
 
 			Data = (void*)mVertexs_.data();
 			VertexCount = mVertexs_.size();
-			Stride = sizeof(VertexType);
+			auto a =sizeof(mVertexs_);
+			ByteWidth = VertexCount * VertexType::GetSize();
 		}
 
-		void GetIndexData(void*& Data, size_t& IndexCount, EFormat& IndexFormat) override
+		void GetIndexData(void*& Data, size_t& IndexCount, size_t& ByteWidth) override
 		{
 			HYBRID_CHECK(!mIndexs_.empty());
 
 			Data = (void*)mIndexs_.data();
 			IndexCount = mIndexs_.size();
-			IndexFormat = EFormat::R16_UINT; // Determine By IndexType
+			auto a = sizeof(mVertexs_);
+
+			ByteWidth = sizeof(IndexType) / sizeof(uint8) * IndexCount;
 		}
 
 	protected:
