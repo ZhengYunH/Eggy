@@ -8,7 +8,7 @@
 #include "Client/ClientScene.h"
 
 
-// reference: https://www.cnblogs.com/X-Jun/p/9069608.html
+// reference: https://www.cnblogs.com/X-Jun/p/9028764.html
 namespace Eggy
 {
 	IRenderDevice* GRenderDevice = nullptr;

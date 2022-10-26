@@ -11,7 +11,7 @@ namespace Eggy
 		{
 		}
 
-		virtual void CreateDeviceResourceImp(IRenderResourceFactory* factory) override
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
 		{
 			if (IsResourceCreated())
 				return;
@@ -42,7 +42,7 @@ namespace Eggy
 			mAllShader_[type] = new IShader(type, path);
 		}
 
-		virtual void CreateDeviceResourceImp(IRenderResourceFactory* factory) override
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
 		{
 			if (IsResourceCreated())
 				return;

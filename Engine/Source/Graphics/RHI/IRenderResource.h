@@ -1,75 +1,20 @@
 #pragma once
 #include "Core/Config.h"
 #include "Graphics/RHI/IRenderDevice.h"
+#include "IRenderHeader.h"
 
 
 namespace Eggy
 {
-	enum class EPixelFormat
-	{
-		UNDEFINED = 0,
-		R32G32B32,
-		A32R32G32B32F,
-		A16B16G16R16F,
-		R8G8B8A8,
-		D32_SFLOAT_S8_UINT,
-	};
-
-	enum class ETextureType
-	{
-		None = 0,
-		Texture2D,
-		Texture3D,
-		TextureCube,
-	};
-
-	enum class ESamplerQuality
-	{
-		None = 0,
-		Quality2X,
-		Quality4X,
-		Quality8X,
-	};
-
-	enum class EInputClassification
-	{
-		None = 0,
-		PerVertex,
-		PerInstance
-	};
-
-	enum class EShaderType
-	{
-		None = 0,
-		VS = 1,
-		PS = 2,
-	};
-
-	enum class EBufferUsage
-	{
-		Default = 0, // GPU(r&w)
-		Immutable = 1, // GPU(r))
-		Dynamic = 2, // CPU(w), GPU(r)
-		Staging = 3, // CPU(r&w), GPU(r&w)
-	};
-
-	enum class EBufferType
-	{
-		None = 0x0,
-		VertexBuffer = 0x1,
-		IndexBuffer = 0x2,
-		ConstantBuffer = 0x3
-	};
-
 	struct IRenderResource
 	{
 		virtual void CreateDeviceResource(IRenderResourceFactory* factory)
 		{
 			if (IsResourceCreated())
 				return;
-			CreateDeviceResourceImp(factory);
+			CreateDeviceResource_Impl(factory);
 		}
-		virtual void CreateDeviceResourceImp(IRenderResourceFactory* factory) = 0;
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) = 0;
 		virtual bool IsValid() { return true; }
 		virtual bool IsResourceCreated() { return DeviceResource != nullptr; }
 		void* DeviceResource{ nullptr };
@@ -83,7 +28,7 @@ namespace Eggy
 		size_t Stride{ 0 };
 		void* Data{ nullptr };
 
-		virtual void CreateDeviceResourceImp(IRenderResourceFactory* factory) override
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
 		{
 			if (IsResourceCreated())
 				return;
@@ -108,7 +53,7 @@ namespace Eggy
 			EInputClassification SlotClass{ EInputClassification::None };
 		};
 
-		virtual void CreateDeviceResourceImp(IRenderResourceFactory* factory) override
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
 		{
 			if (IsResourceCreated())
 				return;
@@ -141,12 +86,12 @@ namespace Eggy
 			VertexBuffer.BindType = EBufferType::VertexBuffer;
 		}
 
-		virtual void CreateDeviceResourceImp(IRenderResourceFactory* factory)
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory)
 		{
 			if (IsResourceCreated())
 				return;
-			Layout.CreateDeviceResourceImp(factory);
-			VertexBuffer.CreateDeviceResourceImp(factory);
+			Layout.CreateDeviceResource_Impl(factory);
+			VertexBuffer.CreateDeviceResource_Impl(factory);
 		}
 
 		virtual bool IsValid() override
