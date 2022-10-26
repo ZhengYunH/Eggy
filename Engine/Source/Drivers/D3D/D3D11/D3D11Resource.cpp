@@ -131,11 +131,10 @@ namespace Eggy
 	{
 		D3D11Buffer* deviceBuffer = new D3D11Buffer(buffer);
 		buffer->DeviceResource = deviceBuffer;
-
 		D3D11_BUFFER_DESC bufferDesc;
 		ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 		bufferDesc.Usage = Converter::Usage(buffer->Usage);
-		bufferDesc.ByteWidth = static_cast<UINT8>(buffer->Size) * static_cast<UINT8>(buffer->Stride);
+		bufferDesc.ByteWidth = static_cast<UINT8>(buffer->Count) * static_cast<UINT8>(buffer->Stride);
 		bufferDesc.BindFlags = Converter::BufferType(buffer->BindType);
 		bufferDesc.CPUAccessFlags = 0;
 

@@ -13,9 +13,10 @@ namespace Eggy
 	class ClientScene : public Scene
 	{
 	public:
-		void AddRenderElement(IRenderElement* elements)
+		void AddRenderElement(IRenderElement* element)
 		{
-			mRenderElements_.push_back(elements);
+			element->Initialize();
+			mRenderElements_.push_back(element);
 		}
 
 		List<IRenderElement*>& GetRenderElements()

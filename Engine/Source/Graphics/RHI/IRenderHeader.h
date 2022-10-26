@@ -1,11 +1,10 @@
 #pragma once
 #include "Core/Config.h"
 
-
 // Define Common Enumerate
 namespace Eggy
 {
-	enum class EPixelFormat
+	enum class EFormat
 	{
 		UNDEFINED = 0,
 		R32G32B32,
@@ -13,6 +12,9 @@ namespace Eggy
 		A16B16G16R16F,
 		R8G8B8A8,
 		D32_SFLOAT_S8_UINT,
+		R8_UINT,
+		R16_UINT,
+		R32_UINT
 	};
 
 	enum class ETextureType

@@ -87,11 +87,13 @@ namespace Eggy
 		{
 			RenderElement* ele = dynamic_cast<RenderElement*>(element);
 			auto& vertexBuffer = ele->Geometry.VertexBuffer;
+			auto& indexBuffer = ele->Geometry.IndexBuffer;
 			UINT stride = static_cast<UINT>(vertexBuffer.Stride);
 			UINT offset = 0;
 			UINT startVertexLocaltion = 0;
 
 			mImmediateContext_->IASetVertexBuffers(0, 1, ((D3D11Buffer*)vertexBuffer.DeviceResource)->ppBuffer.GetAddressOf(), &stride, &offset);
+			mImmediateContext_->IASetIndexBuffer(((D3D11Buffer*)indexBuffer.DeviceResource)->ppBuffer.Get(), Converter::Format(indexBuffer.Format), 0);
 			mImmediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			mImmediateContext_->IASetInputLayout(((D3D11InputLayout*)ele->Geometry.Layout.DeviceResource)->ppAddress.Get());
 
@@ -99,7 +101,7 @@ namespace Eggy
 			D3D11PixelShader* pixelShader = (D3D11PixelShader*)ele->ShaderCollection.GetShader(EShaderType::PS)->DeviceResource;
 			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
-			mImmediateContext_->Draw(static_cast<UINT8>(ele->Geometry.VertexBuffer.Size), startVertexLocaltion);
+			mImmediateContext_->Draw(static_cast<UINT8>(ele->Geometry.VertexBuffer.Count), startVertexLocaltion);
 		}
 		Present();
 	}

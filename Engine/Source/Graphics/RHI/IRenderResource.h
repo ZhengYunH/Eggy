@@ -24,8 +24,10 @@ namespace Eggy
 	{
 		EBufferUsage Usage{ EBufferUsage::Immutable };
 		EBufferType BindType{ EBufferType::None };
-		size_t Size{ 0 };
+		size_t Count{ 0 };
 		size_t Stride{ 0 };
+		EFormat Format;
+		
 		void* Data{ nullptr };
 
 		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
@@ -37,7 +39,7 @@ namespace Eggy
 
 		virtual bool IsValid() override 
 		{
-			return BindType != EBufferType::None && Size && Data;
+			return BindType != EBufferType::None && Count && Data;
 		}
 	};
 
@@ -47,7 +49,7 @@ namespace Eggy
 		{
 			String SemanticName;
 			uint16 SemanticIndex{ 0 };
-			EPixelFormat Format{ EPixelFormat::UNDEFINED };
+			EFormat Format{ EFormat::UNDEFINED };
 			uint16 InputSlot{ 0 };
 			uint16 AlignedByteOffset{ 0 };
 			EInputClassification SlotClass{ EInputClassification::None };
@@ -80,18 +82,21 @@ namespace Eggy
 	{
 		IInputLayout Layout;
 		IBuffer VertexBuffer;
+		IBuffer IndexBuffer;
 
 		IGeometry()
 		{
 			VertexBuffer.BindType = EBufferType::VertexBuffer;
+			IndexBuffer.BindType = EBufferType::IndexBuffer;
 		}
 
 		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory)
 		{
 			if (IsResourceCreated())
 				return;
-			Layout.CreateDeviceResource_Impl(factory);
-			VertexBuffer.CreateDeviceResource_Impl(factory);
+			Layout.CreateDeviceResource(factory);
+			VertexBuffer.CreateDeviceResource(factory);
+			IndexBuffer.CreateDeviceResource(factory);
 		}
 
 		virtual bool IsValid() override
@@ -101,7 +106,7 @@ namespace Eggy
 		
 		virtual bool IsResourceCreated() override
 		{
-			return Layout.IsResourceCreated() && VertexBuffer.IsResourceCreated();
+			return Layout.IsResourceCreated() && VertexBuffer.IsResourceCreated() && IndexBuffer.IsResourceCreated();
 		}
 	};
 

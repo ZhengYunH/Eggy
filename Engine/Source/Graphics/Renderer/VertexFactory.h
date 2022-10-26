@@ -103,8 +103,8 @@ namespace Eggy
 		static void GetDesc(List<IInputLayout::InputElementDesc>& Descs)
 		{
 			Descs = {
-				{"POSITION",  0, EPixelFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
-				{"COLOR",  0, EPixelFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
+				{"POSITION",  0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
+				{"COLOR",  0, EFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
 			};
 		}
 
