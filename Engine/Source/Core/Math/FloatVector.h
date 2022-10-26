@@ -62,6 +62,32 @@ namespace Eggy
 			return dot;
 		}
 
+		constexpr FORCEINLINE RealType GetNormalized() const noexcept
+		{
+			RealType ret;
+			const _ScalarType* pSrc = GetPointer();
+			_ScalarType* pDst = ret.GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				pDst[i] = pSrc[i];
+			}
+			ret.Normalize();
+			return ret;
+		}
+
+		constexpr FORCEINLINE void Normalize() noexcept
+		{
+			_ScalarType length = GetLength();
+			if(length > EPISILON)
+			{
+				_ScalarType* pSrc = GetPointer();
+				for (int i = 0; i < DIMENSION; ++i)
+				{
+					pSrc[i] /= length;
+				}
+			}
+		}
+
 		constexpr FORCEINLINE bool operator ==(const RealType& rhs) const noexcept
 		{
 			const _ScalarType* left = GetPointer();
@@ -111,6 +137,19 @@ namespace Eggy
 			return ret;
 		}
 
+		constexpr FORCEINLINE RealType operator *(const RealType& rhs) const noexcept
+		{
+			const _ScalarType* left = GetPointer();
+			const _ScalarType* right = rhs.GetPointer();
+			RealType	ret;
+			_ScalarType* dst = ret.GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				dst[i] = left[i] * right[i];
+			}
+			return ret;
+		}
+
 		constexpr FORCEINLINE RealType operator *(const _ScalarType& rhs) const noexcept
 		{
 			const _ScalarType* left = GetPointer();
@@ -121,6 +160,16 @@ namespace Eggy
 				dst[i] = left[i] * rhs;
 			}
 			return ret;
+		}
+
+		constexpr FORCEINLINE RealType& operator *=(const _ScalarType& rhs) noexcept
+		{
+			_ScalarType* pSrc = GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				pSrc[i] = pSrc[i] * rhs;
+			}
+			return *static_cast<RealType*>(this);
 		}
 
 		constexpr FORCEINLINE _ScalarType operator [](int index) const noexcept

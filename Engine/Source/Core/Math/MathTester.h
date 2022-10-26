@@ -1,7 +1,7 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Vector4.h"
-
+#include "Core/Math/Matrix4x3.h"
 
 namespace Eggy
 {
@@ -30,6 +30,9 @@ namespace Eggy
 			Vector4 v41(1, 2, 3, 4);
 			Vector4 v42(-1, -2, -3, -4);
 			Vector4 v43 = v41 + v42;
+
+			Matrix4x3 m43 = Matrix4x3_Identity;
+			Vector4 v44 = m43.TransformVector(v41);
 		}
 	};
 }

@@ -58,6 +58,12 @@ namespace Eggy
 			y = (_ScalarType(a.z) * _ScalarType(b.x) - _ScalarType(a.x) * _ScalarType(b.z));
 			z = (_ScalarType(a.x) * _ScalarType(b.y) - _ScalarType(a.y) * _ScalarType(b.x));
 		}
+
+		template<typename _RHS>TVec3<_ScalarType> operator ^(const TVec3<_RHS>& rhs)
+		{
+			CrossProduct(*this, rhs);
+			return *this;
+		}
 	};
 
 	using Vector3 = TVec3<float>;
