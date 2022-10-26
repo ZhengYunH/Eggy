@@ -1,12 +1,12 @@
 #pragma once
 #include "Core/Config.h"
 #include "Core/Interface/IRenderMesh.h"
-#include "Graphics/Elements/RenderElements.h"
+#include "Graphics/Elements/RenderElement.h"
 
 
 namespace Eggy
 {
-	class RenderMeshElement : public RenderElements
+	class RenderMeshElement : public RenderElement
 	{
 	public:
 		RenderMeshElement() 
@@ -26,7 +26,7 @@ namespace Eggy
 			return 1;
 		}
 
-		IRenderElements* GetRenderElement(size_t index) noexcept override
+		IRenderElement* GetRenderElement(size_t index) noexcept override
 		{
 			return &mElement_;
 		}

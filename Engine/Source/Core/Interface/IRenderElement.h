@@ -5,7 +5,7 @@
 
 namespace Eggy
 {
-	class IRenderElements
+	class IRenderElement
 	{
 	public:
 		virtual void GetVertexData(void*& Data, size_t& DataSize, size_t& Stride) = 0;

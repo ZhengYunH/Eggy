@@ -1,6 +1,6 @@
 #include "D3D11Device.h"
 #include "Core/Engine/Engine.h"
-#include "Graphics/Elements/RenderElements.h"
+#include "Graphics/Elements/RenderElement.h"
 #include "D3D11Shader.h"
 
 
@@ -72,8 +72,8 @@ namespace Eggy
 
 	void D3D11Device::PrepareResource()
 	{
-		List<IRenderElements*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
-		for (IRenderElements* element : elements)
+		List<IRenderElement*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
+		for (IRenderElement* element : elements)
 		{
 			element->CreateResource(GetResourceFactory());
 		}
@@ -82,10 +82,10 @@ namespace Eggy
 	void D3D11Device::DrawFrame()
 	{
 		ClearScreen();
-		List<IRenderElements*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
-		for (IRenderElements* element : elements)
+		List<IRenderElement*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
+		for (IRenderElement* element : elements)
 		{
-			RenderElements* ele = dynamic_cast<RenderElements*>(element);
+			RenderElement* ele = dynamic_cast<RenderElement*>(element);
 			auto& vertexBuffer = ele->Geometry.VertexBuffer;
 			UINT stride = static_cast<UINT>(vertexBuffer.Stride);
 			UINT offset = 0;

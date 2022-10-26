@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Config.h"
-#include "Core/Interface/IRenderElements.h"
+#include "Core/Interface/IRenderElement.h"
 
 
 namespace Eggy
@@ -13,16 +13,16 @@ namespace Eggy
 	class ClientScene : public Scene
 	{
 	public:
-		void AddRenderElement(IRenderElements* elements)
+		void AddRenderElement(IRenderElement* elements)
 		{
 			mRenderElements_.push_back(elements);
 		}
 
-		List<IRenderElements*>& GetRenderElements()
+		List<IRenderElement*>& GetRenderElements()
 		{
 			return mRenderElements_;
 		}
 
-		List<IRenderElements*> mRenderElements_;
+		List<IRenderElement*> mRenderElements_;
 	};
 }

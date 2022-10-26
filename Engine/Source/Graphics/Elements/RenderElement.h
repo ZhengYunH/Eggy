@@ -1,21 +1,26 @@
 #pragma once
 #include "Core/Config.h"
 #include "Graphics/RHI/IRenderResource.h"
-#include "Core/Interface/IRenderElements.h"
+#include "Core/Interface/IRenderElement.h"
 #include "Graphics/Renderer/VertexFactory.h"
 #include "Graphics/RHI/IShader.h"
 
 
 namespace Eggy
 {
-	class RenderElements : public IRenderElements
+	class RenderElement : public IRenderElement
 	{
 	public:
 		IGeometry Geometry;
 		IShaderCollection ShaderCollection;
 	};
 
-	class RenderTriangleElement : public RenderElements
+	class RenderHelperElement : public RenderElement
+	{
+
+	};
+
+	class RenderTriangleElement : public RenderElement
 	{
 	public:
 		using VertexType = TVertexType<EVF_P3F_C4B>;
