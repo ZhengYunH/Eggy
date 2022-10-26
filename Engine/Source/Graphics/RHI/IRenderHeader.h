@@ -4,7 +4,7 @@
 // Define Common Enumerate
 namespace Eggy
 {
-	enum class EFormat
+	enum class EFormat : uint32
 	{
 		UNDEFINED = 0,
 		R32G32B32,
@@ -62,4 +62,13 @@ namespace Eggy
 		IndexBuffer = 0x2,
 		ConstantBuffer = 0x3
 	};
+
+	enum class ECPUAccessFlag
+	{
+		None = 0x0,
+		Write = 0x1,
+		Read = 0x2
+	};
+	using ECPUAccessFlags = uint32;
+
 }

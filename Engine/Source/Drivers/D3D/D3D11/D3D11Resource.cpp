@@ -134,9 +134,9 @@ namespace Eggy
 		D3D11_BUFFER_DESC bufferDesc;
 		ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 		bufferDesc.Usage = Converter::Usage(buffer->Usage);
-		bufferDesc.ByteWidth = static_cast<UINT8>(buffer->Count) * static_cast<UINT8>(buffer->Stride);
+		bufferDesc.ByteWidth = static_cast<UINT>(buffer->ByteWidth);
 		bufferDesc.BindFlags = Converter::BufferType(buffer->BindType);
-		bufferDesc.CPUAccessFlags = 0;
+		bufferDesc.CPUAccessFlags = Converter::CPUAccessFlag(buffer->CPUAcesssFlags);
 
 		D3D11_SUBRESOURCE_DATA initData;
 		ZeroMemory(&initData, sizeof(initData));

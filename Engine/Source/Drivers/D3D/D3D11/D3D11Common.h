@@ -45,6 +45,25 @@ namespace Eggy
 			return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
 		}
 
+		static DXGI_FORMAT IndexFormat(size_t indexSize)
+		{
+			if (indexSize == sizeof(uint8))
+			{
+				return DXGI_FORMAT::DXGI_FORMAT_R8_UINT;
+			}
+			else if (indexSize == sizeof(uint16))
+			{
+				return DXGI_FORMAT::DXGI_FORMAT_R16_UINT;
+			}
+			else if (indexSize == sizeof(uint32))
+			{
+				return DXGI_FORMAT::DXGI_FORMAT_R32_UINT;
+			}
+
+			Unimplement();
+			return DXGI_FORMAT::DXGI_FORMAT_R8_UINT;
+		}
+
 		static D3D11_INPUT_CLASSIFICATION InputClassification(EInputClassification classification)
 		{
 			switch (classification)
@@ -96,6 +115,16 @@ namespace Eggy
 				break;
 			}
 			return D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
+		}
+
+		static uint32 CPUAccessFlag(uint32 flag)
+		{
+			uint32 d3dFlag = 0;
+			if (flag & uint32(ECPUAccessFlag::Read))
+				d3dFlag |= D3D11_CPU_ACCESS_READ;
+			if (flag & uint32(ECPUAccessFlag::Write))
+				d3dFlag |= D3D11_CPU_ACCESS_WRITE;
+			return d3dFlag;
 		}
 	};
 }

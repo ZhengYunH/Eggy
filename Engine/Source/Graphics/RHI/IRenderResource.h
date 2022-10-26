@@ -25,8 +25,8 @@ namespace Eggy
 		EBufferUsage Usage{ EBufferUsage::Immutable };
 		EBufferType BindType{ EBufferType::None };
 		size_t Count{ 0 };
-		size_t Stride{ 0 };
-		EFormat Format;
+		size_t ByteWidth{ 0 };
+		ECPUAccessFlags CPUAcesssFlags;
 		
 		void* Data{ nullptr };
 
@@ -40,6 +40,21 @@ namespace Eggy
 		virtual bool IsValid() override 
 		{
 			return BindType != EBufferType::None && Count && Data;
+		}
+	};
+
+	struct IConstantBuffer : public IBuffer
+	{
+		IConstantBuffer()
+		{
+			Usage = EBufferUsage::Dynamic;
+			BindType = EBufferType::ConstantBuffer;
+			CPUAcesssFlags = ECPUAccessFlags(ECPUAccessFlag::Write);
+		}
+
+		virtual bool IsValid() override
+		{
+			return IBuffer::IsValid() && ByteWidth % 16 == 0;
 		}
 	};
 
@@ -121,8 +136,7 @@ namespace Eggy
 
 	struct ShadingState : IRenderResource 
 	{
-		// ShaderInstance Shader{nullptr};
-		byte* Constant_;
+		IConstantBuffer Constant;
 	};
 
 	struct RenderState : IRenderResource
