@@ -141,7 +141,13 @@ namespace Eggy
 		D3D11_SUBRESOURCE_DATA initData;
 		ZeroMemory(&initData, sizeof(initData));
 		initData.pSysMem = buffer->Data;
-		mD3D11Device_->mDevice_->CreateBuffer(&bufferDesc, &initData, deviceBuffer->ppBuffer.GetAddressOf());
+		
+		HR(mD3D11Device_->mDevice_->CreateBuffer(
+				&bufferDesc, 
+			buffer->Data ? &initData : nullptr,
+				deviceBuffer->ppBuffer.GetAddressOf()
+			)
+		);
 	}
 }
 

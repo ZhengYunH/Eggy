@@ -137,6 +137,31 @@ namespace Eggy
 			return ret;
 		}
 
+		constexpr FORCEINLINE RealType operator -(const RealType& rhs) const noexcept
+		{
+			const _ScalarType* left = GetPointer();
+			const _ScalarType* right = rhs.GetPointer();
+			RealType	ret;
+			_ScalarType* dst = ret.GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				dst[i] = left[i] - right[i];
+			}
+			return ret;
+		}
+
+		constexpr FORCEINLINE RealType operator -(const _ScalarType& rhs) const noexcept
+		{
+			const _ScalarType* left = GetPointer();
+			RealType	ret;
+			_ScalarType* dst = ret.GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				dst[i] = left[i] - rhs;
+			}
+			return ret;
+		}
+
 		constexpr FORCEINLINE RealType operator *(const RealType& rhs) const noexcept
 		{
 			const _ScalarType* left = GetPointer();

@@ -8,15 +8,15 @@
 
 namespace Eggy
 {
-	static constexpr double MATH_PI = (3.141592653589793238462643383279502884197169399375105820974944592307816406286);
-	static constexpr double MATH_HALF_PI = (MATH_PI / 2.0);
-	static constexpr double MATH_DOUBLE_PI = (2.0 * MATH_PI);
+	static constexpr float MATH_PI = (3.141592653589793238462643383279502884197169399375105820974944592307816406286f);
+	static constexpr float MATH_HALF_PI = (MATH_PI / 2.f);
+	static constexpr float MATH_DOUBLE_PI = (2.f * MATH_PI);
 
-	static constexpr double MATH_INV_PI = (1.0 / MATH_PI);
-	static constexpr double MATH_INV_DOUBLE_PI = (1.0 / MATH_DOUBLE_PI);
+	static constexpr float MATH_INV_PI = (1.f / MATH_PI);
+	static constexpr float MATH_INV_DOUBLE_PI = (1.f / MATH_DOUBLE_PI);
 
-	static constexpr double MATH_PI_OVER_180 = (MATH_PI / 180.0);
-	static constexpr double MATH_PI_UNDER_180 = (180.0 / MATH_PI);
+	static constexpr float MATH_PI_OVER_180 = (MATH_PI / 180.f);
+	static constexpr float MATH_PI_UNDER_180 = (180.f / MATH_PI);
 
 	static constexpr float EPISILON = std::numeric_limits<float>::epsilon();
 	static constexpr float MIN_FLOAT = std::numeric_limits<float>::min();

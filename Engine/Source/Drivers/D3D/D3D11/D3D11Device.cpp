@@ -86,6 +86,12 @@ namespace Eggy
 		for (IRenderElement* element : elements)
 		{
 			RenderElement* ele = dynamic_cast<RenderElement*>(element);
+			D3D11Buffer* buffer = (D3D11Buffer*)ele->ConstantBuffer.DeviceResource;
+			D3D11_MAPPED_SUBRESOURCE mappedData;
+			mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+			memcpy_s(mappedData.pData, sizeof(ele->ObjectConstantData), &ele->ObjectConstantData, sizeof(ele->ObjectConstantData));
+			mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
+
 			auto& vertexBuffer = ele->Geometry.VertexBuffer;
 			auto& indexBuffer = ele->Geometry.IndexBuffer;
 			UINT stride = static_cast<UINT>(vertexBuffer.ByteWidth / vertexBuffer.Count);
@@ -100,6 +106,7 @@ namespace Eggy
 			D3D11VertexShader* vertexShader = (D3D11VertexShader*)ele->ShaderCollection.GetShader(EShaderType::VS)->DeviceResource;
 			D3D11PixelShader* pixelShader = (D3D11PixelShader*)ele->ShaderCollection.GetShader(EShaderType::PS)->DeviceResource;
 			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
+			mImmediateContext_->VSSetConstantBuffers(0, 1, buffer->ppBuffer.GetAddressOf());
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
 			mImmediateContext_->Draw(static_cast<UINT8>(ele->Geometry.VertexBuffer.Count), startVertexLocaltion);
 		}

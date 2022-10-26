@@ -201,6 +201,20 @@ namespace Eggy
 			*this = Matrix4x3(m);
 			SetTranslation(t);
 		}
+		void LookAt(const Vector3& position, const Vector3& target, const Vector3& up) noexcept
+		{
+			Vector3 front = target - position;
+			Vector3 scale = GetScale();
+			Vector3 y = up.GetNormalized();
+			Vector3 z = front.GetNormalized();
+			Vector3 x = y ^ z;
+
+			SetXAxis(x);
+			SetYAxis(z ^ x);
+			SetZAxis(z);
+			SetScale(scale);
+			SetTranslation(position);
+		}
 		constexpr inline void SetInvert() noexcept
 		{
 			*this = GetInverse();

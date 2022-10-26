@@ -1,3 +1,10 @@
+cbuffer ConstantBuffer : register(b0)
+{
+    matrix cWorld;
+    matrix cView;
+    matrix cProj;
+}
+
 
 struct VertexIn
 {
