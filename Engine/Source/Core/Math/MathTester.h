@@ -1,5 +1,7 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Math/Vector4.h"
+
 
 namespace Eggy
 {
@@ -24,6 +26,10 @@ namespace Eggy
 			Vector2 v21(1, 2);
 			Vector2 v22(3, 4);
 			Vector2 v = v21 + v22;
+
+			Vector4 v41(1, 2, 3, 4);
+			Vector4 v42(-1, -2, -3, -4);
+			Vector4 v43 = v41 + v42;
 		}
 	};
 }
