@@ -75,6 +75,13 @@ namespace Eggy
 				0, 0, -(mFar_ * mNear_) / (mFar_ - mNear_), 0
 			);
 
+
+			ObjectConstantData.ProjectTransform = Matrix4x4(
+				2.f / w, 0, 0, 0,
+				0, 2.f / h, 0, 0,
+				0, 0, -1 / (mFar_ - mNear_), 0,
+				0, 0, mNear_ / (mFar_ - mNear_), 1
+			);
 		}
 
 		void CreateResource(IRenderResourceFactory* factory) override
