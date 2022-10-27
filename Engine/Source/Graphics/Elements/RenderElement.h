@@ -57,7 +57,7 @@ namespace Eggy
 			ObjectConstantData.ModelTransform.SetIdentity();
 
 			Matrix4x3 viewMat;
-			viewMat.LookAt(Vector3(0.f, 0.f, -5.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
+			viewMat.LookAt(Vector3(0.f, 0.f, -10.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 			ObjectConstantData.ViewTransform = viewMat;
 
 			float fov = 45;
@@ -84,8 +84,8 @@ namespace Eggy
 
 			phi += 0.00001f;
 			theta += 0.00015f;
-			// ObjectConstantData.ModelTransform.SetRotationX(phi, Translation);
-			// ObjectConstantData.ModelTransform.SetRotationY(theta, Translation);
+			ObjectConstantData.ModelTransform.SetRotationX(phi, Translation);
+			ObjectConstantData.ModelTransform.SetRotationY(theta, Translation);
 
 			ShaderCollection.CreateDeviceResource(factory);
 			Geometry.CreateDeviceResource(factory);
@@ -103,7 +103,6 @@ namespace Eggy
 
 			Data = (void*)mVertexs_.data();
 			VertexCount = mVertexs_.size();
-			auto a =sizeof(mVertexs_);
 			ByteWidth = VertexCount * VertexType::GetSize();
 		}
 
@@ -113,8 +112,6 @@ namespace Eggy
 
 			Data = (void*)mIndexs_.data();
 			IndexCount = mIndexs_.size();
-			auto a = sizeof(mVertexs_);
-
 			ByteWidth = sizeof(IndexType) / sizeof(uint8) * IndexCount;
 		}
 
@@ -132,9 +129,9 @@ namespace Eggy
 		virtual void FillInData() override
 		{
 			mVertexs_ = List<VertexType>({
-				{ Vector3(0.0f, 0.5f, 0.5f), Color4B(0.0f, 1.0f, 0.0f, 1.0f) },
-				{ Vector3(0.5f, -0.5f, 0.5f), Color4B(0.0f, 0.0f, 1.0f, 1.0f) },
-				{ Vector3(-0.5f, -0.5f, 0.5f), Color4B(1.0f, 0.0f, 0.0f, 1.0f) }
+				{ Vector3(-0.5f, 0.0f, 0.0f), Color4B(0.0f, 1.0f, 0.0f, 1.0f) },
+				{ Vector3(0.0f, 0.5f, 0.0f), Color4B(0.0f, 0.0f, 1.0f, 1.0f) },
+				{ Vector3(0.5f, 0.0f, 0.0f), Color4B(1.0f, 0.0f, 0.0f, 1.0f) }
 			});
 
 			mIndexs_ = List<IndexType>({0, 1, 2});

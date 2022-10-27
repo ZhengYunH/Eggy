@@ -50,5 +50,28 @@ namespace Eggy
 		void Transpose()
 		{
 		}
+
+
+		inline void SetRotationX(const float rad, const Vector3& t) noexcept
+		{
+			Matrix3x3 m;
+			m.SetRotationX(rad);
+			*this = Matrix4x3(m);
+			SetTranslation(t);
+		}
+		inline void SetRotationY(const float rad, const Vector3& t) noexcept
+		{
+			Matrix3x3 m;
+			m.SetRotationY(rad);
+			*this = Matrix4x3(m);
+			SetTranslation(t);
+		}
+
+		inline void SetTranslation(const Vector3& translation)
+		{
+			m30 = translation.x;
+			m31 = translation.y;
+			m32 = translation.z;
+		}
 	};
 }

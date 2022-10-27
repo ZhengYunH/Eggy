@@ -54,9 +54,12 @@ namespace Eggy
 
 		template<typename _LHS, typename _RHS> void CrossProduct(const TVec3<_LHS>& a, const TVec3<_RHS>& b) noexcept
 		{
-			x = (_ScalarType(a.y) * _ScalarType(b.z) - _ScalarType(a.z) * _ScalarType(b.y));
-			y = (_ScalarType(a.z) * _ScalarType(b.x) - _ScalarType(a.x) * _ScalarType(b.z));
-			z = (_ScalarType(a.x) * _ScalarType(b.y) - _ScalarType(a.y) * _ScalarType(b.x));
+			_ScalarType _x = (_ScalarType(a.y) * _ScalarType(b.z) - _ScalarType(a.z) * _ScalarType(b.y));
+			_ScalarType _y = (_ScalarType(a.z) * _ScalarType(b.x) - _ScalarType(a.x) * _ScalarType(b.z));
+			_ScalarType _z = (_ScalarType(a.x) * _ScalarType(b.y) - _ScalarType(a.y) * _ScalarType(b.x));
+			this->x = _x;
+			this->y = _y;
+			this->z = _z;
 		}
 
 		template<typename _RHS>TVec3<_ScalarType> operator ^(const TVec3<_RHS>& rhs)

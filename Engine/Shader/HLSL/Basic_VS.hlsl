@@ -3,9 +3,9 @@
 VertexOut VS(VertexIn vIn)
 {
     VertexOut vOut;
-    vOut.posH = mul(float4(vIn.pos, 1.0f), cWorld);
-    vOut.posH = mul(vOut.posH, cView);
-    vOut.posH = mul(vOut.posH, cProj);
+    vOut.posH = mul(cWorld, float4(vIn.pos, 1.0f));
+    vOut.posH = mul(cView, vOut.posH);
+    vOut.posH = mul(cProj, vOut.posH);
     vOut.color = vIn.color;
     return vOut;
 }

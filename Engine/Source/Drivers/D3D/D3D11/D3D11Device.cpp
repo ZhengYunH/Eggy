@@ -108,7 +108,7 @@ namespace Eggy
 			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
 			mImmediateContext_->VSSetConstantBuffers(0, 1, buffer->ppBuffer.GetAddressOf());
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
-			mImmediateContext_->Draw(static_cast<UINT8>(ele->Geometry.VertexBuffer.Count), startVertexLocaltion);
+			mImmediateContext_->DrawIndexed(static_cast<UINT>(indexBuffer.Count), 0, 0);
 		}
 		Present();
 	}
@@ -265,7 +265,7 @@ namespace Eggy
 
 	void D3D11Device::ClearScreen()
 	{
-		float clearValue[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+		float clearValue[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		mImmediateContext_->ClearRenderTargetView(mRenderTargetView_.Get(), clearValue);
 		mImmediateContext_->ClearDepthStencilView(mDepthStencilView_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
