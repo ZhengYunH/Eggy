@@ -62,10 +62,11 @@ namespace Eggy
 			this->z = _z;
 		}
 
-		template<typename _RHS>TVec3<_ScalarType> operator ^(const TVec3<_RHS>& rhs)
+		template<typename _RHS> TVec3<_ScalarType> operator ^(const TVec3<_RHS>& rhs)
 		{
-			CrossProduct(*this, rhs);
-			return *this;
+			TVec3 <_ScalarType> ret = *this;
+			ret.CrossProduct(ret, rhs);
+			return ret;
 		}
 	};
 

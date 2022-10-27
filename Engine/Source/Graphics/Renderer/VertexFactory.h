@@ -68,6 +68,13 @@ namespace Eggy
 		}
 	};
 
+	static Color4B Color4B_RED(1.f, 0.f, 0.f, 1.f);
+	static Color4B Color4B_GREEN(0.f, 1.f, 0.f, 1.f);
+	static Color4B Color4B_BLUE(0.f, 0.f, 1.f, 1.f);
+	static Color4B Color4B_BLACK(0.f, 0.f, 0.f, 1.f);
+	static Color4B Color4B_WRITE(1.f, 1.f, 1.f, 1.f);
+
+
 	enum EVertexFormat : uint16
 	{
 		EVF_None = 0,

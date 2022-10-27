@@ -57,7 +57,7 @@ namespace Eggy
 			ObjectConstantData.ModelTransform.SetIdentity();
 
 			Matrix4x3 viewMat;
-			viewMat.LookAt(Vector3(0.f, 0.f, -10.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
+			viewMat.LookAt(Vector3(0.f, 0.f, -5.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 			ObjectConstantData.ViewTransform = viewMat;
 
 			float fov = 45;
@@ -129,9 +129,9 @@ namespace Eggy
 		virtual void FillInData() override
 		{
 			mVertexs_ = List<VertexType>({
-				{ Vector3(-0.5f, 0.0f, 0.0f), Color4B(0.0f, 1.0f, 0.0f, 1.0f) },
-				{ Vector3(0.0f, 0.5f, 0.0f), Color4B(0.0f, 0.0f, 1.0f, 1.0f) },
-				{ Vector3(0.5f, 0.0f, 0.0f), Color4B(1.0f, 0.0f, 0.0f, 1.0f) }
+				{ Vector3(-0.5f, 0.0f, 0.0f), Color4B_GREEN },
+				{ Vector3(0.0f, 0.5f, 0.0f), Color4B_BLUE },
+				{ Vector3(0.5f, 0.0f, 0.0f), Color4B_RED }
 			});
 
 			mIndexs_ = List<IndexType>({0, 1, 2});
@@ -161,6 +161,31 @@ namespace Eggy
 				7, 6, 5, 5, 4, 7,	// Back
 				3, 2, 6, 6, 7, 3,	// Right
 				4, 0, 3, 3, 7, 4	// Bottom
+			});
+		}
+	};
+
+	class RenderPyramidElement : public RenderHelperElement
+	{
+
+	protected:
+		void FillInData() override
+		{
+			mVertexs_ = List<VertexType>({
+				{ Vector3(0.f, 2.f, 0.f), Color4B_BLACK },
+				{ Vector3(1.f, 0.f, 1.f), Color4B_WRITE },
+				{ Vector3(1.f, 0.f, -1.f), Color4B_RED },
+				{ Vector3(-1.f, 0.f, -1.f), Color4B_GREEN },
+				{ Vector3(-1.f, 0.f, 1.f), Color4B_BLUE },
+			});
+
+			mIndexs_ = List<IndexType>({
+				0, 1, 2,
+				0, 2, 3,
+				0, 3, 4,
+				0, 4, 1,
+				1, 2, 3,
+				1, 3, 4
 			});
 		}
 	};

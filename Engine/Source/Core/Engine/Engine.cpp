@@ -21,7 +21,7 @@ namespace Eggy
 	void Engine::Initialize()
 	{
 		CreateRenderDevice();
-		mClientScene_->AddRenderElement(new RenderCubeElement());
+		mClientScene_->AddRenderElement(new RenderPyramidElement());
 	}
 
 	void Engine::Finalize()
