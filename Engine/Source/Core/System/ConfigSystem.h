@@ -54,11 +54,4 @@ namespace Eggy
 		List<Configuration*> mConfigs_;
 		Map<Name, ConfigItem*> mGlobalConfig_;
 	};
-
-	template<typename _TType>
-	_TType Eggy::ConfigSystem::GetData(const Name& config, const Name& key)
-	{
-
-	}
-
 }

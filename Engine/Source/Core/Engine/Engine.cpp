@@ -15,12 +15,13 @@ namespace Eggy
 	{
 		HYBRID_CHECK(!GInstance);
 		GInstance = this;
-		mClientScene_ = new ClientScene();
+		
 	}
 
 	void Engine::Initialize()
 	{
 		CreateRenderDevice();
+		mClientScene_ = new ClientScene();
 		mClientScene_->AddRenderElement(new RenderPyramidElement());
 	}
 

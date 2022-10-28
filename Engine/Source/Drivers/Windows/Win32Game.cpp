@@ -1,5 +1,6 @@
 #include "Win32Game.h"
 #include "Core/System/ConfigSystem.h"
+#include "Core/System/InputSystem.h"
 
 
 #if defined(_WIN32)
@@ -13,6 +14,7 @@ namespace Eggy
 
 	LRESULT Win32Game::WndProc(WINDOW_HANDLE hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		InputSystem::Get()->HandleMessage(hWnd, uMsg, wParam, lParam);
 		return (DefWindowProc(hWnd, uMsg, wParam, lParam));
 	}
 
