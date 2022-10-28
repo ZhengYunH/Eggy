@@ -1,5 +1,7 @@
 #pragma once
 #include "Core/Config.h"
+#include "EventHelper.h"
+
 
 namespace Eggy
 {
@@ -27,3 +29,4 @@ namespace Eggy
 		List<FuncType> BindingFunc;
 	};
 }
+

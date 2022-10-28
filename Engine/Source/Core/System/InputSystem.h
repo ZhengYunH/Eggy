@@ -41,7 +41,7 @@ namespace Eggy
 		void HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 	};
-
-
 }
 #undef DEFINE_EVENT
+
+#define BindInputEvent(OPType, Object, Func) EVENT_BIND_MEMBER_FUNC(GInputSystem->Event_##OP, Object, Func)
