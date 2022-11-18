@@ -1,6 +1,7 @@
 #include "D3D11Device.h"
 #include "Core/Engine/Engine.h"
 #include "Graphics/Elements/RenderElement.h"
+#include "Client/RenderScene.h"
 #include "D3D11Shader.h"
 
 
@@ -72,28 +73,30 @@ namespace Eggy
 
 	void D3D11Device::PrepareResource()
 	{
-		List<IRenderElement*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
-		for (IRenderElement* element : elements)
+		auto ClientScene = Engine::Get()->GetClientScene();
+		auto RenderScene = ClientScene->GetRenderScene();
+		List<IRenderObject*>& objects = RenderScene->GetRenderObjects(ERenderSet::MAIN);
+		for (IRenderObject* obj : objects)
 		{
-			element->CreateResource(GetResourceFactory());
+			obj->CreateDeviceResource(GetResourceFactory());
 		}
 	}
 	
 	void D3D11Device::DrawFrame()
 	{
 		ClearScreen();
-		List<IRenderElement*>& elements = Engine::Get()->GetClientScene()->GetRenderElements();
-		for (IRenderElement* element : elements)
+		List<IRenderObject*>& objects = Engine::Get()->GetClientScene()->GetRenderScene()->GetRenderObjects(ERenderSet::MAIN);
+		for (IRenderObject* obj : objects)
 		{
-			RenderElement* ele = dynamic_cast<RenderElement*>(element);
-			D3D11Buffer* buffer = (D3D11Buffer*)ele->ConstantBuffer.DeviceResource;
+			RenderObject* object = dynamic_cast<RenderObject*>(obj);
+			D3D11Buffer* buffer = (D3D11Buffer*)object->ConstantBuffer.DeviceResource;
 			D3D11_MAPPED_SUBRESOURCE mappedData;
 			mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
-			memcpy_s(mappedData.pData, sizeof(ele->ObjectConstantData), &ele->ObjectConstantData, sizeof(ele->ObjectConstantData));
+			memcpy_s(mappedData.pData, sizeof(object->ObjectConstantData), &object->ObjectConstantData, sizeof(object->ObjectConstantData));
 			mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
 
-			auto& vertexBuffer = ele->Geometry.VertexBuffer;
-			auto& indexBuffer = ele->Geometry.IndexBuffer;
+			auto& vertexBuffer = object->Geometry.VertexBuffer;
+			auto& indexBuffer = object->Geometry.IndexBuffer;
 			UINT stride = static_cast<UINT>(vertexBuffer.ByteWidth / vertexBuffer.Count);
 			UINT offset = 0;
 			UINT startVertexLocaltion = 0;
@@ -101,10 +104,10 @@ namespace Eggy
 			mImmediateContext_->IASetVertexBuffers(0, 1, ((D3D11Buffer*)vertexBuffer.DeviceResource)->ppBuffer.GetAddressOf(), &stride, &offset);
 			mImmediateContext_->IASetIndexBuffer(((D3D11Buffer*)indexBuffer.DeviceResource)->ppBuffer.Get(), Converter::IndexFormat(indexBuffer.ByteWidth / indexBuffer.Count), 0);
 			mImmediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			mImmediateContext_->IASetInputLayout(((D3D11InputLayout*)ele->Geometry.Layout.DeviceResource)->ppAddress.Get());
+			mImmediateContext_->IASetInputLayout(((D3D11InputLayout*)object->Geometry.Layout.DeviceResource)->ppAddress.Get());
 
-			D3D11VertexShader* vertexShader = (D3D11VertexShader*)ele->ShaderCollection.GetShader(EShaderType::VS)->DeviceResource;
-			D3D11PixelShader* pixelShader = (D3D11PixelShader*)ele->ShaderCollection.GetShader(EShaderType::PS)->DeviceResource;
+			D3D11VertexShader* vertexShader = (D3D11VertexShader*)object->ShaderCollection.GetShader(EShaderType::VS)->DeviceResource;
+			D3D11PixelShader* pixelShader = (D3D11PixelShader*)object->ShaderCollection.GetShader(EShaderType::PS)->DeviceResource;
 			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
 			mImmediateContext_->VSSetConstantBuffers(0, 1, buffer->ppBuffer.GetAddressOf());
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);

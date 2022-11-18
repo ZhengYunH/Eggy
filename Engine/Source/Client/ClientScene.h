@@ -5,25 +5,24 @@
 
 namespace Eggy
 {
-	class Scene
+	class RenderScene;
+	class IScene
 	{
 
 	};
 
-	class ClientScene : public Scene
+	class ClientScene : public IScene
 	{
 	public:
-		void AddRenderElement(IRenderElement* element)
-		{
-			element->Initialize();
-			mRenderElements_.push_back(element);
-		}
+		ClientScene();
+		virtual ~ClientScene();
 
-		List<IRenderElement*>& GetRenderElements()
-		{
-			return mRenderElements_;
-		}
+		RenderScene* CreateRenderScene(String key);
+		RenderScene* GetRenderScene();
+		RenderScene* GetRenderScene(String key);
 
-		List<IRenderElement*> mRenderElements_;
+	protected:
+		Map<String, RenderScene*> mRenderScenes_;
+		RenderScene* mMainRenderScene_{ nullptr };
 	};
 }

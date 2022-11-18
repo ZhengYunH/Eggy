@@ -93,13 +93,13 @@ namespace Eggy
 		}
 	};
 
-	struct IGeometry : IRenderResource
+	struct GeometryBinding : IRenderResource
 	{
 		IInputLayout Layout;
 		IBuffer VertexBuffer;
 		IBuffer IndexBuffer;
 
-		IGeometry()
+		GeometryBinding()
 		{
 			VertexBuffer.BindType = EBufferType::VertexBuffer;
 			IndexBuffer.BindType = EBufferType::IndexBuffer;
@@ -151,7 +151,7 @@ namespace Eggy
 
 	struct RenderItemInfo
 	{
-		IGeometry* GeometryBinding_;
+		GeometryBinding* GeometryBinding_;
 		ResourceBinding* ResourceBinding_;
 	};
 

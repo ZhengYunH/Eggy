@@ -6,7 +6,7 @@
 
 namespace Eggy
 {
-	class RenderMeshElement : public RenderElement
+	class RenderMeshElement : public RenderObject
 	{
 	public:
 		RenderMeshElement() 
@@ -26,7 +26,7 @@ namespace Eggy
 			return 1;
 		}
 
-		IRenderElement* GetRenderElement(size_t index) noexcept override
+		IRenderObject* GetRenderElement(size_t index) noexcept override
 		{
 			return &mElement_;
 		}

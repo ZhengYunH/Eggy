@@ -86,12 +86,15 @@ namespace Eggy
 	};
 
 	template<int _VertexFormat> class TVertexType {};
+
 	template<>
 	class TVertexType<EVF_P3F_C4B>
 	{
 	public:
 		Vector3 Position;
 		Color4B Color;
+
+		TVertexType() = default;
 
 		TVertexType(const Vector3& position, const Color4B& color) 
 			: Position(position), Color(color)
@@ -126,6 +129,13 @@ namespace Eggy
 		Color4B	Normal;
 		Vector2 ST;
 
+		TVertexType() = default;
+
+
+		TVertexType(const Vector3& position, const Color4B& normal, const Vector2 st)
+			: Position(position), Normal(normal), ST(st)
+		{}
+
 		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F_N4B_T2F>& rhs) const noexcept
 		{
 			return this->Position == rhs.Position && this->Normal == rhs.Normal && this->ST == rhs.ST;
@@ -141,16 +151,25 @@ namespace Eggy
 	
 	struct VertexInfo
 	{
-		uint16 DataSize{ 0 };
+		size_t DataSize{ 0 };
 	};
 
+#define ADD_VERTEX_INFO(Format) { Format, { TVertexType<Format>::GetSize() } }
 	static Map<EVertexFormat, VertexInfo> GVertexInfoMap = {
-		{ EVF_P3F_N4B_T2F, {sizeof(Vector3) + sizeof(Color4B) + sizeof(Vector2) }}
+		ADD_VERTEX_INFO(EVF_P3F_C4B),
+		ADD_VERTEX_INFO(EVF_P3F_N4B_T2F),
 	};
+#undef ADD_VERTEX_INFO
 
 	class VertexFactory
 	{
 	public:
+		template<EVertexFormat Format>
+		static TVertexType<Format>* AllocateVertex(size_t size)
+		{
+			return new TVertexType<Format>[size];
+		}
+
 		static size_t GetDataTypeSize(EVertexFormat format) 
 		{
 			HYBRID_CHECK(GVertexInfoMap.find(format) != GVertexInfoMap.end());

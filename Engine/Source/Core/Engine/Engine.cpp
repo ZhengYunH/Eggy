@@ -22,7 +22,6 @@ namespace Eggy
 	{
 		CreateRenderDevice();
 		mClientScene_ = new ClientScene();
-		mClientScene_->AddRenderElement(new RenderPyramidElement());
 	}
 
 	void Engine::Finalize()

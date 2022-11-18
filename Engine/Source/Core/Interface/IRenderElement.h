@@ -1,17 +1,30 @@
 #pragma once
 #include "Core/Config.h"
-#include "Graphics/RHI/IRenderDevice.h"
-#include "Graphics/RHI/IRenderHeader.h"
+#include "Core/Object/IMesh.h"
+#include "Core/Object/IMaterial.h"
+#include "Core/Math/Matrix4x4.h"
 
 
 namespace Eggy
 {
-	class IRenderElement
+	struct ObjectInfo
 	{
-	public:
-		virtual void Initialize() {}
+		Matrix4x4 ModelTransform;
+		Matrix4x4 ViewTransform;
+		Matrix4x4 ProjectTransform;
+	};
+
+	struct IRenderElement
+	{
+		IRenderElement() = default;
+
 		virtual void GetVertexData(void*& Data, size_t& VertexCount, size_t& ByteWidth) = 0;
 		virtual void GetIndexData(void*& Data, size_t& IndexCount, size_t& ByteWidth) = 0;
-		virtual void CreateResource(IRenderResourceFactory* factory) {}
+
+		virtual void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) = 0;
+
+		Mesh* mMesh{ nullptr };
+		Material* mMaterial{ nullptr };
+		ObjectInfo mObjectInfo;
 	};
 }
