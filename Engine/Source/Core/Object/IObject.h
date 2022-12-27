@@ -7,6 +7,6 @@ namespace Eggy
 	{
 	public:
 		virtual String Serialize() const;
-		virtual void Deserialize(String s);
+		virtual void Deserialize(const String& s);
 	};
 }

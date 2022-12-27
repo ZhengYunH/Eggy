@@ -33,6 +33,10 @@ namespace Eggy
 		const Matrix4x3& GetTransform() { return mTransform_; }
 		void SetTransform(Matrix4x3& transf) { mTransform_ = transf; }
 
+		String Serialize() const override;
+
+		void Deserialize(const String& s) override;
+
 	protected:
 		List<IComponent*> mComponents_;
 		Matrix4x3 mTransform_;

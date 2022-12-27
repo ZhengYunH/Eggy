@@ -10,9 +10,12 @@ namespace Eggy
 		friend class IEntity;
 	public:
 		IComponent() = default;
-		
+		String Serialize() const override;
+		void Deserialize(const String& s) override;
+
 	public:
 		void AddToEntity(IEntity* parent);
+		virtual String GetName() const = 0;
 		IEntity* GetParent();
 
 	protected:

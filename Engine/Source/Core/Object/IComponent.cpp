@@ -4,6 +4,16 @@
 
 namespace Eggy
 {
+	String IComponent::Serialize() const
+	{
+		return "";
+	}
+
+	void IComponent::Deserialize(const String& s)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
 	void IComponent::AddToEntity(IEntity* parent)
 	{
 		PreInitialize();

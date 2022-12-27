@@ -10,5 +10,22 @@ namespace Eggy
 		mComponents_.push_back(comp);
 		return true;
 	}
+
+	String IEntity::Serialize() const
+	{
+		String s;
+		for (auto& comp : mComponents_)
+		{
+			s += comp->GetName() + ":" + comp->Serialize();
+		}
+		return s;
+	}
+
+	void IEntity::Deserialize(const String& s)
+	{
+		
+		
+	}
+
 }
 

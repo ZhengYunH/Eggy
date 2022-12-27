@@ -9,7 +9,7 @@ namespace Eggy
 		return "";
 	}
 
-	void IObject::Deserialize(String s)
+	void IObject::Deserialize(const String& s)
 	{
 		
 	}
