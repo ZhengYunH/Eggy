@@ -21,6 +21,10 @@ namespace Eggy
 		}
 	}
 
+	void PrimitiveComponent::PostInitialize()
+	{
+	}
+
 	void PrimitiveComponent::CollectPrimitives(IRenderScene* renderScene)
 	{
 		if (!mMesh_ || mMesh_)
@@ -85,6 +89,11 @@ namespace Eggy
 		}
 		
 		renderScene->SubmitRenderElement(ERenderSet::MAIN, element);
+	}
+
+	void PrimitiveComponent::EnterWorld(IWorld* world)
+	{
+		
 	}
 
 }

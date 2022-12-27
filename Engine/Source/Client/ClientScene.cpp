@@ -1,5 +1,10 @@
 #include "ClientScene.h"
 #include "RenderScene.h"
+#include "Core/Object/IEntity.h"
+#include "Core/Object/IWorld.h"
+
+// test code
+#include "Client/PrimitivesComponent.h"
 
 
 namespace Eggy
@@ -9,6 +14,7 @@ namespace Eggy
 	ClientScene::ClientScene()
 	{
 		mMainRenderScene_ = CreateRenderScene(MAIN_RENDER_SCENE);
+		mWorld_ = new IWorld();
 	}
 
 	ClientScene::~ClientScene()
@@ -39,6 +45,22 @@ namespace Eggy
 		return mRenderScenes_[key];
 	}
 
-	
+	void ClientScene::Deserialize(const String& s)
+	{
+		IEntity* entity = new IEntity();
+		entity->AddComponent(new PrimitiveComponent());
+		entity->EnterWorld(mWorld_);
+		mEntities_.push_back(entity);
+	}
+
+	String ClientScene::Serialize() const
+	{
+		String s;
+		for (auto& entity : mEntities_)
+		{
+			s += entity->Serialize();
+		}
+		return s;
+	}
 
 }

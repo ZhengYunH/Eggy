@@ -24,7 +24,14 @@ namespace Eggy
 	void IEntity::Deserialize(const String& s)
 	{
 		
-		
+	}
+
+	void IEntity::EnterWorld(IWorld* world)
+	{
+		for (auto& comp : mComponents_)
+		{
+			comp->EnterWorld(world);
+		}
 	}
 
 }

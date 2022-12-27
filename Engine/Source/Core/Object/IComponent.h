@@ -1,6 +1,7 @@
 #pragma once
 #include "IObject.h"
 #include "IEntity.h"
+#include "IWorld.h"
 
 
 namespace Eggy
@@ -15,6 +16,7 @@ namespace Eggy
 
 	public:
 		void AddToEntity(IEntity* parent);
+		virtual void EnterWorld(IWorld* world) {}
 		virtual String GetName() const = 0;
 		IEntity* GetParent();
 

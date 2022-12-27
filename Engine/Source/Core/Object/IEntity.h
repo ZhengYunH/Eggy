@@ -1,11 +1,14 @@
 #pragma once
 #include "IObject.h"
 #include "Core/Math/Matrix4x3.h"
+#include "IWorld.h"
 
 
 namespace Eggy
 {
 	class IComponent;
+	class IWorld;
+
 	class IEntity : public IObject
 	{
 	public:
@@ -37,8 +40,12 @@ namespace Eggy
 
 		void Deserialize(const String& s) override;
 
+	public:
+		void EnterWorld(IWorld* world);
+
 	protected:
 		List<IComponent*> mComponents_;
 		Matrix4x3 mTransform_;
+		IWorld* mWorld_;
 	};
 }
