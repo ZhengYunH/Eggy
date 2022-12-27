@@ -5,6 +5,8 @@ namespace Eggy
 {
 	class IObject
 	{
-
+	public:
+		virtual String Serialize() const;
+		virtual void Deserialize(String s);
 	};
 }

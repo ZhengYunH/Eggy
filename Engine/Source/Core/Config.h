@@ -20,6 +20,8 @@
 #include <functional>
 #include <memory>
 #include <stdexcept>
+#include <set>
+#include <sstream>
 
 
 namespace Eggy
