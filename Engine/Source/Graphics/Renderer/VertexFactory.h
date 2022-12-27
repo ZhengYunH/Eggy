@@ -155,7 +155,7 @@ namespace Eggy
 	};
 
 #define ADD_VERTEX_INFO(Format) { Format, { TVertexType<Format>::GetSize() } }
-	static Map<EVertexFormat, VertexInfo> GVertexInfoMap = {
+	static Map<EVertexFormat, VertexInfo> GVertexInfoMap{
 		ADD_VERTEX_INFO(EVF_P3F_C4B),
 		ADD_VERTEX_INFO(EVF_P3F_N4B_T2F),
 	};
