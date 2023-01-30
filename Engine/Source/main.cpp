@@ -20,6 +20,7 @@ int main()
 	engine->Initialize();
 	while (true)
 	{
+		platform->PumpMessage();
 		engine->TickLoop();
 	}
 	engine->Finalize();
