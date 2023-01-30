@@ -16,7 +16,8 @@ namespace Eggy
 
 	public:
 		void AddToEntity(IEntity* parent);
-		virtual void EnterWorld(IWorld* world) {}
+		virtual void EnterWorld() {}
+		virtual void LeaveWorld() {}
 		virtual String GetName() const = 0;
 		IEntity* GetParent();
 

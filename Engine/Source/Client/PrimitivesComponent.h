@@ -3,15 +3,14 @@
 #include "Core/Interface/IRenderScene.h"
 #include "Core/Object/IMesh.h"
 #include "Core/Object/IMaterial.h"
+#include "Core/Object/IPrimitive.h"
 
 
 namespace Eggy
 {
-	class IPrimitivesComponent : public IComponent
+	class IPrimitivesComponent : public IComponent, public IPrimitive
 	{
 	public:
-		virtual void CollectPrimitives(IRenderScene* renderScene) = 0;
-
 		String GetName() const override { return "IPrimitivesComponent"; }
 
 	};
@@ -19,9 +18,11 @@ namespace Eggy
 	class PrimitiveComponent : public IPrimitivesComponent
 	{
 	public:
-		virtual void CollectPrimitives(IRenderScene* renderScene);
+		virtual void CollectPrimitives(IRenderScene* renderScene) override;
 
-		void EnterWorld(IWorld* world) override;
+		void EnterWorld() override;
+		
+		void LeaveWorld() override;
 
 	protected:
 		virtual void PreInitialize() override;

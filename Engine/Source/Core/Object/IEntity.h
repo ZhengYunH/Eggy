@@ -42,6 +42,8 @@ namespace Eggy
 
 	public:
 		void EnterWorld(IWorld* world);
+		void LeaveWorld();
+		IWorld* GetWorld() { return mWorld_; }
 
 	protected:
 		List<IComponent*> mComponents_;

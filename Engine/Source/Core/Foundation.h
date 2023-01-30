@@ -8,11 +8,11 @@
 #if DEBUG_MODE
 	#include <assert.h>
 	#define HYBRID_CHECK(X, ...) assert((X))
-	#define HYBRID_RUN(X, ...) HYBRID_CHECK(X, ##__VA_ARGS__)
+	#define HYBRID_RUN(X, ...) X
 	#define DEBUG_RUN(X) X
 #else
 	#define HYBRID_CHECK(X, ...) 
-	#define HYBRID_RUN(X, ...) (X)
+	#define HYBRID_RUN(X, ...)
 	#define DEBUG_RUN(X)
 #endif
 

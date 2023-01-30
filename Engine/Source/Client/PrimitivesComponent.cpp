@@ -91,9 +91,16 @@ namespace Eggy
 		renderScene->SubmitRenderElement(ERenderSet::MAIN, element);
 	}
 
-	void PrimitiveComponent::EnterWorld(IWorld* world)
+	void PrimitiveComponent::EnterWorld()
 	{
-		
+		IWorld* world = GetParent()->GetWorld();
+		world->AddPrimitives(this);
+	}
+
+	void PrimitiveComponent::LeaveWorld()
+	{
+		IWorld* world = GetParent()->GetWorld();
+		world->DelPrimitives(this);
 	}
 
 }

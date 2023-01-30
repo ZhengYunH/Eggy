@@ -2,6 +2,7 @@
 #include "Core/Config.h"
 #include "Core/Interface/IRenderElement.h"
 #include "Core/Object/IObject.h"
+#include "Core/Engine/Event/Event.h"
 
 
 namespace Eggy
@@ -22,13 +23,14 @@ namespace Eggy
 		RenderScene* GetRenderScene();
 		RenderScene* GetRenderScene(String key);
 
+		void LoadWorld(const String s);
 		void Deserialize(const String& s) override;
 		String Serialize() const override;
+		void Tick();
 
 	protected:
 		Map<String, RenderScene*> mRenderScenes_;
 		RenderScene* mMainRenderScene_{ nullptr };
-		List<class IEntity*> mEntities_;
 		class IWorld* mWorld_{ nullptr };
 	};
 }

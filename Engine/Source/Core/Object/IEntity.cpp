@@ -28,11 +28,20 @@ namespace Eggy
 
 	void IEntity::EnterWorld(IWorld* world)
 	{
+		mWorld_ = world;
 		for (auto& comp : mComponents_)
 		{
-			comp->EnterWorld(world);
+			comp->EnterWorld();
 		}
 	}
 
+	void IEntity::LeaveWorld()
+	{
+		for (auto& comp : mComponents_)
+		{
+			comp->LeaveWorld();
+		}
+		mWorld_ = nullptr;
+	}
 }
 
