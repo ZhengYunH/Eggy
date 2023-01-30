@@ -17,7 +17,8 @@ namespace Eggy
 		{
 			mMaterial_ = new Material();
 			MaterialResource* matRes = new MaterialResource();
-			matRes->mShader_ = "Basic_VS";
+			matRes->mShader_ = "Basic";
+			mMaterial_->SetResource(matRes);
 		}
 	}
 
@@ -27,7 +28,7 @@ namespace Eggy
 
 	void PrimitiveComponent::CollectPrimitives(IRenderScene* renderScene)
 	{
-		if (!mMesh_ || mMesh_)
+		if (!mMesh_ || !mMaterial_)
 			return;
 		IRenderElement* element = renderScene->AllocateRenderElement();
 		element->mMesh = mMesh_;
@@ -65,7 +66,7 @@ namespace Eggy
 				float mFar_ = 5000;
 				float w = h * mScreenHeight_ / mScreenWidth_;
 				
-				bool perspective = false;
+				bool perspective = true;
 				
 				if (perspective)
 				{

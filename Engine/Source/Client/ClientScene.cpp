@@ -1,8 +1,8 @@
 #include "ClientScene.h"
-#include "RenderScene.h"
 #include "Core/Object/IEntity.h"
-#include "Core/Object/IWorld.h"
-
+#include "Core/Object/IPrimitive.h"
+#include "World.h"
+#include "RenderScene.h"
 
 
 
@@ -12,42 +12,35 @@ namespace Eggy
 
 	ClientScene::ClientScene()
 	{
-		mMainRenderScene_ = CreateRenderScene(MAIN_RENDER_SCENE);
 		LoadWorld("");
 	}
 
 	ClientScene::~ClientScene()
 	{
-		for (auto& pair : mRenderScenes_)
-		{
-			delete pair.second;
-		}
-		mRenderScenes_.clear();
-	}
-
-	RenderScene* ClientScene::CreateRenderScene(String key)
-	{
-		HYBRID_CHECK(mRenderScenes_.find(key) == mRenderScenes_.end());
-		RenderScene* rdScene = new RenderScene();
-		mRenderScenes_[key] = rdScene;
-		return rdScene;
+		UnloadWorld();
 	}
 
 	RenderScene* ClientScene::GetRenderScene()
 	{
-		return GetRenderScene(MAIN_RENDER_SCENE);
+		return dynamic_cast<RenderScene*>(mWorld_->GetRenderScene());
 	}
 
-	RenderScene* ClientScene::GetRenderScene(String key)
+	List<RenderScene*> ClientScene::GetRenderScenes()
 	{
-		HYBRID_CHECK(mRenderScenes_.find(key) != mRenderScenes_.end());
-		return mRenderScenes_[key];
+		List<RenderScene*> renderScenes;
+		renderScenes.push_back(GetRenderScene());
+		return renderScenes;
 	}
 
 	void ClientScene::LoadWorld(const String s)
 	{
-		mWorld_ = new IWorld(this);
+		mWorld_ = new World(this);
 		mWorld_->Deserialize(s);
+	}
+
+	void ClientScene::UnloadWorld()
+	{
+		SafeDestroy(mWorld_);
 	}
 
 	void ClientScene::Deserialize(const String& s)
@@ -62,7 +55,10 @@ namespace Eggy
 
 	void ClientScene::Tick()
 	{
-		mWorld_->Tick();
+		for (auto prim : mWorld_->GetPrimitives())
+		{
+			prim->CollectPrimitives(GetRenderScene());
+		}
 	}
 
 }

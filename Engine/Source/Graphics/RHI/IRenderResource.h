@@ -26,7 +26,7 @@ namespace Eggy
 		EBufferType BindType{ EBufferType::None };
 		size_t Count{ 0 };
 		size_t ByteWidth{ 0 };
-		ECPUAccessFlags CPUAcesssFlags;
+		ECPUAccessFlags CPUAcesssFlags{ 0 };
 		
 		void* Data{ nullptr };
 
@@ -79,7 +79,7 @@ namespace Eggy
 		}
 
 		List<InputElementDesc> Descs;
-		struct IShaderCollection* ShaderCollection;
+		struct IShaderCollection* ShaderCollection{ nullptr };
 
 		virtual bool IsValid() override { return !Descs.empty(); }
 	};

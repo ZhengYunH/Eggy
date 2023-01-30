@@ -13,7 +13,8 @@ namespace Eggy
 		}
 	}
 
-	Eggy::IRenderElement* RenderScene::AllocateRenderElement()
+	// TODO add pool
+	IRenderElement* RenderScene::AllocateRenderElement()
 {
 		IRenderElement* ele = new RenderElement();
 		return ele;
@@ -24,6 +25,7 @@ namespace Eggy
 		return mRenderObjects_[set];
 	}
 
+	// TODO add pool
 	RenderObject* RenderScene::AllocateRenderObject()
 	{
 		return new RenderObject();

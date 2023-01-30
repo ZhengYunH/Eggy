@@ -92,11 +92,12 @@ namespace Eggy
 		constexpr Quaternion operator+(const Quaternion& quat) const { return Quaternion(x + quat.x, y + quat.y, z + quat.x, w + quat.w); }
 		constexpr Quaternion operator*(const Quaternion& quat) const // cross production
 		{
-			float w = w * quat.w - x * quat.x - y * quat.y - z * quat.z;
-			float x = w * quat.x + x * quat.w + y * quat.z - z * quat.y;
-			float y = w * quat.y + y * quat.w + z * quat.x - x * quat.z;
-			float z = w * quat.z + z * quat.w + x * quat.y - y * quat.x;
-			return Quaternion(x, y, z, w);
+			return Quaternion(
+				w * quat.x + x * quat.w + y * quat.z - z * quat.y,
+				w * quat.y + y * quat.w + z * quat.x - x * quat.z,
+				w * quat.z + z * quat.w + x * quat.y - y * quat.x,
+				w * quat.w - x * quat.x - y * quat.y - z * quat.z
+			);
 		}
 		constexpr Quaternion operator*(const float scaler) const noexcept { return Quaternion(x * scaler, y * scaler, z * scaler, w * scaler); }
 		constexpr Quaternion operator/(const float scaler) const noexcept { return Quaternion(x / scaler, y / scaler, z / scaler, w / scaler); }

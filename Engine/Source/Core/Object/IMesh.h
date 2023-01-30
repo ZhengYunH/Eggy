@@ -23,19 +23,30 @@ namespace Eggy
 		using VertexType = TVertexType<Format>;
 		using IndexType = uint32;
 
-		VertexType* Vertex;
-		IndexType* Index;
+		VertexType* Vertex{ nullptr };
+		uint32	nVertex{ 0 };
+
+		IndexType* Index{ nullptr };
+		uint32	nIndex{ 0 };
+
 		IRenderMesh* RenderMesh{ nullptr };
 
 		MeshData() = default;
+		~MeshData()
+		{
+			SafeDestroyArray(Vertex);
+			SafeDestroyArray(Index);
+		}
 
 		void SetupData(List<VertexType>&& vertex, List<IndexType>&& index)
 		{
-			Vertex = VertexFactory::AllocateVertex<Format>(vertex.size());
-			memcpy(Vertex, vertex.data(), index.size());
+			nVertex = static_cast<uint32>(vertex.size());
+			Vertex = VertexFactory::AllocateVertex<Format>(nVertex);
+			memcpy(Vertex, vertex.data(), nVertex);
 	
-			Index = new IndexType[index.size()];
-			memcpy(Index, index.data(), index.size());
+			nIndex = static_cast<uint32>(index.size());
+			Index = new IndexType[nIndex];
+			memcpy(Index, index.data(), nIndex);
 		}
 
 		virtual size_t GetVertexData(void*& Data) override
@@ -43,7 +54,7 @@ namespace Eggy
 			HYBRID_CHECK(Vertex);
 
 			Data = Vertex;
-			return sizeof(Vertex) / sizeof(VertexType);
+			return nVertex;
 		}
 
 		size_t GetIndexData(void*& Data) override
@@ -51,7 +62,7 @@ namespace Eggy
 			HYBRID_CHECK(Index);
 
 			Data = Index;
-			return sizeof(Index) / sizeof(IndexType);
+			return nIndex;
 		}
 
 		size_t GetVertexStride() override
@@ -68,7 +79,6 @@ namespace Eggy
 		{
 			return VertexType::GetDesc(Descs);
 		}
-
 	};
 
 	struct QuatMesh : public MeshData<EVF_P3F_C4B>
@@ -137,7 +147,7 @@ namespace Eggy
 
 		size_t GetIndexStride()
 		{
-			return mResource_->mGeometry_->GetVertexStride();
+			return mResource_->mGeometry_->GetIndexStride();
 		}
 
 		void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs)

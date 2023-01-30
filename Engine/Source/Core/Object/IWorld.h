@@ -6,14 +6,13 @@ namespace Eggy
 {
 	class IEntity;
 	class IPrimitive;
-	class ClientScene;
+	class IRenderScene;
 
 	class IWorld : public IObject
 	{
 	public:
-		IWorld(ClientScene* scene) : mScene_(scene)
-		{
-		}
+		IWorld();
+		virtual ~IWorld();
 
 		String Serialize() const override;
 		void Deserialize(const String& s) override;
@@ -21,14 +20,11 @@ namespace Eggy
 		void AddPrimitives(IPrimitive* prim);
 		void DelPrimitives(IPrimitive* prim);
 
-		void Tick();
+		virtual void Tick() {};
+		List<IPrimitive*>& GetPrimitives() { return mPrimitives_; }
 
 	protected:
-		List<class IEntity*> mEntities_;
+		List<IEntity*> mEntities_;
 		List<IPrimitive*> mPrimitives_;
-		ClientScene* mScene_{ nullptr };
 	};
-
-	
-
 }

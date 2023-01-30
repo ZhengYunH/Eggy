@@ -30,6 +30,7 @@ namespace Eggy
 
 	void Engine::TickLoop()
 	{
+		mClientScene_->Tick();
 		GRenderDevice->PrepareResource();
 		GRenderDevice->DrawFrame();
 	}

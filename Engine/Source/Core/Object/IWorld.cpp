@@ -4,12 +4,22 @@
 #include "IPrimitive.h"
 
 // test code
+#include "Client/RenderScene.h"
 #include "Client/ClientScene.h" // #include "Scene.h"
 #include "Client/PrimitivesComponent.h"
 
 
 namespace Eggy
 {
+
+	IWorld::IWorld()
+	{
+	}
+
+	IWorld::~IWorld()
+	{
+	}
+
 	String IWorld::Serialize() const
 	{
 		String s;
@@ -40,14 +50,5 @@ namespace Eggy
 		if (itr != mPrimitives_.end())
 			mPrimitives_.erase(itr);
 	}
-
-	void IWorld::Tick()
-	{
-		for (auto prim : mPrimitives_)
-		{
-			prim->CollectPrimitives(mScene_->GetRenderScene());
-		}
-	}
-
 }
 

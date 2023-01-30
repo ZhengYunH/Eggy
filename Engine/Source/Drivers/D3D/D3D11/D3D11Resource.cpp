@@ -106,6 +106,7 @@ namespace Eggy
 					errorBlob->Release();
 					errorBlob = nullptr;
 				}
+				HYBRID_CHECK(0);
 			}
 
 			if (!deviceShader->CSOPath.empty())

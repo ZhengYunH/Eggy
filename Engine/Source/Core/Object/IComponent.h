@@ -1,7 +1,6 @@
 #pragma once
 #include "IObject.h"
 #include "IEntity.h"
-#include "IWorld.h"
 
 
 namespace Eggy

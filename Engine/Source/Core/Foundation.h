@@ -4,6 +4,9 @@
 #define D3D11_DEVICE 1
 #define VULKAN_DEVICE 0
 
+#define CLIENT 1
+#define SERVER 0
+
 
 #if DEBUG_MODE
 	#include <assert.h>
@@ -21,3 +24,4 @@
 #define SafeDestroy(X) if(X){ delete X; X=nullptr;}
 #define SafeDestroyArray(X) if(X){delete[] X; X=nullptr;}
 #define FORCEINLINE __forceinline
+
