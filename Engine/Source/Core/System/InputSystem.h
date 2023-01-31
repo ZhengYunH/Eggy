@@ -2,6 +2,7 @@
 #include "Core/Config.h"
 #include "Core/Interface/ISystem.h"
 #include "Core/Engine/Event/Event.h"
+#include "Core/KeyCodes.h"
 
 
 #define INPUT_SYSTEM_OP_EVENT(OP) Event_##OP
@@ -44,4 +45,4 @@ namespace Eggy
 }
 #undef DEFINE_EVENT
 
-#define BindInputEvent(OPType, Object, Func) EVENT_BIND_MEMBER_FUNC(GInputSystem->Event_##OP, Object, Func)
+#define BindInputEvent(OPType, Object, Func) EVENT_BIND_MEMBER_FUNC(InputSystem::Get()->Event_##OPType, Object, Func)

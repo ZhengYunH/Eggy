@@ -29,6 +29,9 @@ namespace Eggy
 
 	void Engine::TickLoop()
 	{
+		mCurrFrameTime_ = std::chrono::high_resolution_clock::now();
+		_DeltaTime = std::chrono::duration<float, std::chrono::seconds::period>(mCurrFrameTime_ - mLastFrameTime_).count();
+		mLastFrameTime_ = mCurrFrameTime_;
 		mClientScene_->Tick_ot();
 		mClientScene_->Tick_rdt();
 	}

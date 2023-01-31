@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <set>
 #include <sstream>
+#include <chrono>
 
 
 namespace Eggy

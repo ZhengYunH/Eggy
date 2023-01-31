@@ -5,6 +5,7 @@ namespace Eggy
 {
 	class IRenderScene;
 	class ClientScene;
+	class Camera;
 
 	class World : public IWorld
 	{
@@ -13,14 +14,18 @@ namespace Eggy
 		~World();
 
 		IRenderScene* GetRenderScene() { return mRenderScene_; }
+		void Tick() override;
 
 		void StartFrame() override;
-
 		void EndFrame() override;
 
+		const Camera* GetCamera() { return mMainCamera_; }
+
+
 	protected:
-		ClientScene* mScene_;
+		ClientScene* mScene_{ nullptr };
 		IRenderScene* mRenderScene_{ nullptr };
+		Camera* mMainCamera_{ nullptr };;
 	};
 }
 

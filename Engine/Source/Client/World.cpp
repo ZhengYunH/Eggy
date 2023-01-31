@@ -1,6 +1,8 @@
 #include "World.h"
 #include "ClientScene.h"
 #include "RenderScene.h"
+#include "Camera.h"
+
 
 namespace Eggy
 {
@@ -9,6 +11,14 @@ namespace Eggy
 		, mScene_(scene)
 	{
 		mRenderScene_ = new RenderScene();
+		mMainCamera_ = new Camera();
+		// test code
+		{
+			Matrix4x3 viewMat;
+			viewMat.LookAt(Vector3(0.f, 0.f, -5.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
+			mMainCamera_->setTransform(viewMat);
+		}
+		
 	}
 
 	World::~World()
@@ -24,6 +34,11 @@ namespace Eggy
 	void World::EndFrame()
 	{
 		mRenderScene_->EndFrame();
+	}
+
+	void World::Tick()
+	{
+		mMainCamera_->tick(Engine::Get()->GetDeltaTime());
 	}
 
 }

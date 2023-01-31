@@ -20,7 +20,7 @@ namespace Eggy
 			}
 		}
 
-		virtual void Bind(FuncType& func)
+		virtual void Bind(FuncType func)
 		{
 			BindingFunc.push_back(func);
 		}

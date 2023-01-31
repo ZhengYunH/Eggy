@@ -23,5 +23,15 @@ namespace Eggy
 	public:
 		IPlatform* Platform{ nullptr };
 		class ClientScene* mClientScene_ { nullptr };
+
+	protected:
+		typedef std::chrono::steady_clock::time_point TimeType;
+		TimeType mLastFrameTime_;
+		TimeType mCurrFrameTime_;
+
+		float _DeltaTime;
+
+	public:
+		float const& GetDeltaTime() { return _DeltaTime; }
 	};
 }

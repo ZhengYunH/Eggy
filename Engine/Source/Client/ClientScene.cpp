@@ -56,6 +56,7 @@ namespace Eggy
 	void ClientScene::Tick_ot()
 	{
 		StartLogicFrame();
+		mWorld_->Tick();
 		for (auto prim : mWorld_->GetPrimitives())
 		{
 			prim->CollectPrimitives(GetRenderScene());
