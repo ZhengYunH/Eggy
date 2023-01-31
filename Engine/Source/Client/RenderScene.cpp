@@ -15,8 +15,9 @@ namespace Eggy
 
 	// TODO add pool
 	IRenderElement* RenderScene::AllocateRenderElement()
-{
+	{
 		IRenderElement* ele = new RenderElement();
+		mRenderElements_.push_back(ele);
 		return ele;
 	}
 
@@ -25,7 +26,31 @@ namespace Eggy
 		return mRenderObjects_[set];
 	}
 
-	// TODO add pool
+	void RenderScene::StartFrame()
+	{
+	}
+
+	void RenderScene::EndFrame()
+	{
+		// clear RenderObject
+		for (auto& pair : mRenderObjects_)
+		{
+			auto& objects = pair.second;
+			for (auto* obj : objects)
+			{
+				delete obj;
+			}
+		}
+		mRenderObjects_.clear();
+
+		// clear RenderElement
+		for (auto ele : mRenderElements_)
+		{
+			delete ele;
+		}
+		mRenderElements_.clear();
+	}
+
 	RenderObject* RenderScene::AllocateRenderObject()
 	{
 		return new RenderObject();

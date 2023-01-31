@@ -42,11 +42,11 @@ namespace Eggy
 		{
 			nVertex = static_cast<uint32>(vertex.size());
 			Vertex = VertexFactory::AllocateVertex<Format>(nVertex);
-			memcpy(Vertex, vertex.data(), nVertex);
+			memcpy(Vertex, vertex.data(), nVertex * sizeof(VertexType));
 	
 			nIndex = static_cast<uint32>(index.size());
 			Index = new IndexType[nIndex];
-			memcpy(Index, index.data(), nIndex);
+			memcpy(Index, index.data(), nIndex * sizeof(IndexType));
 		}
 
 		virtual size_t GetVertexData(void*& Data) override

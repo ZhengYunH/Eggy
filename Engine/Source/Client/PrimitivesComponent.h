@@ -28,6 +28,8 @@ namespace Eggy
 		virtual void PreInitialize() override;
 		virtual void PostInitialize() override;
 
+		virtual void Destroy() override;
+
 	protected:
 		Mesh* mMesh_;
 		Material* mMaterial_;

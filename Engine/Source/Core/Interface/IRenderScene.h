@@ -19,6 +19,9 @@ namespace Eggy
 	class IRenderScene 
 	{
 	public:
+		virtual void StartFrame() = 0;
+		virtual void EndFrame() = 0;
+
 		virtual IRenderElement* AllocateRenderElement() = 0;
 		virtual IRenderObject* AllocateRenderObject() = 0;
 		virtual IRenderObject* SubmitRenderElement(ERenderSet set, IRenderElement* element) = 0;

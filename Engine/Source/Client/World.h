@@ -14,6 +14,10 @@ namespace Eggy
 
 		IRenderScene* GetRenderScene() { return mRenderScene_; }
 
+		void StartFrame() override;
+
+		void EndFrame() override;
+
 	protected:
 		ClientScene* mScene_;
 		IRenderScene* mRenderScene_{ nullptr };

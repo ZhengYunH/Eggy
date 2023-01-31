@@ -3,7 +3,7 @@
 #include "Core/Object/IPrimitive.h"
 #include "World.h"
 #include "RenderScene.h"
-
+#include "Graphics/RHI/IRenderDevice.h"
 
 
 namespace Eggy
@@ -53,12 +53,42 @@ namespace Eggy
 		return "";
 	}
 
-	void ClientScene::Tick()
+	void ClientScene::Tick_ot()
 	{
+		StartLogicFrame();
 		for (auto prim : mWorld_->GetPrimitives())
 		{
 			prim->CollectPrimitives(GetRenderScene());
 		}
+		EndLogicFrame();
+	}
+
+	void ClientScene::Tick_rdt()
+	{
+		StartRenderFrame();
+		GRenderDevice->PrepareResource();
+		GRenderDevice->DrawFrame();
+		EndRenderFrame();
+	}
+
+	void ClientScene::StartLogicFrame()
+	{
+		mWorld_->StartFrame();
+	}
+
+	void ClientScene::EndLogicFrame()
+	{
+
+	}
+
+	void ClientScene::StartRenderFrame()
+	{
+
+	}
+
+	void ClientScene::EndRenderFrame()
+	{
+		mWorld_->EndFrame();
 	}
 
 }

@@ -21,8 +21,12 @@ namespace Eggy
 
 		List<IRenderObject*>& GetRenderObjects(ERenderSet set) override;
 
+		void StartFrame() override;
+
+		void EndFrame() override;
+
 	protected:
 		Map<ERenderSet, List<IRenderObject*>> mRenderObjects_;
-
+		List<IRenderElement*> mRenderElements_;
 	};
 }

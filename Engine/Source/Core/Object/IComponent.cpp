@@ -4,6 +4,12 @@
 
 namespace Eggy
 {
+
+	IComponent::~IComponent()
+	{
+		Destroy();
+	}
+
 	String IComponent::Serialize() const
 	{
 		return "";

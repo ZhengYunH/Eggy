@@ -26,6 +26,12 @@ namespace Eggy
 	{
 	}
 
+	void PrimitiveComponent::Destroy()
+	{
+		SafeDestroy(mMaterial_);
+		SafeDestroy(mMesh_);
+	}
+
 	void PrimitiveComponent::CollectPrimitives(IRenderScene* renderScene)
 	{
 		if (!mMesh_ || !mMaterial_)

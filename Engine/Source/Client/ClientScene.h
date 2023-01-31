@@ -27,7 +27,15 @@ namespace Eggy
 
 		void Deserialize(const String& s) override;
 		String Serialize() const override;
-		void Tick();
+		void Tick_ot();
+		void Tick_rdt();
+
+	protected:
+		void StartLogicFrame();
+		void EndLogicFrame();
+
+		void StartRenderFrame();
+		void EndRenderFrame();
 
 	protected:
 		class World* mWorld_{ nullptr };

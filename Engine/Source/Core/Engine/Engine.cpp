@@ -1,5 +1,4 @@
 #include "Engine.h"
-#include "Graphics/RHI/IRenderDevice.h"
 
 // just for render-test, will be deleted soon
 #include "Client/ClientScene.h"
@@ -30,8 +29,7 @@ namespace Eggy
 
 	void Engine::TickLoop()
 	{
-		mClientScene_->Tick();
-		GRenderDevice->PrepareResource();
-		GRenderDevice->DrawFrame();
+		mClientScene_->Tick_ot();
+		mClientScene_->Tick_rdt();
 	}
 }

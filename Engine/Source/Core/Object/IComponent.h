@@ -10,6 +10,7 @@ namespace Eggy
 		friend class IEntity;
 	public:
 		IComponent() = default;
+		virtual ~IComponent();
 		String Serialize() const override;
 		void Deserialize(const String& s) override;
 
@@ -23,6 +24,7 @@ namespace Eggy
 	protected:
 		virtual void PreInitialize() {}
 		virtual void PostInitialize() {}
+		virtual void Destroy() {}
 
 	protected:
 		IEntity* mParent_{ nullptr };

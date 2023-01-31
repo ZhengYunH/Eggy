@@ -15,4 +15,15 @@ namespace Eggy
 	{
 		delete mRenderScene_;
 	}
+
+	void World::StartFrame()
+	{
+		mRenderScene_->StartFrame();
+	}
+
+	void World::EndFrame()
+	{
+		mRenderScene_->EndFrame();
+	}
+
 }
