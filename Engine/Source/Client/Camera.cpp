@@ -2,6 +2,28 @@
 
 namespace Eggy
 {
+
+	Camera::Camera()
+	{
+		mTransform_.SetIdentity();
+		mTransform_.LookAt(Vector3(0.f, 0.f, -5.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
+		mScreenHeight_ = static_cast<float>(SCREEN_INIT_HEIGHT);
+		mScreenWidth_ = static_cast<float>(SCREEN_INIT_WIDTH);
+		updateProjMatrix();
+
+		BindInputEvent(KeyDown, this, Camera::EventKeyDown);
+		BindInputEvent(KeyUp, this, Camera::EventKeyUp);
+
+		BindInputEvent(LeftMouseDown, this, Camera::EventLeftMouseDown);
+		BindInputEvent(RightMouseDown, this, Camera::EventRightMouseDown);
+		BindInputEvent(MidMouseDown, this, Camera::EventMidMouseDown);
+		BindInputEvent(LeftMouseUp, this, Camera::EventLeftMouseUp);
+		BindInputEvent(RightMouseUp, this, Camera::EventRightMouseUp);
+		BindInputEvent(MidMouseUp, this, Camera::EventMidMouseUp);
+		BindInputEvent(MouseMove, this, Camera::EventMouseMove);
+		BindInputEvent(MouseWheel, this, Camera::EventMouseWheel);
+	}
+
 	void Camera::handleInputKeyDown(WPARAM key)
 	{
 		switch (key)
@@ -136,13 +158,24 @@ namespace Eggy
 		if (mPressingKeyBit_)
 		{
 #define HANDLE_KEY(CHAR) if (mPressingKeyBit_ & ECAMERA_KEY_BIT::EC_KEY_##CHAR)
+#if D3D11_DEVICE
+			HANDLE_KEY(W) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
+			HANDLE_KEY(S) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
+			HANDLE_KEY(A) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
+			HANDLE_KEY(D) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
+			HANDLE_KEY(Q) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
+			HANDLE_KEY(E) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
+#else
+			// VULKAN_DEVICE
 			HANDLE_KEY(W) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(S) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(A) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(D) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(Q) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(E) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
+#endif
 #undef HANDLE_KEY
+
 		}
 	}
 
@@ -151,12 +184,25 @@ namespace Eggy
 		float rad = DegreeToRadian(mFov_);
 		float h = Cos(0.5f * rad) / Sin(0.5f * rad);
 		float w = h * mScreenHeight_ / mScreenWidth_;
-		mProjMatrix_ = Matrix4x4(
-			w, 0, 0, 0,
-			0, h, 0, 0,
-			0, 0, mFar_ / (mNear_ - mFar_), -1,
-			0, 0, -(mFar_ * mNear_) / (mFar_ - mNear_), 0
-		);
+		if (mPerspective_)
+		{
+			mProjMatrix_ = Matrix4x4(
+				w, 0, 0, 0,
+				0, h, 0, 0,
+				0, 0, mFar_ / (mNear_ - mFar_), -1,
+				0, 0, -(mFar_ * mNear_) / (mFar_ - mNear_), 0
+			);
+		}
+		else
+		{
+			mProjMatrix_ = Matrix4x4(
+				2.f / w, 0, 0, 0,
+				0, 2.f / h, 0, 0,
+				0, 0, -1 / (mFar_ - mNear_), 0,
+				0, 0, mNear_ / (mFar_ - mNear_), 1
+			);
+		}
+		
 	}
 
 }

@@ -1,6 +1,6 @@
 #include "PrimitivesComponent.h"
 #include "Graphics/Elements/RenderElement.h"
-
+#include "Client/Camera.h"
 
 namespace Eggy
 {
@@ -45,6 +45,7 @@ namespace Eggy
 		{
 			auto& objectInfo = element->mObjectInfo;
 
+			if(false)
 			{
 				static float phi = 0.0f, theta = 0.0f;
 				Vector3 Translation;
@@ -57,42 +58,8 @@ namespace Eggy
 			}
 
 			objectInfo.ModelTransform = entity->GetTransform();
-
-			{
-				Matrix4x3 viewMat;
-				viewMat.LookAt(Vector3(0.f, 0.f, -5.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
-				objectInfo.ViewTransform = viewMat;
-
-				float fov = 45;
-				float rad = DegreeToRadian(fov);
-				float h = Cos(0.5f * rad) / Sin(0.5f * rad);
-				float mScreenHeight_ = 600;
-				float mScreenWidth_ = 800;
-				float mNear_ = 1;
-				float mFar_ = 5000;
-				float w = h * mScreenHeight_ / mScreenWidth_;
-				
-				bool perspective = true;
-				
-				if (perspective)
-				{
-					objectInfo.ProjectTransform = Matrix4x4(
-						w, 0, 0, 0,
-						0, h, 0, 0,
-						0, 0, mFar_ / (mNear_ - mFar_), -1,
-						0, 0, -(mFar_ * mNear_) / (mFar_ - mNear_), 0
-					);
-				}
-				else
-				{
-					objectInfo.ProjectTransform = Matrix4x4(
-						2.f / w, 0, 0, 0,
-						0, 2.f / h, 0, 0,
-						0, 0, -1 / (mFar_ - mNear_), 0,
-						0, 0, mNear_ / (mFar_ - mNear_), 1
-					);
-				}
-			}
+			objectInfo.ViewTransform = renderScene->GetCamera()->getViewMatrix();;
+			objectInfo.ProjectTransform = renderScene->GetCamera()->getProjMatrix();
 		}
 		
 		renderScene->SubmitRenderElement(ERenderSet::MAIN, element);

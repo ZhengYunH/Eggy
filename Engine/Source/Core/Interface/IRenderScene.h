@@ -15,6 +15,7 @@ namespace Eggy
 
 	struct IRenderObject;
 	struct IRenderElement;
+	class Camera;
 
 	class IRenderScene 
 	{
@@ -26,5 +27,8 @@ namespace Eggy
 		virtual IRenderObject* AllocateRenderObject() = 0;
 		virtual IRenderObject* SubmitRenderElement(ERenderSet set, IRenderElement* element) = 0;
 		virtual List<IRenderObject*>& GetRenderObjects(ERenderSet set) = 0;
+		
+		virtual Camera* GetCamera() = 0;
+		virtual void SetCamera(Camera* camera) = 0;
 	};
 }

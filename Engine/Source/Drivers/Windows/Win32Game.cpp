@@ -15,14 +15,14 @@ namespace Eggy
 	void Win32Game::PumpMessage()
 	{
 		MSG msg;
-		while (PeekMessage(&msg, mWindow_, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
 			if (msg.message == WM_QUIT) {
 				return;
 			}
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			
 		}
 	}
 

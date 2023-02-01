@@ -31,23 +31,7 @@ namespace Eggy
 	class Camera
 	{
 	public:
-		Camera() noexcept
-		{
-			mTransform_.SetIdentity();
-			updateProjMatrix();
-
-			BindInputEvent(KeyDown, this, Camera::EventKeyDown);
-			BindInputEvent(KeyUp, this, Camera::EventKeyUp);
-
-			BindInputEvent(LeftMouseDown, this, Camera::EventLeftMouseDown);
-			BindInputEvent(RightMouseDown, this, Camera::EventRightMouseDown);
-			BindInputEvent(MidMouseDown, this, Camera::EventMidMouseDown);
-			BindInputEvent(LeftMouseUp, this, Camera::EventLeftMouseUp);
-			BindInputEvent(RightMouseUp, this, Camera::EventRightMouseUp);
-			BindInputEvent(MidMouseUp, this, Camera::EventMidMouseUp);
-			BindInputEvent(MouseMove, this, Camera::EventMouseMove);
-			BindInputEvent(MouseWheel, this, Camera::EventMouseWheel);
-		}
+		Camera();
 
 	public:
 		/// Event Binding
@@ -79,7 +63,7 @@ namespace Eggy
 		}
 
 	public:
-		Matrix4x3 getViewMatrix() const { return mTransform_.GetInverse(); }
+		Matrix4x3 getViewMatrix() const { return mTransform_; }
 		const Matrix4x4& getProjMatrix() const { return mProjMatrix_; }
 		const float getFov() { return mFov_; }
 
@@ -98,6 +82,7 @@ namespace Eggy
 		float mNear_{ 0.01f };
 		float mFar_{ 5000.f };
 		float mMoveSpeed_{ 1.f };
+		bool mPerspective_{ true };
 
 	public:
 		float mScreenHeight_{ -1.0f };

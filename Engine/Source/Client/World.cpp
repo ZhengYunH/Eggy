@@ -18,12 +18,13 @@ namespace Eggy
 			viewMat.LookAt(Vector3(0.f, 0.f, -5.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 			mMainCamera_->setTransform(viewMat);
 		}
-		
+		mRenderScene_->SetCamera(mMainCamera_);
 	}
 
 	World::~World()
 	{
-		delete mRenderScene_;
+		SafeDestroy(mMainCamera_);
+		SafeDestroy(mRenderScene_);
 	}
 
 	void World::StartFrame()

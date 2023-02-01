@@ -13,6 +13,11 @@ namespace Eggy
 		}
 	}
 
+	RenderScene::~RenderScene()
+	{
+		ClearResourcePool();
+	}
+
 	// TODO add pool
 	IRenderElement* RenderScene::AllocateRenderElement()
 	{
@@ -32,6 +37,14 @@ namespace Eggy
 
 	void RenderScene::EndFrame()
 	{
+		ClearResourcePool();
+	}
+
+	void RenderScene::ClearRenderObjects()
+	{
+		if (mRenderObjects_.empty())
+			return;
+
 		// clear RenderObject
 		for (auto& pair : mRenderObjects_)
 		{
@@ -42,6 +55,12 @@ namespace Eggy
 			}
 		}
 		mRenderObjects_.clear();
+	}
+
+	void RenderScene::ClearRenderElements()
+	{
+		if (mRenderElements_.empty())
+			return;
 
 		// clear RenderElement
 		for (auto ele : mRenderElements_)
@@ -49,6 +68,12 @@ namespace Eggy
 			delete ele;
 		}
 		mRenderElements_.clear();
+	}
+
+	void RenderScene::ClearResourcePool()
+	{
+		ClearRenderObjects();
+		ClearRenderElements();
 	}
 
 	RenderObject* RenderScene::AllocateRenderObject()
