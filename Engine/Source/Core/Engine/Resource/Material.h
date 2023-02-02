@@ -9,9 +9,12 @@ namespace Eggy
 	public:
 		void Deserialize(IFile* file) noexcept override
 		{
+			mShader_ = "Basic";
+			mTexturePaths_.push_back("Test");
 		}
 
 		String mShader_;
+		List<String> mTexturePaths_;
 	};
 }
 

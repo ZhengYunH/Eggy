@@ -58,6 +58,30 @@ namespace Eggy
 		}
 	};
 
+	struct ITexture : public IBuffer
+	{
+		ITexture() : IBuffer()
+		{
+			Usage = EBufferUsage::Immutable;
+			BindType = EBufferType::ShaderResource;
+			Count = 1;
+			CPUAcesssFlags = ECPUAccessFlags(ECPUAccessFlag::Read);
+		}
+
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
+		{
+			if (IsResourceCreated())
+				return;
+			factory->CreateTexture(this);
+		}
+
+		uint32 Width{ 0 };
+		uint32 Height{ 0 };
+		uint8 Mips{ 0 };
+		ETextureType TextureType{ ETextureType::None };
+		EFormat Format{ EFormat::UNDEFINED };
+	};
+
 	struct IInputLayout : public IRenderResource
 	{
 		struct InputElementDesc
@@ -123,6 +147,24 @@ namespace Eggy
 		{
 			return Layout.IsResourceCreated() && VertexBuffer.IsResourceCreated() && IndexBuffer.IsResourceCreated();
 		}
+	};
+
+	struct SamplerState : IRenderResource
+	{
+		EFilterType Filter{ EFilterType::MIN_MAG_MIP_LINEAR };
+		EAddressMode AddressU{ EAddressMode::WRAP };
+		EAddressMode AddressV{ EAddressMode::WRAP };
+		EAddressMode AddressW{ EAddressMode::WRAP };
+		float MipLodBias{ 0 };
+		uint32 MaxAnisotropy{ 0 };
+		float MinLod{ 0 };
+		float MaxLod{ -1 };
+
+		void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
+		{
+			factory->CreateSamplerState(this);
+		}
+
 	};
 
 	struct ResourceBinding

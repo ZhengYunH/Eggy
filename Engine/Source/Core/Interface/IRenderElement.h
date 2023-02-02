@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Config.h"
-#include "Core/Object/IMesh.h"
-#include "Core/Object/IMaterial.h"
+#include "Core/Object/Mesh.h"
+#include "Core/Object/Material.h"
 #include "Core/Math/Matrix4x4.h"
 
 

@@ -27,6 +27,12 @@ namespace Eggy
 		using type = TFloatingPointVector3Base<double, _VectorType<double>>;
 	};
 
+	template<template<typename> class _VectorType>
+	struct TFloatingPointVector3<uint32, _VectorType>
+	{
+		using type = TFloatingPointVector3Base<uint32, _VectorType<uint32>>;
+	};
+
 	template<typename _ScalarType>
 	class TVec3 : public SelectVectorBase<_ScalarType, TVec3, 3, typename TFloatingPointVector3<_ScalarType, TVec3>::type>::type
 	{
@@ -71,6 +77,7 @@ namespace Eggy
 	};
 
 	using Vector3 = TVec3<float>;
+	using Vector3U = TVec3<uint32>;
 	using Vector3F = TVec3<float>;
 	using Vector3D = TVec3<double>;
 }

@@ -107,6 +107,14 @@ namespace Eggy
 			ObjectConstantData = element->mObjectInfo;
 		}
 
+		// fill texture 
+		{
+			for (auto& texture : element->mMaterial->GetTextures())
+			{
+				obj->SetTexture("", texture.GetResource());
+			}
+		}
+
 		obj->Consolidate();
 		return obj;
 	}

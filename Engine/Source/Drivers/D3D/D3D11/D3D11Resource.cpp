@@ -145,10 +145,67 @@ namespace Eggy
 		
 		HR(mD3D11Device_->mDevice_->CreateBuffer(
 				&bufferDesc, 
-			buffer->Data ? &initData : nullptr,
+				buffer->Data ? &initData : nullptr,
 				deviceBuffer->ppBuffer.GetAddressOf()
 			)
 		);
+	}
+
+	void D3D11ResourceFactory::CreateTexture(ITexture* texture)
+	{
+		switch (texture->TextureType)
+		{
+		case ETextureType::Texture2D:
+			CreateTexture2D(texture);
+			break;
+		case ETextureType::TextureCube:
+			CreateTextureCube(texture);
+			break;
+		default:
+			Unimplement();
+		}
+	}
+
+	void D3D11ResourceFactory::CreateSamplerState(SamplerState* state)
+	{
+		D3D11SamplerState* samplerState = new D3D11SamplerState(state);
+		state->DeviceResource = samplerState;
+
+		D3D11_SAMPLER_DESC sampDesc;
+		ZeroMemory(&sampDesc, sizeof(sampDesc));
+		sampDesc.Filter = Converter::FilterType(state->Filter);
+		sampDesc.AddressU = Converter::AddressMode(state->AddressU);
+		sampDesc.AddressV = Converter::AddressMode(state->AddressV);
+		sampDesc.AddressW = Converter::AddressMode(state->AddressW);
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = state->MinLod >= 0 ? state->MinLod : 0;
+		sampDesc.MaxLOD = state->MaxLod >= 0 ? state->MaxLod : D3D11_FLOAT32_MAX;
+		HR(mD3D11Device_->mDevice_->CreateSamplerState(&sampDesc, samplerState->ppSamplerState.GetAddressOf()));
+	}
+
+	void D3D11ResourceFactory::CreateTexture2D(ITexture* texture)
+	{
+		D3D11Texture2D* deviceTexture = new D3D11Texture2D(texture);
+		texture->DeviceResource = deviceTexture;
+
+		D3D11_TEXTURE2D_DESC desc = {};
+		desc.Width = texture->Width;
+		desc.Height = texture->Height;
+		desc.MipLevels = texture->Mips;
+		desc.ArraySize = 1;
+		desc.Format = Converter::Format(texture->Format);
+		desc.SampleDesc.Count = 1;
+		desc.Usage = Converter::Usage(texture->Usage);;
+		desc.BindFlags = Converter::BufferType(EBufferType::ShaderResource);
+
+		D3D11_SUBRESOURCE_DATA initData = { texture->Data, texture->Width * GetFormatInfo(texture->Format).DataSize, texture->Width * texture->Height * GetFormatInfo(texture->Format).DataSize};
+		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, &initData, deviceTexture->ppTex.GetAddressOf()));
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = Converter::Format(texture->Format);
+		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Texture2D.MipLevels = texture->Mips;
+		HR(mD3D11Device_->mDevice_->CreateShaderResourceView(deviceTexture->ppTex.Get(), &SRVDesc, deviceTexture->ppSRV.GetAddressOf()));
 	}
 }
 

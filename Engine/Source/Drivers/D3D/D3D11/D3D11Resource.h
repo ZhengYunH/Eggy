@@ -6,13 +6,16 @@
 #include "Graphics/RHI/IRenderDevice.h"
 
 
-
 namespace Eggy
 {
 	class D3D11Device;
 	struct D3D11Shader;
 	struct IShaderCollection;
 
+	struct D3D11Resource
+	{
+		virtual void CreateResource(class D3D11Device& Device) {};
+	};
 
 	struct D3D11InputLayout 
 	{
@@ -32,6 +35,41 @@ namespace Eggy
 		TComPtr<ID3D11Buffer> ppBuffer;
 	};
 
+	struct D3D11Texture
+	{
+		D3D11Texture(ITexture* texture) : Texture(texture)
+		{}
+
+		ITexture* Texture;
+		ETextureType TextureType;
+
+		TComPtr<ID3D11ShaderResourceView> ppSRV;
+	};
+
+	struct D3D11Texture2D : public D3D11Texture
+	{
+		D3D11Texture2D(ITexture* texture) : D3D11Texture(texture)
+		{
+			TextureType = ETextureType::Texture2D;
+		}
+
+		TComPtr<ID3D11Texture2D> ppTex;
+	};
+
+	struct D3D11SamplerState
+	{
+		D3D11SamplerState(SamplerState* state) : State(state)
+		{}
+
+		SamplerState* State;
+		TComPtr<ID3D11SamplerState> ppSamplerState;
+	};
+
+	struct D3D11PipelineState
+	{
+
+	};
+
 	class D3D11ResourceFactory : public IRenderResourceFactory
 	{
 	public:
@@ -39,14 +77,19 @@ namespace Eggy
 		{
 		}
 
-		void CreateInputLayout(IInputLayout* inputLayout, IShaderCollection* shaderCollection);
-		void CreateShader(IShader* shader);
-		void CreateBuffer(IBuffer* buffer);
+		void CreateInputLayout(IInputLayout* inputLayout, IShaderCollection* shaderCollection) override;
+		void CreateShader(IShader* shader) override;
+		void CreateBuffer(IBuffer* buffer) override;
+		void CreateTexture(ITexture* texture) override;
+		void CreateSamplerState(SamplerState* state) override;
 
 	protected:
 		void CreateShaderFromFile(D3D11Shader* deviceShader);
 		void CreateVertexShader(D3D11Shader* deviceShader);
 		void CreatePixelShader(D3D11Shader* deviceShader);
+		
+		void CreateTexture2D(ITexture* texture);
+		void CreateTextureCube(ITexture* texture) { Unimplement(); }
 
 
 	protected:

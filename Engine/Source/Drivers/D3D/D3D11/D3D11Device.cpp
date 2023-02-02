@@ -110,6 +110,23 @@ namespace Eggy
 			D3D11PixelShader* pixelShader = (D3D11PixelShader*)object->ShaderCollection.GetShader(EShaderType::PS)->DeviceResource;
 			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
 			mImmediateContext_->VSSetConstantBuffers(0, 1, buffer->ppBuffer.GetAddressOf());
+			
+			List<ID3D11ShaderResourceView*> texViews;
+			texViews.reserve(object->Textures.size());
+			for (auto& tex : object->Textures)
+			{
+				texViews.push_back(((D3D11Texture*)(tex->DeviceResource))->ppSRV.Get());
+			}
+			mImmediateContext_->PSSetShaderResources(0, (UINT)texViews.size(), texViews.data());
+
+
+			List<ID3D11SamplerState*> samplerStates;
+			samplerStates.reserve(object->Samplers.size());
+			for (auto& sampler : object->Samplers)
+			{
+				samplerStates.push_back(((D3D11SamplerState*)(sampler->DeviceResource))->ppSamplerState.Get());
+			}
+			mImmediateContext_->PSSetSamplers(0, (UINT)samplerStates.size(), samplerStates.data());
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
 			mImmediateContext_->DrawIndexed(static_cast<UINT>(indexBuffer.Count), 0, 0);
 		}

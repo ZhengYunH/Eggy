@@ -43,6 +43,8 @@ namespace Eggy
 		IShaderCollection ShaderCollection;
 		ObjectInfo ObjectConstantData;
 		IConstantBuffer ConstantBuffer;	
+		List<ITexture*> Textures;
+		List<SamplerState*> Samplers;
 
 		void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
 		{
@@ -53,12 +55,58 @@ namespace Eggy
 
 			}
 			ConstantBuffer.CreateDeviceResource(factory);
+			for (ITexture* tex : Textures)
+			{
+				tex->CreateDeviceResource(factory);
+			}
+			for (SamplerState* state : Samplers)
+			{
+				state->CreateDeviceResource(factory);
+			}
 		}
 
 		void Consolidate() override
 		{
 			Geometry.Layout.ShaderCollection = &ShaderCollection;
 			ConstantBuffer.ByteWidth = sizeof(ObjectConstantData);
+			ConsolidateResource();
+		}
+
+		void ConsolidateResource()
+		{
+			Samplers.resize(Textures.size());
+			for (auto& sample : Samplers)
+			{
+				sample = new SamplerState();
+			}
+		}
+
+		void SetTexture(String key, const TextureResource& resource)
+		{
+			Textures.push_back(new ITexture());
+			auto& texture = *(Textures.back());
+			texture.Data = resource.GetData();
+			texture.Width = resource.Size.x;
+			texture.Height = resource.Size.y;
+			texture.Mips = resource.Mips;
+			texture.Format = resource.Format;
+			texture.ByteWidth = resource.ByteWidth;
+			texture.TextureType = resource.TextureType;
+		}
+
+		~RenderObject()
+		{
+			for (ITexture* tex : Textures)
+			{
+				delete tex;
+			}
+			Textures.clear();
+
+			for (SamplerState* sampler : Samplers)
+			{
+				delete sampler;
+			}
+			Samplers.clear();
 		}
 	};
 

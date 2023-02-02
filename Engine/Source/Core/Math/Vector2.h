@@ -52,6 +52,7 @@ namespace Eggy
 		}
 	};
 
+	using Vector2U = TVec2<uint32>;
 	using Vector2 = TVec2<float>;
 	using Vector2F = TVec2<float>;
 	using Vector2D = TVec2<double>;

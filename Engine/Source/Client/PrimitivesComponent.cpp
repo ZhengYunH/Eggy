@@ -10,14 +10,14 @@ namespace Eggy
 		{
 			mMesh_ = new Mesh();
 			MeshResource* meshResource = new MeshResource();
-			meshResource->mGeometry_ = new QuatMesh();
+			meshResource->mGeometry_ = new CubeMesh<EVF_P3F_C4B_T2F>();
 			mMesh_->SetResource(meshResource);
 		}
 		
 		{
 			mMaterial_ = new Material();
 			MaterialResource* matRes = new MaterialResource();
-			matRes->mShader_ = "Basic";
+			matRes->Deserialize(nullptr);
 			mMaterial_->SetResource(matRes);
 		}
 	}
@@ -44,19 +44,6 @@ namespace Eggy
 		if (entity)
 		{
 			auto& objectInfo = element->mObjectInfo;
-
-			if(false)
-			{
-				static float phi = 0.0f, theta = 0.0f;
-				Vector3 Translation;
-				phi += 0.00001f;
-				theta += 0.00015f;
-				Matrix4x3 modelTransform = entity->GetTransform();
-				modelTransform.SetRotationX(phi, Translation);
-				modelTransform.SetRotationY(theta, Translation);
-				entity->SetTransform(modelTransform);
-			}
-
 			objectInfo.ModelTransform = entity->GetTransform();
 			objectInfo.ViewTransform = renderScene->GetCamera()->getViewMatrix();;
 			objectInfo.ProjectTransform = renderScene->GetCamera()->getProjMatrix();

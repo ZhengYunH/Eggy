@@ -148,6 +148,43 @@ namespace Eggy
 
 		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_N4B_T2F;
 	};
+
+	template<>
+	class TVertexType<EVF_P3F_C4B_T2F>
+	{
+	public:
+		Vector3	Position;
+		Color4B	Color;
+		Vector2 ST;
+
+		TVertexType() = default;
+
+
+		TVertexType(const Vector3& position, const Color4B& color, const Vector2 st)
+			: Position(position), Color(color), ST(st)
+		{}
+
+		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F_C4B_T2F>& rhs) const noexcept
+		{
+			return this->Position == rhs.Position && this->Color == rhs.Color && this->ST == rhs.ST;
+		}
+
+		constexpr static const size_t GetSize()
+		{
+			return sizeof(Vector3) + sizeof(Color4B) + sizeof(Vector2);
+		}
+
+		static void GetDesc(List<IInputLayout::InputElementDesc>& Descs)
+		{
+			Descs = {
+				{"POSITION",  0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
+				{"COLOR",  0, EFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
+				{"TEXCOORD",  0, EFormat::R8G8B8A8, 0, sizeof(Vector3) + sizeof(Color4B), EInputClassification::PerVertex },
+			};
+		}
+
+		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_C4B_T2F;
+	};
 	
 	struct VertexInfo
 	{

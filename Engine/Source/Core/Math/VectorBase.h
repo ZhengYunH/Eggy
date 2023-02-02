@@ -17,4 +17,10 @@ namespace Eggy
 	{
 		using type = TFloatVector<double, _VectorType, _Dimension, _Traits>;
 	};
+
+	template<template<typename> class _VectorType, int _Dimension, typename _Traits>
+	struct SelectVectorBase<uint32, _VectorType, _Dimension, _Traits>
+	{
+		using type = TFloatVector<uint32, _VectorType, _Dimension, _Traits>;
+	};
 }

@@ -1,22 +1,12 @@
 #pragma once
 #include "Core/Config.h"
 #include "Core/Interface/IRenderMesh.h"
-#include "Core/Engine/Resource/ResourceObject.h"
+#include "Core/Engine/Resource/Mesh.h"
 #include "Graphics/Renderer/VertexFactory.h"
+
 
 namespace Eggy
 {
-	struct IMeshData
-	{
-		virtual size_t GetVertexData(void*& Data) = 0;
-		virtual size_t GetIndexData(void*& Data) = 0;
-
-		virtual size_t GetVertexStride() = 0;
-		virtual size_t GetIndexStride() = 0;
-
-		virtual void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) = 0;
-	};
-
 	template<EVertexFormat Format>
 	struct MeshData : public IMeshData
 	{
@@ -113,14 +103,54 @@ namespace Eggy
 		Color4B Color{ Color4B_RED };
 	};
 
-	struct MeshResource : public ResourceObject
+	template<EVertexFormat Format>
+	struct CubeMesh : public MeshData<Format>
 	{
-		void Deserialize(IFile* file) noexcept override
+		using Parent = MeshData<Format>;
+		CubeMesh() : Parent()
 		{
+			CreateMeshData();
 		}
 
-		IMeshData* mGeometry_;
+		void CreateMeshData() 
+		{
+		}
 	};
+
+	template<>
+	struct CubeMesh<EVF_P3F_C4B_T2F> : public MeshData<EVF_P3F_C4B_T2F>
+	{
+		using Parent = MeshData<EVF_P3F_C4B_T2F>;
+		CubeMesh() : Parent()
+		{
+			CreateMeshData();
+		}
+
+		void CreateMeshData()
+		{
+			SetupData(
+				List<VertexType>({
+						{ Vector3(-1.0f, -1.0f, -1.0f), Color4B(0.0f, 0.0f, 0.0f, 1.0f),  Vector2(0.0f, 0.0f)},
+						{ Vector3(-1.0f, 1.0f, -1.0f), Color4B(1.0f, 0.0f, 0.0f, 1.0f),  Vector2(0.0f, 1.0f) },
+						{ Vector3(1.0f, 1.0f, -1.0f), Color4B(1.0f, 1.0f, 0.0f, 1.0f),  Vector2(1.0f, 1.0f) },
+						{ Vector3(1.0f, -1.0f, -1.0f), Color4B(0.0f, 1.0f, 0.0f, 1.0f),  Vector2(1.0f, 0.0f) },
+						{ Vector3(-1.0f, -1.0f, 1.0f), Color4B(0.0f, 0.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) },
+						{ Vector3(-1.0f, 1.0f, 1.0f), Color4B(1.0f, 0.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) },
+						{ Vector3(1.0f, 1.0f, 1.0f), Color4B(1.0f, 1.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) },
+						{ Vector3(1.0f, -1.0f, 1.0f), Color4B(0.0f, 1.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) }
+					}),
+				List<IndexType>({
+						0, 1, 2, 2, 3, 0,	// Front
+						4, 5, 1, 1, 0, 4,	// Left
+						1, 5, 6, 6, 2, 1,	// Top
+						7, 6, 5, 5, 4, 7,	// Back
+						3, 2, 6, 6, 7, 3,	// Right
+						4, 0, 3, 3, 7, 4	// Bottom
+					})
+			);
+		}
+	};
+
 
 	class Mesh
 	{

@@ -4,17 +4,14 @@
 
 namespace Eggy
 {
-	struct IInputLayout;
-	struct IShaderCollection;
-	struct IShader;
-	struct IBuffer;
-
 	class IRenderResourceFactory
 	{
 	public:
-		virtual void CreateInputLayout(IInputLayout* inputLayout, IShaderCollection* shaderCollection) = 0;
-		virtual void CreateShader(IShader* shader) = 0;
-		virtual void CreateBuffer(IBuffer* buffer) = 0;
+		virtual void CreateInputLayout(struct IInputLayout* inputLayout, struct IShaderCollection* shaderCollection) = 0;
+		virtual void CreateShader(struct IShader* shader) = 0;
+		virtual void CreateBuffer(struct IBuffer* buffer) = 0;
+		virtual void CreateTexture(struct ITexture* texture) = 0;
+		virtual void CreateSamplerState(struct SamplerState* state) = 0;
 	};
 
 	class IRenderDevice

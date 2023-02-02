@@ -28,9 +28,8 @@ namespace Eggy
 			case EFormat::A16B16G16R16F:
 				return DXGI_FORMAT::DXGI_FORMAT_R16G16B16A16_FLOAT;
 			case EFormat::R8G8B8A8:
-				return DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
-				break;
-			case EFormat::D32_SFLOAT_S8_UINT:
+				return DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+			case EFormat::D32_SFLOAT_S8X24_UINT:
 				return DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 			case EFormat::R8_UINT:
 				return DXGI_FORMAT::DXGI_FORMAT_R8_UINT;
@@ -110,6 +109,8 @@ namespace Eggy
 				return D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 			case EBufferType::ConstantBuffer:
 				return D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+			case EBufferType::ShaderResource:
+				return D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
 			default:
 				Unimplement(0);
 				break;
@@ -125,6 +126,34 @@ namespace Eggy
 			if (flag & uint32(ECPUAccessFlag::Write))
 				d3dFlag |= D3D11_CPU_ACCESS_WRITE;
 			return d3dFlag;
+		}
+
+		static D3D11_FILTER FilterType(EFilterType filterType)
+		{
+			static D3D11_FILTER filterTypes[uint32(EFilterType::END)] = {
+				D3D11_FILTER_MIN_MAG_MIP_POINT, // UNDEFINE
+				D3D11_FILTER_MIN_MAG_MIP_POINT, // MIN_MAG_MIP_POINT
+				D3D11_FILTER_MIN_MAG_MIP_LINEAR, // MIN_MAG_MIP_LINEAR
+				D3D11_FILTER_ANISOTROPIC, // ANISOTROPIC
+			};
+
+			HYBRID_CHECK(uint32(filterType) <= uint32(EFilterType::END));
+			return filterTypes[uint32(filterType)];
+		}
+
+		static D3D11_TEXTURE_ADDRESS_MODE AddressMode(EAddressMode mode)
+		{
+			static D3D11_TEXTURE_ADDRESS_MODE addressModes[uint32(EAddressMode::END)] = {
+				D3D11_TEXTURE_ADDRESS_WRAP, // UNDEFINE
+				D3D11_TEXTURE_ADDRESS_WRAP, // WRAP
+				D3D11_TEXTURE_ADDRESS_MIRROR, // MIRROR
+				D3D11_TEXTURE_ADDRESS_CLAMP, // CLAMP
+				D3D11_TEXTURE_ADDRESS_BORDER, // BORDER
+				D3D11_TEXTURE_ADDRESS_MIRROR_ONCE, // MIRROR_ONCE
+			};
+
+			HYBRID_CHECK(uint32(mode) <= uint32(EAddressMode::END));
+			return addressModes[uint32(mode)];
 		}
 	};
 }

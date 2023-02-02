@@ -1,8 +1,8 @@
 #pragma once
 #include "Core/Object/IComponent.h"
 #include "Core/Interface/IRenderScene.h"
-#include "Core/Object/IMesh.h"
-#include "Core/Object/IMaterial.h"
+#include "Core/Object/Mesh.h"
+#include "Core/Object/Material.h"
 #include "Core/Object/IPrimitive.h"
 
 
