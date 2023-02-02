@@ -101,6 +101,7 @@ namespace Eggy
 			UINT offset = 0;
 			UINT startVertexLocaltion = 0;
 
+
 			mImmediateContext_->IASetVertexBuffers(0, 1, ((D3D11Buffer*)vertexBuffer.DeviceResource)->ppBuffer.GetAddressOf(), &stride, &offset);
 			mImmediateContext_->IASetIndexBuffer(((D3D11Buffer*)indexBuffer.DeviceResource)->ppBuffer.Get(), Converter::IndexFormat(indexBuffer.ByteWidth / indexBuffer.Count), 0);
 			mImmediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -111,6 +112,8 @@ namespace Eggy
 			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
 			mImmediateContext_->VSSetConstantBuffers(0, 1, buffer->ppBuffer.GetAddressOf());
 			
+			mImmediateContext_->RSSetState(((D3D11PipelineState*)object->Pipeline.DeviceResource)->ppRasterizerState.Get());
+
 			List<ID3D11ShaderResourceView*> texViews;
 			texViews.reserve(object->Textures.size());
 			for (auto& tex : object->Textures)
@@ -118,7 +121,6 @@ namespace Eggy
 				texViews.push_back(((D3D11Texture*)(tex->DeviceResource))->ppSRV.Get());
 			}
 			mImmediateContext_->PSSetShaderResources(0, (UINT)texViews.size(), texViews.data());
-
 
 			List<ID3D11SamplerState*> samplerStates;
 			samplerStates.reserve(object->Samplers.size());

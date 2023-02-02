@@ -26,7 +26,7 @@ namespace Eggy
 		{
 			switch (shaderType)
 			{
-			case Eggy::EShaderType::None:
+			case Eggy::EShaderType::UNDEFINE:
 				Unimplement();
 				break;
 			case Eggy::EShaderType::VS:

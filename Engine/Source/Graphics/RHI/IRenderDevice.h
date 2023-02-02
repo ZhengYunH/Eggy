@@ -11,7 +11,8 @@ namespace Eggy
 		virtual void CreateShader(struct IShader* shader) = 0;
 		virtual void CreateBuffer(struct IBuffer* buffer) = 0;
 		virtual void CreateTexture(struct ITexture* texture) = 0;
-		virtual void CreateSamplerState(struct SamplerState* state) = 0;
+		virtual void CreateSamplerState(struct SamplerState* samplerState) = 0;
+		virtual void CreatePipelineState(struct PipelineState* pipelineState) = 0;
 	};
 
 	class IRenderDevice

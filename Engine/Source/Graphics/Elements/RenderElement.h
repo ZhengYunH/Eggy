@@ -45,6 +45,7 @@ namespace Eggy
 		IConstantBuffer ConstantBuffer;	
 		List<ITexture*> Textures;
 		List<SamplerState*> Samplers;
+		PipelineState Pipeline;
 
 		void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
 		{
@@ -63,6 +64,7 @@ namespace Eggy
 			{
 				state->CreateDeviceResource(factory);
 			}
+			Pipeline.CreateDeviceResource(factory);
 		}
 
 		void Consolidate() override

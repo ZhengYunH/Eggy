@@ -67,7 +67,7 @@ namespace Eggy
 		{
 			switch (classification)
 			{
-			case EInputClassification::None:
+			case EInputClassification::UNDEFINE:
 				Unimplement();
 			case EInputClassification::PerVertex:
 				return D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
@@ -154,6 +154,30 @@ namespace Eggy
 
 			HYBRID_CHECK(uint32(mode) <= uint32(EAddressMode::END));
 			return addressModes[uint32(mode)];
+		}
+
+		static D3D11_FILL_MODE FillMode(EFillMode mode)
+		{
+			static D3D11_FILL_MODE fillModes[uint32(EFillMode::END)] = {
+				D3D11_FILL_SOLID, // UNDEFINE
+				D3D11_FILL_WIREFRAME, // Wireframe
+				D3D11_FILL_SOLID // Solid
+			};
+
+			HYBRID_CHECK(uint32(mode) <= uint32(EFillMode::END));
+			return fillModes[uint32(mode)];
+		}
+
+		static D3D11_CULL_MODE CullMode(ECullMode mode)
+		{
+			static D3D11_CULL_MODE cullModes[uint32(ECullMode::END)] = {
+				D3D11_CULL_NONE, // UNDEFINE
+				D3D11_CULL_FRONT, // Front, CW
+				D3D11_CULL_BACK // Back, CCW
+			};
+
+			HYBRID_CHECK(uint32(mode) <= uint32(ECullMode::END));
+			return cullModes[uint32(mode)];
 		}
 	};
 }

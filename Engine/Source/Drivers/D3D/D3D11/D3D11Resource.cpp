@@ -42,7 +42,7 @@ namespace Eggy
 		D3D11Shader* deviceShader = nullptr;
 		switch (shader->Type)
 		{
-		case EShaderType::None:
+		case EShaderType::UNDEFINE:
 			Unimplement();
 			break;
 		case EShaderType::VS:
@@ -62,7 +62,7 @@ namespace Eggy
 
 		switch (shader->Type)
 		{
-		case EShaderType::None:
+		case EShaderType::UNDEFINE:
 			Unimplement();
 			break;
 		case EShaderType::VS:
@@ -166,21 +166,43 @@ namespace Eggy
 		}
 	}
 
-	void D3D11ResourceFactory::CreateSamplerState(SamplerState* state)
+	void D3D11ResourceFactory::CreateSamplerState(struct SamplerState* samplerState)
 	{
-		D3D11SamplerState* samplerState = new D3D11SamplerState(state);
-		state->DeviceResource = samplerState;
+		D3D11SamplerState* deviceSamplerState = new D3D11SamplerState(samplerState);
+		samplerState->DeviceResource = deviceSamplerState;
 
 		D3D11_SAMPLER_DESC sampDesc;
 		ZeroMemory(&sampDesc, sizeof(sampDesc));
-		sampDesc.Filter = Converter::FilterType(state->Filter);
-		sampDesc.AddressU = Converter::AddressMode(state->AddressU);
-		sampDesc.AddressV = Converter::AddressMode(state->AddressV);
-		sampDesc.AddressW = Converter::AddressMode(state->AddressW);
+		sampDesc.Filter = Converter::FilterType(samplerState->Filter);
+		sampDesc.AddressU = Converter::AddressMode(samplerState->AddressU);
+		sampDesc.AddressV = Converter::AddressMode(samplerState->AddressV);
+		sampDesc.AddressW = Converter::AddressMode(samplerState->AddressW);
 		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		sampDesc.MinLOD = state->MinLod >= 0 ? state->MinLod : 0;
-		sampDesc.MaxLOD = state->MaxLod >= 0 ? state->MaxLod : D3D11_FLOAT32_MAX;
-		HR(mD3D11Device_->mDevice_->CreateSamplerState(&sampDesc, samplerState->ppSamplerState.GetAddressOf()));
+		sampDesc.MinLOD = samplerState->MinLod >= 0 ? samplerState->MinLod : 0;
+		sampDesc.MaxLOD = samplerState->MaxLod >= 0 ? samplerState->MaxLod : D3D11_FLOAT32_MAX;
+		HR(mD3D11Device_->mDevice_->CreateSamplerState(&sampDesc, deviceSamplerState->ppSamplerState.GetAddressOf()));
+	}
+
+	void D3D11ResourceFactory::CreatePipelineState(PipelineState* pipelineState)
+	{
+		D3D11PipelineState* devicePipelineState = new D3D11PipelineState(pipelineState);
+		pipelineState->DeviceResource = devicePipelineState;
+
+		{
+			D3D11_RASTERIZER_DESC desc = {};
+			auto& renderState = pipelineState->State;
+			desc.FillMode = Converter::FillMode(renderState.FillMode);
+			desc.CullMode = Converter::CullMode(renderState.CullMode);
+			desc.FrontCounterClockwise = false;
+			desc.DepthBias = 0;
+			desc.SlopeScaledDepthBias = 0.0f;
+			desc.DepthBiasClamp = 0.0f;
+			desc.DepthClipEnable = renderState.EnableDepthClip;
+			desc.ScissorEnable = renderState.EnableScissor;
+			desc.MultisampleEnable = renderState.EnableMultisample;
+			desc.AntialiasedLineEnable = renderState.EnableAntialiasedLine;
+			mD3D11Device_->mDevice_->CreateRasterizerState(&desc, devicePipelineState->ppRasterizerState.GetAddressOf());
+		}
 	}
 
 	void D3D11ResourceFactory::CreateTexture2D(ITexture* texture)

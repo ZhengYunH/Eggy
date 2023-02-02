@@ -23,7 +23,7 @@ namespace Eggy
 	struct IBuffer : public IRenderResource
 	{
 		EBufferUsage Usage{ EBufferUsage::Immutable };
-		EBufferType BindType{ EBufferType::None };
+		EBufferType BindType{ EBufferType::UNDEFINE };
 		size_t Count{ 0 };
 		size_t ByteWidth{ 0 };
 		ECPUAccessFlags CPUAcesssFlags{ 0 };
@@ -39,7 +39,7 @@ namespace Eggy
 
 		virtual bool IsValid() override 
 		{
-			return BindType != EBufferType::None && Count && Data;
+			return BindType != EBufferType::UNDEFINE && Count && Data;
 		}
 	};
 
@@ -78,7 +78,7 @@ namespace Eggy
 		uint32 Width{ 0 };
 		uint32 Height{ 0 };
 		uint8 Mips{ 0 };
-		ETextureType TextureType{ ETextureType::None };
+		ETextureType TextureType{ ETextureType::UNDEFINE };
 		EFormat Format{ EFormat::UNDEFINED };
 	};
 
@@ -91,7 +91,7 @@ namespace Eggy
 			EFormat Format{ EFormat::UNDEFINED };
 			uint16 InputSlot{ 0 };
 			uint16 AlignedByteOffset{ 0 };
-			EInputClassification SlotClass{ EInputClassification::None };
+			EInputClassification SlotClass{ EInputClassification::UNDEFINE };
 		};
 
 		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
@@ -152,9 +152,9 @@ namespace Eggy
 	struct SamplerState : IRenderResource
 	{
 		EFilterType Filter{ EFilterType::MIN_MAG_MIP_LINEAR };
-		EAddressMode AddressU{ EAddressMode::WRAP };
-		EAddressMode AddressV{ EAddressMode::WRAP };
-		EAddressMode AddressW{ EAddressMode::WRAP };
+		EAddressMode AddressU{ EAddressMode::Wrap };
+		EAddressMode AddressV{ EAddressMode::Wrap };
+		EAddressMode AddressW{ EAddressMode::Wrap };
 		float MipLodBias{ 0 };
 		uint32 MaxAnisotropy{ 0 };
 		float MinLod{ 0 };
@@ -181,14 +181,15 @@ namespace Eggy
 		IConstantBuffer Constant;
 	};
 
-	struct RenderState : IRenderResource
-	{
-
-	};
-
 	struct PipelineState : IRenderResource
 	{
-		RenderState* RenderState_;
+		RenderState State;
+
+		void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
+		{
+			factory->CreatePipelineState(this);
+		}
+
 	};
 
 	struct RenderItemInfo

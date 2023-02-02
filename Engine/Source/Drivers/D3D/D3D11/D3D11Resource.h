@@ -67,7 +67,11 @@ namespace Eggy
 
 	struct D3D11PipelineState
 	{
+		D3D11PipelineState(PipelineState* state) : State(state)
+		{}
 
+		PipelineState* State;
+		TComPtr<ID3D11RasterizerState> ppRasterizerState;
 	};
 
 	class D3D11ResourceFactory : public IRenderResourceFactory
@@ -81,7 +85,8 @@ namespace Eggy
 		void CreateShader(IShader* shader) override;
 		void CreateBuffer(IBuffer* buffer) override;
 		void CreateTexture(ITexture* texture) override;
-		void CreateSamplerState(SamplerState* state) override;
+		void CreateSamplerState(struct SamplerState* samplerState) override;
+		void CreatePipelineState(PipelineState* pipelineState) override;
 
 	protected:
 		void CreateShaderFromFile(D3D11Shader* deviceShader);
