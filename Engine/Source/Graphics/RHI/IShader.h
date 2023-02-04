@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Config.h"
 #include "Graphics/RHI/IRenderResource.h"
+#include "Core/System/FileSystem.h"
 
 
 namespace Eggy
@@ -17,6 +18,13 @@ namespace Eggy
 				return;
 			factory->CreateShader(this);
 		}
+
+		bool NeedCompile()
+		{
+			return FileSystem::Get()->FileExist(FilePath);
+		}
+
+		static String GetCacheFilePath(String path);
 
 		EShaderType Type;
 		String FilePath;

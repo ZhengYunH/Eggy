@@ -5,23 +5,10 @@
 
 namespace Eggy
 {
-	static String GenerateDefaultCSOFilePath(String path)
-	{
-		auto index = path.rfind('.');
-		if (index != std::string::npos)
-		{
-			return path.substr(0, index) + ".cso";
-		}
-		else
-		{
-			return path + ".cso";
-		}
-	}
-
 	D3D11Shader::D3D11Shader(IShader* shader) : Shader(shader)
 	{
 		HLSLPath = shader->FilePath;
-		CSOPath = GenerateDefaultCSOFilePath(HLSLPath);
+		CSOPath = IShader::GetCacheFilePath(HLSLPath);
 	}
 }
 

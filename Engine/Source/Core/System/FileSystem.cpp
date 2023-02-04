@@ -2,6 +2,8 @@
 
 namespace Eggy
 {
+	DefineSystem(FileSystem);
+
 	FileHandle FileSystem::LoadFile(String resource)
 	{
 		auto fileHandleItr = mFilesCache_.find(resource);
@@ -36,6 +38,28 @@ namespace Eggy
 		mFilesCache_.insert({ resource, file });
 		return file;
 	}
+
+	bool FileSystem::FileExist(String path)
+	{
+		std::ifstream ifile;
+		ifile.open(path);
+		if (ifile)
+		{
+			ifile.close();
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	String& FileSystem::GetCacheDirectory()
+	{
+		static String s_CachePath = "Cache/";
+		return s_CachePath;
+	}
+
 }
 
 
