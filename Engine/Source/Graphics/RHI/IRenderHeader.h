@@ -311,7 +311,7 @@ namespace Eggy
 			DepthFunc = ECompFunc::Less;
 			StencilReadMask = 0x0;
 			StencilWriteMask = 0x0;
-			FillMode = EFillMode::Wireframe;
+			FillMode = EFillMode::Solid;
 			CullMode = ECullMode::Back;
 			EnableDepthClip = true;
 			EnableScissor = false;
