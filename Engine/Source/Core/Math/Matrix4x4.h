@@ -49,6 +49,12 @@ namespace Eggy
 
 		void Transpose()
 		{
+			std::swap(m01, m10);
+			std::swap(m02, m20);
+			std::swap(m03, m30);
+			std::swap(m12, m21);
+			std::swap(m13, m31);
+			std::swap(m23, m32);
 		}
 
 

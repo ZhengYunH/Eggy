@@ -2,6 +2,15 @@
 
 namespace Eggy
 {
+	/*
+		Left Hand, z-forward, y-upward, x-rightward
+
+		^ Y    Z
+		|    /
+		|  /
+		|/
+	    0 - - - > X
+	*/
 
 	Camera::Camera()
 	{
@@ -126,8 +135,8 @@ namespace Eggy
 			HANDLE_MOUSE(LEFT)
 			{
 				mTransform_.SetPitchYawRoll(
-					Clamp(mTransform_.GetPitch() - fixRotateRate * deltaTime * deltaY, -MATH_HALF_PI + 0.1f, MATH_HALF_PI - 0.1f),
-					mTransform_.GetYaw() - fixRotateRate * deltaTime * deltaX,
+					Clamp(mTransform_.GetPitch() + fixRotateRate * deltaTime * deltaY, -MATH_HALF_PI + 0.1f, MATH_HALF_PI - 0.1f),
+					mTransform_.GetYaw() + fixRotateRate * deltaTime * deltaX,
 					mTransform_.GetRoll()
 				);
 			}
@@ -158,25 +167,26 @@ namespace Eggy
 		if (mPressingKeyBit_)
 		{
 #define HANDLE_KEY(CHAR) if (mPressingKeyBit_ & ECAMERA_KEY_BIT::EC_KEY_##CHAR)
-#if D3D11_DEVICE
 			HANDLE_KEY(W) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(S) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
-			HANDLE_KEY(A) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
-			HANDLE_KEY(D) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
-			HANDLE_KEY(Q) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
-			HANDLE_KEY(E) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
-#else
-			// VULKAN_DEVICE
-			HANDLE_KEY(W) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
-			HANDLE_KEY(S) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetZAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(A) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(D) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetXAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(Q) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(E) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
-#endif
 #undef HANDLE_KEY
 
 		}
+	}
+
+	Matrix4x3 Camera::getViewMatrix() const
+	{
+		Matrix4x3 viewMat = mTransform_.GetInverse();
+		return viewMat;
+	}
+
+	const Eggy::Matrix4x4& Camera::getProjMatrix() const
+{
+		return mProjMatrix_;
 	}
 
 	void Camera::updateProjMatrix()
@@ -189,7 +199,7 @@ namespace Eggy
 			mProjMatrix_ = Matrix4x4(
 				w, 0, 0, 0,
 				0, h, 0, 0,
-				0, 0, mFar_ / (mNear_ - mFar_), -1,
+				0, 0, mFar_ / (mFar_ - mNear_), 1,
 				0, 0, -(mFar_ * mNear_) / (mFar_ - mNear_), 0
 			);
 		}

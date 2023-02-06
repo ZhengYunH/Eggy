@@ -1,8 +1,8 @@
 cbuffer ConstantBuffer : register(b0)
 {
-    matrix cWorld;
-    matrix cView;
-    matrix cProj;
+    row_major matrix cWorld;
+    row_major matrix cView;
+    row_major matrix cProj;
 }
 
 struct VertexIn
