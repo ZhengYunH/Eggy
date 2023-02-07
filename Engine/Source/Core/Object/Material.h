@@ -52,6 +52,7 @@ namespace Eggy
 
 		IShaderCollection* GetShaderCollection()
 		{
+			HYBRID_CHECK(mShaderCollection_);
 			return mShaderCollection_;
 		}
 

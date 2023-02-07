@@ -1,4 +1,7 @@
 #include "IRenderPipeline.h"
+#include "IRenderPass.h"
+#include "Core/Engine/Resource/Texture.h"
+
 
 namespace Eggy
 {
@@ -35,55 +38,6 @@ namespace Eggy
  		}
 	}
 
-	void RenderPass::AddDrawCall(DrawCall* drawCall)
-	{
-		if (!DrawCallHead)
-		{
-			DrawCallHead = DrawCallLast = drawCall;
-			return;
-		}
-		DrawCallLast->Next_ = drawCall;
-		DrawCallLast = drawCall;
-		bIsConsolidated = false;
-	}
-
-	void RenderPass::Clear()
-	{
-		while (DrawCallHead)
-		{
-			DrawCall* dp = DrawCallHead;
-			DrawCallHead = DrawCallHead->Next_;
-			delete dp;
-		}
-		DrawCallHead = nullptr;
-		DrawCallLast = nullptr;
-		bIsConsolidated = false;
-	}
-
-	void RenderPass::Consolidate()
-	{
-		if (bIsConsolidated)
-			return;
-		DrawCall* dp = DrawCallHead;
-		while (dp)
-		{
-			uint8 globalConstantSlot = dp->ShaderCollection_->GetConstantSlot(EShaderConstant::Global);
-			if (globalConstantSlot == IShaderCollection::INVALID_SLOT || globalConstantSlot >= dp->ResourceBinding_->Buffers)
-			{
-				dp = dp->Next_;
-				continue;
-
-			}
-			dp->ResourceBinding_->Data[globalConstantSlot] = new IConstantBuffer();
-			auto& globalConstant = Pipeline->GetGlobalConstant();
-			IConstantBuffer* globalConstantBuffer = static_cast<IConstantBuffer*>(dp->ResourceBinding_->Data[globalConstantSlot]);
-			globalConstantBuffer->Data = &globalConstant;
-			globalConstantBuffer->ByteWidth = sizeof(globalConstant);
-			globalConstantBuffer->Count = 1;
-			dp = dp->Next_;
-		}
-	}
-
 	RenderContext::~RenderContext()
 	{
 
@@ -105,7 +59,7 @@ namespace Eggy
 
 		// ShaderCollection
 		{
-			dp->ShaderCollection_ = info->Material_->GetShaderCollection();
+			dp->ShaderCollection_ = info->ShadingState_->ShaderCollection;
 		}
 		
 		// Geometry Binding
@@ -134,11 +88,14 @@ namespace Eggy
 			batchConstant->ByteWidth = sizeof(object->ObjectConstantData_);
 			batchConstant->Count = 1;
 
-			for (auto& pair : info->Material_->GetTextures())
+			for (size_t i = 0; i < info->ShadingState_->BindingTextures.size(); ++i)
 			{
-				resourceBinding->Data[constantSize + shaderCollection->GetTextureSlot(pair.first)] = new ITexture();
-				auto bindingTex = static_cast<ITexture*>(resourceBinding->Data[constantSize + shaderCollection->GetTextureSlot(pair.first)]);
-				auto& resource = pair.second->GetResource();
+				Texture* texture = info->ShadingState_->BindingTextures[i];
+				if (!texture)
+					continue;
+				resourceBinding->Data[constantSize + i] = new ITexture();
+				auto bindingTex = static_cast<ITexture*>(resourceBinding->Data[constantSize + i]);
+				auto& resource = texture->GetResource();
 				bindingTex->Data = resource.GetData();
 				bindingTex->Width = resource.Size.x;
 				bindingTex->Height = resource.Size.y;

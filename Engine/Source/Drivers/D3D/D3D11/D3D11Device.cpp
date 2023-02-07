@@ -1,6 +1,7 @@
 #include "D3D11Device.h"
 #include "Core/Engine/Engine.h"
 #include "Graphics/Elements/RenderElement.h"
+#include "Graphics/RHI/IRenderPass.h"
 #include "Client/RenderScene.h"
 #include "D3D11Shader.h"
 

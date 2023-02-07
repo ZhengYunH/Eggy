@@ -14,5 +14,7 @@ namespace Eggy
 
 		virtual void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) = 0;
 		virtual void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) = 0;
+
+		virtual void Initialize(class Material* material) = 0;
 	};
 }

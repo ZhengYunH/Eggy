@@ -22,6 +22,13 @@ namespace Eggy
 			mMaterial_->SetResource(matRes);
 		}
 
+		IRenderMesh* renderMesh = mMesh_->GetRenderMesh();
+		for (size_t i = 0; i < renderMesh->GetElementsSize(); ++i)
+		{
+			IRenderElement* element = renderMesh->GetRenderElement(i);
+			element->Initialize(mMaterial_);
+		}
+
 		mRenderObject_ = new RenderObject();
 	}
 
@@ -50,7 +57,6 @@ namespace Eggy
 			IRenderElement* element = renderMesh->GetRenderElement(i);
 			RenderItemInfo info;
 			info.Object = mRenderObject_;
-			info.Material_ = mMaterial_;
 			element->PrepareRenderItemInfo(context, &info);
 			RenderItem* item = context->GenerateRenderItem(&info);
 			context->SubmitRenderItem(ERenderSet::MAIN, item);

@@ -4,6 +4,8 @@
 #include "Core/Interface/IRenderElement.h"
 #include "Graphics/Renderer/VertexFactory.h"
 #include "Graphics/RHI/IRenderPipeline.h"
+#include "Graphics/RHI/IShadingState.h"
+#include "Core/Object/Material.h"
 
 #include "Core/Math/Matrix4x3.h"
 #include "Core/Math/Matrix4x4.h"
@@ -66,6 +68,7 @@ namespace Eggy
 		RenderElement()
 		{
 			Geometry = new GeometryBinding();
+			ShadingState = new IShadingState();
 		}
 
 		void GetVertexData(void*& outData, size_t& outVertexCount, size_t& outByteWidth) override
@@ -86,17 +89,28 @@ namespace Eggy
 		{
 			VertexType::GetDesc(Descs);
 		}
-
-		void Consolidate()
+		
+		void Initialize(class Material* material) override
 		{
 			GetVertexData(Geometry->VertexBuffer.Data, Geometry->VertexBuffer.Count, Geometry->VertexBuffer.ByteWidth);
 			GetIndexData(Geometry->IndexBuffer.Data, Geometry->IndexBuffer.Count, Geometry->IndexBuffer.ByteWidth);
 			GetVertexDesc(Geometry->Layout.Descs);
+			ShadingState->ShaderCollection = material->GetShaderCollection();
+			ShadingState->BindingTextures.resize(ShadingState->ShaderCollection->GetTextureSize(), nullptr);
+			for (auto& pair : material->GetTextures())
+			{
+				uint8 slot = ShadingState->ShaderCollection->GetTextureSlot(pair.first);
+				if (slot != IShaderCollection::INVALID_SLOT)
+				{
+					ShadingState->BindingTextures[slot] = pair.second;
+				}
+			}
 		}
 
 		void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) override
 		{
 			info->GeometryBinding_ = Geometry;
+			info->ShadingState_ = ShadingState;
 		}
 
 		VertexInfo vertexInfo;
@@ -108,6 +122,7 @@ namespace Eggy
 		size_t ByteWidth{ 0 };
 
 		GeometryBinding* Geometry;
+		IShadingState* ShadingState;
 	};
 
 

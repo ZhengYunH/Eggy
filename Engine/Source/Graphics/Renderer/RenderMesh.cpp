@@ -31,8 +31,6 @@ namespace Eggy
 			indexInfo.Count = Resource->mGeometry_->GetIndexData(indexInfo.Data);
 			indexInfo.Stride = Resource->mGeometry_->GetIndexStride();
 		}
-
-		ele->Consolidate();
 	}
 
 }

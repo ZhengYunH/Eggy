@@ -2,11 +2,7 @@
 #include "IRenderHeader.h"
 #include "IRenderResource.h"
 #include "IShader.h"
-
-#include "Core/Interface/IRenderObject.h"
-#include "Core/Math/Matrix4x4.h"
-#include "Core/Engine/Resource/Texture.h"
-#include "Core/Object/Material.h"
+#include "RenderItem.h"
 
 
 namespace Eggy
@@ -42,40 +38,10 @@ namespace Eggy
 		}
 	};
 
-	struct BatchConstant
-	{
-		Matrix4x4 ModelTransform;
-	};
-
-	struct ShaderConstant
-	{
-
-	};
-
-	struct GlobalConstant
-	{
-		Matrix4x4 ViewTransform;
-		Matrix4x4 ProjectTransform;
-	};
-
-	struct RenderObject : public IRenderObject
-	{
-		BatchConstant ObjectConstantData_;
-	};
-
-	class RenderItemInfo
-	{
-	public:
-		RenderObject* Object{ nullptr };
-		GeometryBinding* GeometryBinding_{ nullptr };
-		class Material* Material_{ nullptr };
-	};
-
-	class RenderItem
-	{
-	public:
-		RenderItemInfo* Info{ nullptr };
-	};
+	class RenderPipeline;
+	class RenderContext;
+	class RenderPass;
+	class RenderItem;
 
 	struct DrawCall
 	{
@@ -106,33 +72,6 @@ namespace Eggy
 
 		~DrawCall();
 	};
-
-	
-	class RenderPipeline;
-	class RenderContext;
-
-	class RenderPass
-	{
-	public:
-		RenderPass(RenderPipeline* pipeline) 
-			: Pipeline(pipeline)
-		{
-
-		}
-
-		void AddDrawCall(DrawCall* drawCall);
-		void Clear();
-		void Consolidate();
-
-		DrawCall* GetDrawCallHead() { return DrawCallHead; }
-
-	protected:
-		RenderPipeline* Pipeline{ nullptr };
-		DrawCall* DrawCallHead{ nullptr };
-		DrawCall* DrawCallLast{ nullptr };
-		bool bIsConsolidated{ false };
-	};
-
 
 	class RenderPipeline
 	{
