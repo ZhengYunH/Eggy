@@ -4,6 +4,17 @@
 // Define Common Enumerate
 namespace Eggy
 {
+	enum class ERenderSet : uint32
+	{
+		NONE = 0,
+		MAIN = 0x1,
+
+		START = MAIN,
+		END = MAIN + 1,
+	};
+	using ERenderSets = uint32;
+
+
 	enum class EFormat : uint32
 	{
 		UNDEFINED = 0,

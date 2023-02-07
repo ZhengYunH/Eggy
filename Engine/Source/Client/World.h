@@ -19,6 +19,9 @@ namespace Eggy
 		void StartFrame() override;
 		void EndFrame() override;
 
+		void StartRenderFrame();
+		void EndRenderFrame();
+
 		const Camera* GetCamera() { return mMainCamera_; }
 
 

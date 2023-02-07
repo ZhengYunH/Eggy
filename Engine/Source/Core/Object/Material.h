@@ -13,13 +13,17 @@ namespace Eggy
 		void SetResource(MaterialResource* Resource)
 		{
 			mResource_ = Resource;
-			mTextures_.resize(Resource->mTexturePaths_.size());
 			for (size_t i = 0; i < Resource->mTexturePaths_.size(); ++i)
 			{
+				String key = std::to_string(i);
 				TextureResource* res = new TextureResource(Resource->mTexturePaths_[i]);
 				res->Deserialize(nullptr);
-				mTextures_[i].SetResource(res);
+				mTextures_[key] = new Texture();
+				mTextures_[key]->SetResource(res);
 			}
+			mShaderCollection_ = new IShaderCollection();
+			mShaderCollection_->SetShaderPath(EShaderType::VS, GetShaderPath(EShaderType::VS));
+			mShaderCollection_->SetShaderPath(EShaderType::PS, GetShaderPath(EShaderType::PS));
 		}
 
 		String GetShaderPath(EShaderType shaderType)
@@ -41,13 +45,19 @@ namespace Eggy
 			return "";
 		}
 
-		List<Texture>& GetTextures()
+		Map<String, Texture*>& GetTextures()
 		{
 			return mTextures_;
 		}
 
+		IShaderCollection* GetShaderCollection()
+		{
+			return mShaderCollection_;
+		}
+
 	protected:
 		MaterialResource* mResource_;
-		List<Texture> mTextures_;
+		Map<String, Texture*> mTextures_;
+		IShaderCollection* mShaderCollection_;
 	};
 }

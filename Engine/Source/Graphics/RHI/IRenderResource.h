@@ -167,14 +167,7 @@ namespace Eggy
 
 	};
 
-	struct ResourceBinding
-	{
-		uint16 Textures{ 0 };
-		uint16 Buffers{ 0 };
-		uint16 Views{ 0 };
-
-		IRenderResource* Data;
-	};
+	
 
 	struct ShadingState : IRenderResource 
 	{
@@ -190,21 +183,5 @@ namespace Eggy
 			factory->CreatePipelineState(this);
 		}
 
-	};
-
-	struct RenderItemInfo
-	{
-		GeometryBinding* GeometryBinding_;
-		ResourceBinding* ResourceBinding_;
-	};
-
-	struct RenderItem
-	{
-		RenderItemInfo* Info{ nullptr };
-	};
-
-	struct DrawCall
-	{
-		RenderItem* Item{ nullptr };
 	};
 }

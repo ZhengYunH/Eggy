@@ -15,8 +15,9 @@ namespace Eggy
 		virtual void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) = 0;
 	};
 
-	struct MeshResource : public ResourceObject
+	class MeshResource : public ResourceObject
 	{
+	public:
 		void Deserialize(IFile* file) noexcept override
 		{
 		}

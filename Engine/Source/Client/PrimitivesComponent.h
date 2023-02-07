@@ -18,7 +18,7 @@ namespace Eggy
 	class PrimitiveComponent : public IPrimitivesComponent
 	{
 	public:
-		virtual void CollectPrimitives(IRenderScene* renderScene) override;
+		virtual void CollectPrimitives(RenderContext* context) override;
 
 		void EnterWorld() override;
 		
@@ -33,8 +33,7 @@ namespace Eggy
 	protected:
 		Mesh* mMesh_;
 		Material* mMaterial_;
-
-
+		RenderObject* mRenderObject_;
 	};
 }
 

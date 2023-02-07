@@ -2,6 +2,7 @@
 #include "Graphics/Elements/RenderElement.h"
 #include "Client/Camera.h"
 
+
 namespace Eggy
 {
 
@@ -20,6 +21,8 @@ namespace Eggy
 			matRes->Deserialize(nullptr);
 			mMaterial_->SetResource(matRes);
 		}
+
+		mRenderObject_ = new RenderObject();
 	}
 
 	void PrimitiveComponent::PostInitialize()
@@ -32,24 +35,26 @@ namespace Eggy
 		SafeDestroy(mMesh_);
 	}
 
-	void PrimitiveComponent::CollectPrimitives(IRenderScene* renderScene)
+	void PrimitiveComponent::CollectPrimitives(RenderContext* context)
 	{
 		if (!mMesh_ || !mMaterial_)
 			return;
-		IRenderElement* element = renderScene->AllocateRenderElement();
-		element->mMesh = mMesh_;
-		element->mMaterial = mMaterial_;
 
 		IEntity* entity = GetParent();
-		if (entity)
+
+		mRenderObject_->ObjectConstantData_.ModelTransform = entity->GetTransform();
+
+		IRenderMesh* renderMesh = mMesh_->GetRenderMesh();
+		for (size_t i = 0; i < renderMesh->GetElementsSize(); ++i)
 		{
-			auto& objectInfo = element->mObjectInfo;
-			objectInfo.ModelTransform = entity->GetTransform();
-			objectInfo.ViewTransform = renderScene->GetCamera()->getViewMatrix();;
-			objectInfo.ProjectTransform = renderScene->GetCamera()->getProjMatrix();
+			IRenderElement* element = renderMesh->GetRenderElement(i);
+			RenderItemInfo info;
+			info.Object = mRenderObject_;
+			info.Material_ = mMaterial_;
+			element->PrepareRenderItemInfo(context, &info);
+			RenderItem* item = context->GenerateRenderItem(&info);
+			context->SubmitRenderItem(ERenderSet::MAIN, item);
 		}
-		
-		renderScene->SubmitRenderElement(ERenderSet::MAIN, element);
 	}
 
 	void PrimitiveComponent::EnterWorld()

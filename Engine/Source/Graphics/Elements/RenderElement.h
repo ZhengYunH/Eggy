@@ -1,122 +1,119 @@
 #pragma once
 #include "Core/Config.h"
 #include "Graphics/RHI/IRenderResource.h"
-#include "Core/Interface/IRenderObject.h"
 #include "Core/Interface/IRenderElement.h"
 #include "Graphics/Renderer/VertexFactory.h"
-#include "Graphics/RHI/IShader.h"
-
+#include "Graphics/RHI/IRenderPipeline.h"
 
 #include "Core/Math/Matrix4x3.h"
 #include "Core/Math/Matrix4x4.h"
 
-#include <DirectXMath.h>
-#include <DirectXMathMatrix.inl>
 
 
 namespace Eggy
 {
+	template<EVertexFormat TVertex, typename TIndex=uint32>
 	class RenderElement : public IRenderElement
 	{
+	protected:
+		using VertexType = TVertexType<TVertex>;
+		using IndexType = TIndex;
+
 	public:
-		void GetVertexData(void*& Data, size_t& VertexCount, size_t& ByteWidth) override
+		struct VertexInfo
 		{
-			mMesh->GetVertex(Data, VertexCount);
-			ByteWidth = VertexCount * mMesh->GetVertexStride();
+			void* Data{ nullptr };
+			size_t Count{ 0 };
+			size_t Stride{ 0 };
+			
+			VertexInfo() {}
+
+			VertexInfo(void* data, size_t count, size_t stride)
+			{
+				Data = data;
+				Count = count;
+				Stride = stride;
+			}
+
+			constexpr size_t GetByteWidth()
+			{
+				return Count * Stride;
+			}
+		};
+
+		struct IndexInfo
+		{
+			void* Data{ nullptr };
+			size_t Count{ 0 };
+			size_t Stride{ 0 };
+			size_t ByteWidth{ 0 };
+
+			IndexInfo() {}
+
+			IndexInfo(void* data, size_t count, size_t stride)
+			{
+				Data = data;
+				Count = count;
+				Stride = stride;
+			}
+
+			constexpr size_t GetByteWidth()
+			{
+				return Count * Stride;
+			}
+		};
+
+		RenderElement()
+		{
+			Geometry = new GeometryBinding();
 		}
 
-		void GetIndexData(void*& Data, size_t& IndexCount, size_t& ByteWidth) override
+		void GetVertexData(void*& outData, size_t& outVertexCount, size_t& outByteWidth) override
 		{
-			mMesh->GetIndex(Data, IndexCount);
-			ByteWidth = IndexCount * mMesh->GetIndexStride();
+			outData = vertexInfo.Data;
+			outVertexCount = vertexInfo.Count;
+			outByteWidth = vertexInfo.GetByteWidth();
+		}
+
+		void GetIndexData(void*& outData, size_t& outIndexCount, size_t& outByteWidth) override
+		{
+			outData = indexInfo.Data;
+			outIndexCount = indexInfo.Count;
+			outByteWidth = indexInfo.GetByteWidth();
 		}
 
 		void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) override
 		{
-			mMesh->GetVertexDesc(Descs);
+			VertexType::GetDesc(Descs);
 		}
+
+		void Consolidate()
+		{
+			GetVertexData(Geometry->VertexBuffer.Data, Geometry->VertexBuffer.Count, Geometry->VertexBuffer.ByteWidth);
+			GetIndexData(Geometry->IndexBuffer.Data, Geometry->IndexBuffer.Count, Geometry->IndexBuffer.ByteWidth);
+			GetVertexDesc(Geometry->Layout.Descs);
+		}
+
+		void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) override
+		{
+			info->GeometryBinding_ = Geometry;
+		}
+
+		VertexInfo vertexInfo;
+		IndexInfo indexInfo;
+
+		void* Data{ nullptr };
+		size_t VertexCount{ 0 };
+		size_t Stride{ 0 };
+		size_t ByteWidth{ 0 };
+
+		GeometryBinding* Geometry;
 	};
 
-	struct RenderObject : public IRenderObject
-	{
-		GeometryBinding Geometry;
-		IShaderCollection ShaderCollection;
-		ObjectInfo ObjectConstantData;
-		IConstantBuffer ConstantBuffer;	
-		List<ITexture*> Textures;
-		List<SamplerState*> Samplers;
-		PipelineState Pipeline;
 
-		void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
-		{
-			ShaderCollection.CreateDeviceResource(factory);
-			Geometry.CreateDeviceResource(factory);
-			if (ConstantBuffer.Usage == EBufferUsage::Dynamic)
-			{
-
-			}
-			ConstantBuffer.CreateDeviceResource(factory);
-			for (ITexture* tex : Textures)
-			{
-				tex->CreateDeviceResource(factory);
-			}
-			for (SamplerState* state : Samplers)
-			{
-				state->CreateDeviceResource(factory);
-			}
-			Pipeline.CreateDeviceResource(factory);
-		}
-
-		void Consolidate() override
-		{
-			Geometry.Layout.ShaderCollection = &ShaderCollection;
-			ConstantBuffer.ByteWidth = sizeof(ObjectConstantData);
-			ConsolidateResource();
-		}
-
-		void ConsolidateResource()
-		{
-			Samplers.resize(Textures.size());
-			for (auto& sample : Samplers)
-			{
-				sample = new SamplerState();
-			}
-		}
-
-		void SetTexture(String key, const TextureResource& resource)
-		{
-			Textures.push_back(new ITexture());
-			auto& texture = *(Textures.back());
-			texture.Data = resource.GetData();
-			texture.Width = resource.Size.x;
-			texture.Height = resource.Size.y;
-			texture.Mips = resource.Mips;
-			texture.Format = resource.Format;
-			texture.ByteWidth = resource.ByteWidth;
-			texture.TextureType = resource.TextureType;
-		}
-
-		~RenderObject()
-		{
-			for (ITexture* tex : Textures)
-			{
-				delete tex;
-			}
-			Textures.clear();
-
-			for (SamplerState* sampler : Samplers)
-			{
-				delete sampler;
-			}
-			Samplers.clear();
-		}
-	};
-
-	class RenderHelperElement : public RenderObject
+	class RenderHelperElement : public RenderElement<EVF_P3F_C4B, uint16>
 	{
 	public:
-		using VertexType = TVertexType<EVF_P3F_C4B>;
-		using IndexType = uint16;
 		RenderHelperElement() = default;
 
 	protected:

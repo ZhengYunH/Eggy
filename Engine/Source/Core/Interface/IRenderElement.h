@@ -1,19 +1,10 @@
 #pragma once
 #include "Core/Config.h"
-#include "Core/Object/Mesh.h"
-#include "Core/Object/Material.h"
-#include "Core/Math/Matrix4x4.h"
+#include "Graphics/RHI/IRenderResource.h"
 
 
 namespace Eggy
 {
-	struct ObjectInfo
-	{
-		Matrix4x4 ModelTransform;
-		Matrix4x4 ViewTransform;
-		Matrix4x4 ProjectTransform;
-	};
-
 	struct IRenderElement
 	{
 		IRenderElement() = default;
@@ -22,9 +13,6 @@ namespace Eggy
 		virtual void GetIndexData(void*& Data, size_t& IndexCount, size_t& ByteWidth) = 0;
 
 		virtual void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) = 0;
-
-		Mesh* mMesh{ nullptr };
-		Material* mMaterial{ nullptr };
-		ObjectInfo mObjectInfo;
+		virtual void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) = 0;
 	};
 }

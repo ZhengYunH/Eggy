@@ -59,7 +59,7 @@ namespace Eggy
 		mWorld_->Tick();
 		for (auto prim : mWorld_->GetPrimitives())
 		{
-			prim->CollectPrimitives(GetRenderScene());
+			prim->CollectPrimitives(GetRenderScene()->GetContext());
 		}
 		EndLogicFrame();
 	}
@@ -79,17 +79,17 @@ namespace Eggy
 
 	void ClientScene::EndLogicFrame()
 	{
-
+		mWorld_->EndFrame();
 	}
 
 	void ClientScene::StartRenderFrame()
 	{
-
+		mWorld_->StartRenderFrame();
 	}
 
 	void ClientScene::EndRenderFrame()
 	{
-		mWorld_->EndFrame();
+		mWorld_->EndRenderFrame();
 	}
 
 }

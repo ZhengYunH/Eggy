@@ -6,7 +6,7 @@
 
 namespace Eggy
 {
-	class RenderMeshElement : public RenderObject
+	class RenderMeshElement : public RenderElement<EVF_P3F_C4B_T2F, uint32>
 	{
 	public:
 		RenderMeshElement() 
@@ -26,7 +26,7 @@ namespace Eggy
 			return 1;
 		}
 
-		IRenderObject* GetRenderElement(size_t index) noexcept override
+		IRenderElement* GetRenderElement(size_t index) noexcept override
 		{
 			return &mElement_;
 		}
@@ -39,10 +39,12 @@ namespace Eggy
 	{
 	public:
 		RenderMesh() {}
-		
+
 		RenderMeshElement* GetRenderElement(size_t index) noexcept override;
 
 		size_t GetElementsSize() noexcept override;
+
+		void Deserialize(class MeshResource* Resource) override;
 
 	protected:
 		List<RenderMeshElement*> mRenderElements_;

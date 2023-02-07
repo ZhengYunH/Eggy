@@ -1,8 +1,9 @@
 #pragma once
 #include "Core/Config.h"
-#include "Core/Interface/IRenderMesh.h"
 #include "Core/Engine/Resource/Mesh.h"
 #include "Graphics/Renderer/VertexFactory.h"
+#include "Graphics/Renderer/RenderMesh.h"
+
 
 
 namespace Eggy
@@ -151,41 +152,64 @@ namespace Eggy
 		}
 	};
 
+	template<EVertexFormat Format>
+	struct PyramidMesh : public MeshData<Format>
+	{
+		using Parent = MeshData<Format>;
+		PyramidMesh() : Parent()
+		{
+			CreateMeshData();
+		}
+
+		void CreateMeshData()
+		{
+		}
+	};
+
+	template<>
+	struct PyramidMesh<EVF_P3F_C4B> : public MeshData<EVF_P3F_C4B>
+	{
+		using Parent = MeshData<EVF_P3F_C4B>;
+		PyramidMesh() : Parent()
+		{
+			CreateMeshData();
+		}
+
+		void CreateMeshData()
+		{
+			SetupData(
+				List<VertexType>({
+						{ Vector3(0.f, 2.f, 0.f), Color4B_BLACK },
+						{ Vector3(1.f, 0.f, 1.f), Color4B_WRITE },
+						{ Vector3(1.f, 0.f, -1.f), Color4B_RED },
+						{ Vector3(-1.f, 0.f, -1.f), Color4B_GREEN },
+						{ Vector3(-1.f, 0.f, 1.f), Color4B_BLUE },
+					}),
+					List<IndexType>({
+							0, 1, 2,
+							0, 2, 3,
+							0, 3, 4,
+							0, 4, 1,
+							1, 2, 3,
+							1, 3, 4
+						})
+			);
+		}
+	};
+
 
 	class Mesh
 	{
 	public:
 		void SetResource(MeshResource* Resource)
 		{
-			mResource_ = Resource;
+			mRenderMesh_ = new RenderMesh();
+			mRenderMesh_->Deserialize(Resource);
 		}
 
-		void GetVertex(void*& Data, size_t& Size)
-		{
-			Size = mResource_->mGeometry_->GetVertexData(Data);
-		}
-		
-		void GetIndex(void*& Data, size_t& Size)
-		{
-			Size = mResource_->mGeometry_->GetIndexData(Data);
-		}
-		
-		size_t GetVertexStride()
-		{
-			return mResource_->mGeometry_->GetVertexStride();
-		}
-
-		size_t GetIndexStride()
-		{
-			return mResource_->mGeometry_->GetIndexStride();
-		}
-
-		void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs)
-		{
-			return mResource_->mGeometry_->GetVertexDesc(Descs);
-		}
+		IRenderMesh* GetRenderMesh() { return mRenderMesh_; }
 
 	protected:
-		MeshResource* mResource_;
+		IRenderMesh* mRenderMesh_{ nullptr };
 	};
 }

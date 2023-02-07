@@ -18,6 +18,10 @@ namespace Eggy
 		void DrawFrame() override final;
 
 		D3D11ResourceFactory* GetResourceFactory() override { return mResourceFactory_; }
+	
+	protected:
+		void EncodeRenderPass(class RenderPass* renderPass);
+		void EncodeDrawCall(struct DrawCall* drawCall);
 
 	private:
 		void CreateSwapChain() override final;

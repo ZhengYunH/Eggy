@@ -1,18 +1,11 @@
 #pragma once
 #include "Core/Config.h"
+#include "Graphics/RHI/IRenderHeader.h"
+#include "Graphics/RHI/IRenderPipeline.h"
 
 
 namespace Eggy
 {
-	enum class ERenderSet : uint32
-	{
-		NONE = 0,
-		MAIN = 1,
-
-		START = MAIN,
-		END = MAIN + 1,
-	};
-
 	struct IRenderObject;
 	struct IRenderElement;
 	class Camera;
@@ -23,11 +16,9 @@ namespace Eggy
 		virtual void StartFrame() = 0;
 		virtual void EndFrame() = 0;
 
-		virtual IRenderElement* AllocateRenderElement() = 0;
-		virtual IRenderObject* AllocateRenderObject() = 0;
-		virtual IRenderObject* SubmitRenderElement(ERenderSet set, IRenderElement* element) = 0;
-		virtual List<IRenderObject*>& GetRenderObjects(ERenderSet set) = 0;
-		
+		virtual void StartDeviceFrame() = 0;
+		virtual void EndDeviceFrame() = 0;
+
 		virtual Camera* GetCamera() = 0;
 		virtual void SetCamera(Camera* camera) = 0;
 	};

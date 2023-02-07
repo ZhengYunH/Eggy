@@ -73,66 +73,137 @@ namespace Eggy
 
 	void D3D11Device::PrepareResource()
 	{
-		auto ClientScene = Engine::Get()->GetClientScene();
-		auto RenderScene = ClientScene->GetRenderScene();
-		List<IRenderObject*>& objects = RenderScene->GetRenderObjects(ERenderSet::MAIN);
-		for (IRenderObject* obj : objects)
-		{
-			obj->CreateDeviceResource(GetResourceFactory());
-		}
 	}
 	
 	void D3D11Device::DrawFrame()
 	{
 		ClearScreen();
-		List<IRenderObject*>& objects = Engine::Get()->GetClientScene()->GetRenderScene()->GetRenderObjects(ERenderSet::MAIN);
-		for (IRenderObject* obj : objects)
+		auto pipeline = Engine::Get()->GetClientScene()->GetRenderScene()->GetPipeline();
+		for (auto renderPass : pipeline->GetRenderPasses())
+			EncodeRenderPass(renderPass);
+		Present();
+	}
+
+	void D3D11Device::EncodeRenderPass(RenderPass* renderPass)
+	{
+		DrawCall* drawCall = renderPass->GetDrawCallHead();
+		while (drawCall)
 		{
-			RenderObject* object = dynamic_cast<RenderObject*>(obj);
-			D3D11Buffer* buffer = (D3D11Buffer*)object->ConstantBuffer.DeviceResource;
-			D3D11_MAPPED_SUBRESOURCE mappedData;
-			mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
-			memcpy_s(mappedData.pData, sizeof(object->ObjectConstantData), &object->ObjectConstantData, sizeof(object->ObjectConstantData));
-			mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
+			EncodeDrawCall(drawCall);
+			drawCall = drawCall->Next_;
+		}
+	}
 
-			auto& vertexBuffer = object->Geometry.VertexBuffer;
-			auto& indexBuffer = object->Geometry.IndexBuffer;
-			UINT stride = static_cast<UINT>(vertexBuffer.ByteWidth / vertexBuffer.Count);
-			UINT offset = 0;
-			UINT startVertexLocaltion = 0;
-
-
-			mImmediateContext_->IASetVertexBuffers(0, 1, ((D3D11Buffer*)vertexBuffer.DeviceResource)->ppBuffer.GetAddressOf(), &stride, &offset);
-			mImmediateContext_->IASetIndexBuffer(((D3D11Buffer*)indexBuffer.DeviceResource)->ppBuffer.Get(), Converter::IndexFormat(indexBuffer.ByteWidth / indexBuffer.Count), 0);
-			mImmediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			mImmediateContext_->IASetInputLayout(((D3D11InputLayout*)object->Geometry.Layout.DeviceResource)->ppAddress.Get());
-
-			D3D11VertexShader* vertexShader = (D3D11VertexShader*)object->ShaderCollection.GetShader(EShaderType::VS)->DeviceResource;
-			D3D11PixelShader* pixelShader = (D3D11PixelShader*)object->ShaderCollection.GetShader(EShaderType::PS)->DeviceResource;
-			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
-			mImmediateContext_->VSSetConstantBuffers(0, 1, buffer->ppBuffer.GetAddressOf());
-			
-			mImmediateContext_->RSSetState(((D3D11PipelineState*)object->Pipeline.DeviceResource)->ppRasterizerState.Get());
-
-			List<ID3D11ShaderResourceView*> texViews;
-			texViews.reserve(object->Textures.size());
-			for (auto& tex : object->Textures)
+	void D3D11Device::EncodeDrawCall(DrawCall* drawCall)
+	{
+		drawCall->CreateDeviceResource(GetResourceFactory());
+		IRenderResource** pDataBase = drawCall->ResourceBinding_->Data;
+		
+		// Update Constant Buffer
+		{
+			for (uint16 i = 0; i < drawCall->ResourceBinding_->Buffers; ++i)
 			{
+				IBuffer* srcBuffer = (IBuffer*)pDataBase[i];
+				if (!srcBuffer)
+					continue;
+				D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
+				D3D11_MAPPED_SUBRESOURCE mappedData;
+				mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+				memcpy_s(mappedData.pData, srcBuffer->ByteWidth, srcBuffer->Data, srcBuffer->ByteWidth);
+				mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
+			}
+		}
+		
+		// VS
+		{
+			// Constant	
+			for (uint16 i = 0; i < drawCall->ResourceBinding_->Buffers; ++i)
+			{
+				if (!pDataBase[i])
+					continue;
+				D3D11Buffer* buffer = (D3D11Buffer*)pDataBase[i]->DeviceResource;
+				UINT numBuffer = 1;
+				mImmediateContext_->VSSetConstantBuffers(i, numBuffer, buffer->ppBuffer.GetAddressOf());
+			}
+
+			D3D11VertexShader* vertexShader = (D3D11VertexShader*)drawCall->ShaderCollection_->GetShader(EShaderType::VS)->DeviceResource;
+			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
+
+		}
+
+		// RS
+		{
+			mImmediateContext_->RSSetState(((D3D11PipelineState*)drawCall->Pipeline_.DeviceResource)->ppRasterizerState.Get());
+
+		}
+
+		// PS
+		{
+			auto psShader = drawCall->ShaderCollection_->GetShader(EShaderType::PS);
+
+			// Constant
+			for (uint16 i = 0; i < drawCall->ResourceBinding_->Buffers; ++i)
+			{
+				if (!pDataBase[i])
+					continue;
+				D3D11Buffer* buffer = (D3D11Buffer*)pDataBase[i]->DeviceResource;
+				UINT numBuffer = 1;
+				mImmediateContext_->VSSetConstantBuffers(i, numBuffer, buffer->ppBuffer.GetAddressOf());
+			}
+
+			// Texture
+			IRenderResource** pTextureBase = drawCall->ResourceBinding_->Data + drawCall->ResourceBinding_->Buffers;
+			List<ID3D11ShaderResourceView*> texViews;
+			texViews.reserve(drawCall->ResourceBinding_->Textures);
+			for (uint16 i = drawCall->ResourceBinding_->Buffers; i < drawCall->ResourceBinding_->Buffers + drawCall->ResourceBinding_->Textures; ++i)
+			{
+				IRenderResource* tex = pDataBase[i];
 				texViews.push_back(((D3D11Texture*)(tex->DeviceResource))->ppSRV.Get());
 			}
 			mImmediateContext_->PSSetShaderResources(0, (UINT)texViews.size(), texViews.data());
 
+			// Sampler
 			List<ID3D11SamplerState*> samplerStates;
-			samplerStates.reserve(object->Samplers.size());
-			for (auto& sampler : object->Samplers)
+			HYBRID_CHECK(drawCall->ResourceBinding_->Textures == psShader->Samplers.size());
+			samplerStates.reserve(psShader->Samplers.size());
+			for (size_t i = 0; i < psShader->Samplers.size(); ++i)
 			{
+				SamplerState* sampler = psShader->Samplers[i];
 				samplerStates.push_back(((D3D11SamplerState*)(sampler->DeviceResource))->ppSamplerState.Get());
 			}
 			mImmediateContext_->PSSetSamplers(0, (UINT)samplerStates.size(), samplerStates.data());
+			
+			D3D11PixelShader* pixelShader = (D3D11PixelShader*)psShader->DeviceResource;
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
-			mImmediateContext_->DrawIndexed(static_cast<UINT>(indexBuffer.Count), 0, 0);
+
 		}
-		Present();
+
+		// Draw
+		{
+			// IA
+			{
+				// Vertex Buffer
+				{
+					auto& vertexBuffer = drawCall->GeometryBinding_->VertexBuffer;
+					UINT startVertexLocaltion = 0;
+					UINT numBuffer = 1;
+					UINT stride = static_cast<UINT>(vertexBuffer.ByteWidth / vertexBuffer.Count);
+					UINT offset = 0;
+					mImmediateContext_->IASetVertexBuffers(startVertexLocaltion, numBuffer, ((D3D11Buffer*)vertexBuffer.DeviceResource)->ppBuffer.GetAddressOf(), &stride, &offset);
+
+				}
+
+				// Index Buffer
+				{
+					auto& indexBuffer = drawCall->GeometryBinding_->IndexBuffer;
+					mImmediateContext_->IASetIndexBuffer(((D3D11Buffer*)indexBuffer.DeviceResource)->ppBuffer.Get(), Converter::IndexFormat(indexBuffer.ByteWidth / indexBuffer.Count), 0);
+				}
+				mImmediateContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				mImmediateContext_->IASetInputLayout(((D3D11InputLayout*)drawCall->GeometryBinding_->Layout.DeviceResource)->ppAddress.Get());
+			}
+
+			mImmediateContext_->DrawIndexed(static_cast<UINT>(drawCall->GeometryBinding_->IndexBuffer.Count), 0, 0);
+		}
 	}
 
 	void D3D11Device::CreateSwapChain()

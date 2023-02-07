@@ -37,6 +37,17 @@ namespace Eggy
 		mRenderScene_->EndFrame();
 	}
 
+	void World::StartRenderFrame()
+	{
+		mRenderScene_->StartDeviceFrame();
+	}
+
+	void World::EndRenderFrame()
+	{
+		mRenderScene_->EndDeviceFrame();
+	}
+
+
 	void World::Tick()
 	{
 		mMainCamera_->tick(Engine::Get()->GetDeltaTime());

@@ -6,6 +6,6 @@ namespace Eggy
 	class IPrimitive
 	{
 	public:
-		virtual void CollectPrimitives(class IRenderScene* renderScene) = 0;
+		virtual void CollectPrimitives(class RenderContext* context) = 0;
 	};
 }
