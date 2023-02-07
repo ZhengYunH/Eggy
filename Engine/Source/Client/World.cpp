@@ -2,6 +2,7 @@
 #include "ClientScene.h"
 #include "RenderScene.h"
 #include "Camera.h"
+#include "Core/Object/IEntity.h"
 
 
 namespace Eggy
@@ -50,6 +51,19 @@ namespace Eggy
 
 	void World::Tick()
 	{
+		static bool isForward = true;
+
+		IEntity* entity = *(mEntities_.cbegin());
+		Matrix4x3 transf = entity->GetTransform();
+		auto trans = transf.GetTranslation();
+		float dt = Engine::Get()->GetDeltaTime();
+		if (trans.y > 1)
+			isForward = false;
+		if (trans.y < -1)
+			isForward = true;
+		transf.SetTranslation(transf.GetTranslation() + Vector3(0, isForward ? dt : -dt, 0));
+		entity->SetTransform(transf);
+
 		mMainCamera_->tick(Engine::Get()->GetDeltaTime());
 	}
 

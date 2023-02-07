@@ -21,6 +21,7 @@ namespace Eggy
 	{
 		CreateRenderDevice();
 		mClientScene_ = new ClientScene();
+		mCurrFrameTime_ = mLastFrameTime_ = std::chrono::high_resolution_clock::now();
 	}
 
 	void Engine::Finalize()

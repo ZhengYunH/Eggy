@@ -32,10 +32,18 @@ namespace Eggy
 
 	void IWorld::Deserialize(const String& s)
 	{
-		IEntity* entity = new IEntity();
-		entity->AddComponent(new PrimitiveComponent());
-		entity->EnterWorld(this);
-		mEntities_.push_back(entity);
+		IEntity* entity1 = new IEntity();
+		entity1->AddComponent(new PrimitiveComponent());
+		entity1->EnterWorld(this);
+		mEntities_.push_back(entity1);
+
+		IEntity* entity2 = new IEntity();
+		entity2->AddComponent(new PrimitiveComponent());
+		entity2->EnterWorld(this);
+		Matrix4x3 transf;
+		transf.SetTranslation(Vector3(1.f, 0, -0.5f));
+		entity2->SetTransform(transf);
+		mEntities_.push_back(entity2);
 	}
 
 	void IWorld::AddPrimitives(IPrimitive* prim)
