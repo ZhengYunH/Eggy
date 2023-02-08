@@ -20,16 +20,15 @@ namespace Eggy
 		mRenderElements_.push_back(new RenderMeshElement());
 		RenderMeshElement* ele = *(mRenderElements_.cbegin());
 		
+		for(IMeshData* meshData : Resource->GetGeometrys())
 		{
 			auto& vertexInfo = ele->vertexInfo;
-			vertexInfo.Count = Resource->mGeometry_->GetVertexData(vertexInfo.Data);
-			vertexInfo.Stride = Resource->mGeometry_->GetVertexStride();
-		}
+			vertexInfo.Count = meshData->GetVertexData(vertexInfo.Data);
+			vertexInfo.Stride = meshData->GetVertexStride();
 
-		{
 			auto& indexInfo = ele->indexInfo;
-			indexInfo.Count = Resource->mGeometry_->GetIndexData(indexInfo.Data);
-			indexInfo.Stride = Resource->mGeometry_->GetIndexStride();
+			indexInfo.Count = meshData->GetIndexData(indexInfo.Data);
+			indexInfo.Stride = meshData->GetIndexStride();
 		}
 	}
 

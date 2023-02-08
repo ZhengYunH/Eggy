@@ -38,7 +38,9 @@ namespace Eggy
 		mEntities_.push_back(entity1);
 
 		IEntity* entity2 = new IEntity();
-		entity2->AddComponent(new PrimitiveComponent());
+		PrimitiveComponent* prim = new PrimitiveComponent();
+		prim->LoadResource("Package/EngineDefault/Mesh/CameraModel.fbx");
+		entity2->AddComponent(prim);
 		entity2->EnterWorld(this);
 		Matrix4x3 transf;
 		transf.SetTranslation(Vector3(1.f, 0, -0.5f));

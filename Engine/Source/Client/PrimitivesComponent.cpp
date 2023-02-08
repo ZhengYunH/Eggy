@@ -11,7 +11,10 @@ namespace Eggy
 		{
 			mMesh_ = new Mesh();
 			MeshResource* meshResource = new MeshResource();
-			meshResource->mGeometry_ = new CubeMesh<EVF_P3F_C4B_T2F>();
+			if (mResource_.empty())
+				meshResource->SetGeometry(new CubeMesh<EVF_P3F_C4B_T2F>());
+			else
+				meshResource->Deserialize(FileSystem::Get()->LoadFile(mResource_).get());
 			mMesh_->SetResource(meshResource);
 		}
 		

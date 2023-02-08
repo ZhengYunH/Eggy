@@ -19,9 +19,9 @@ namespace Eggy
 	{
 	public:
 		virtual void CollectPrimitives(RenderContext* context) override;
+		void LoadResource(String resource) { mResource_ = resource; }
 
 		void EnterWorld() override;
-		
 		void LeaveWorld() override;
 
 	protected:
@@ -34,6 +34,7 @@ namespace Eggy
 		Mesh* mMesh_;
 		Material* mMaterial_;
 		RenderObject* mRenderObject_;
+		String mResource_;
 	};
 }
 

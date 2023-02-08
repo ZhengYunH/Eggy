@@ -4,17 +4,19 @@
 #include "Core/Engine/Engine.h"
 #include "Core/System/ConfigSystem.h"
 #include "Core/System/InputSystem.h"
+#include "Core/System/FileSystem.h"
 #include "Core/Math/MathTester.h"
 
 
 int main()
 {
 	using namespace Eggy;
-	// Eggy::DoTest();
+	Eggy::DoTest();
 	MathTester::Test();
 	// Initial System
 	ConfigSystem* config = new ConfigSystem();
 	InputSystem* inputSystem = new InputSystem();
+	FileSystem* fileSystem = new FileSystem();
 	Win32Game* platform = new Win32Game();
 	Engine* engine = new Engine(platform);
 	engine->Initialize();

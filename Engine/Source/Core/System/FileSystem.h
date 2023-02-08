@@ -100,6 +100,9 @@ namespace Eggy
 		bool FileExist(String path);
 		String& GetCacheDirectory();
 
+		void Initialize() override {}
+		void Finalize() override {}
+
 	protected:
 		Map<String, FileHandle> mFilesCache_;
 

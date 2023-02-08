@@ -36,7 +36,13 @@ namespace Eggy
 		using type = TVertexType<EVF_P3F_N4B_T2F>;
 	};
 
-	
+	template<>
+	class SelectVertexType<FBX>
+	{
+	public:
+		using type = TVertexType<EVF_P3F_C4B>;
+	};
+
 
 	class IFile
 	{
@@ -126,23 +132,29 @@ namespace Eggy
 		List<List<VertexType>> mVertexs_;
 		List<List<IndexType>> mIndexs_;
 
-		bool mbLoadedFileData_;
+		bool mbLoadedFileData_{ false };
 	};
 
 
 	class FbxFile : public IFile
 	{
 	public:
-		FbxFile(const String& filePath) : IFile(filePath)
-		{
-			mFileType_ = EFileType::FBX;
+		constexpr const static EFileType FileType = EFileType::FBX;
+		using VertexType = SelectVertexType<FileType>::type;
+		using IndexType = uint32;
 
-		}
+	public:
+		FbxFile(const String& filePath);
 
-		void Read(void* buffer, size_t& inOutDataSize) override
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
+		void Read(void* buffer, size_t& inOutDataSize) override;
+
+	public:
+		bool LoadFileData();
+
+		List<List<VertexType>> mVertexs_;
+		List<List<IndexType>> mIndexs_;
+
+		bool mbLoadedFileData_{ false };
 	};
 
 	template<EFileType _FileType>

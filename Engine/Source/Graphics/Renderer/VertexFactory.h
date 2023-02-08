@@ -243,6 +243,16 @@ namespace std
 			return vec2.Hash();
 		}
 	};
+	
+	template<> struct hash<TVertexType<EVF_P3F_C4B>>
+	{
+		size_t operator()(TVertexType<EVF_P3F_C4B> const& vertexType) const noexcept
+		{
+			size_t v = boost::hash_value(hash<Vector3>()(vertexType.Position));
+			boost::hash_combine(v, hash<Color4B>()(vertexType.Color));
+			return v;
+		}
+	};
 
 	template<> struct hash<TVertexType<EVF_P3F_N4B_T2F>>
 	{
