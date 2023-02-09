@@ -14,7 +14,6 @@ namespace Eggy
 		}
 
 	protected:
-		String mResource_;
 	};
 
 

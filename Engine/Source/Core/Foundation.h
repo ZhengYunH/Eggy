@@ -13,10 +13,12 @@
 	#define HYBRID_CHECK(X, ...) assert((X))
 	#define HYBRID_RUN(X, ...) X
 	#define DEBUG_RUN(X) X
+	#define DEBUG_CHECK(X, ...) assert((X))
 #else
 	#define HYBRID_CHECK(X, ...) 
 	#define HYBRID_RUN(X, ...)
 	#define DEBUG_RUN(X)
+	#define DEBUG_CHECK(X, ...)
 #endif
 
 #define Unimplement(...) HYBRID_CHECK(0, ##__VA_ARGS__)

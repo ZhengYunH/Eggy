@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Config.h"
+#include "ReflectionMacro.h"
 
 
 namespace Eggy
@@ -11,6 +12,7 @@ namespace Eggy
 	{
 		using primitive = _Primitives;
 		static constexpr bool is_intrinsic = false;
+		static constexpr bool with_vtable = true;
 		/*
 		* using type = ReflectionClass;
 		* static ReflectionClass* value;
@@ -58,16 +60,22 @@ namespace Eggy
 			Address = rhs.Address;
 		}
 
-		template<typename TValue>
-		void SetValue(void* entity, TValue&& value)
+		template<typename TPrimitive, typename TValue>
+		void SetValue(TPrimitive* entity, TValue&& value)
 		{
-			*(TValue*)((char*)entity + Address) = value;
+			size_t address = Address;
+			/*	if (GetType_Template<TPrimitive>::with_vtable)
+					address -= sizeof(int);*/
+			*(TValue*)((char*)entity + address) = value;
 		}
 
-		template<typename TValue>
-		void GetValue(void* entity, TValue& value)
+		template<typename TPrimitive, typename TValue>
+		void GetValue(TPrimitive* entity, TValue& value)
 		{
-			value = *(TValue*)((char*)entity + Address);
+			size_t address = Address;
+			//if (GetType_Template<TPrimitive>::with_vtable)
+			//	address -= sizeof(int);
+			value = *(TValue*)((char*)entity + address);
 		}
 
 		String Name;
@@ -75,18 +83,15 @@ namespace Eggy
 		size_t Address;
 	};
 
-
 	struct FunctionInfo
 	{
-		struct FunctionParameterInfo 
+		struct FunctionParameterInfo
 		{
 			String Name;
 			Type* Type;
 		};
-
-		FunctionInfo()
-		{
-		}
+		
+		FunctionInfo(){}
 
 		FunctionInfo(
 			const String& name,
@@ -108,11 +113,38 @@ namespace Eggy
 		uint16 ParameterSize{ 0 };
 	};
 
+	template<typename TPrimitive, typename TRetType, typename... Args>
+	struct TFunctionInfo : public FunctionInfo
+	{
+		using FunctionInfo::FunctionParameterInfo;
+		using TMethod = TRetType(TPrimitive::*)(Args...);
+
+		TFunctionInfo()
+		{
+		}
+
+		TFunctionInfo(
+			const String& name,
+			TMethod method,
+			List<FunctionParameterInfo>&& params
+		) : 
+			FunctionInfo(name, GetType<TRetType>(), std::move(params))
+			, MethodAddress(method)
+		{}
+
+		TRetType Invoke(TPrimitive* object, Args... args)
+		{
+			return (object->*MethodAddress)(args...);
+		}
+
+		TMethod MethodAddress;
+	};
+
 	/*
 		void f1(int i, float j) {} 
 		FunctionInfoinfo(
 			"f1", #Name, 
-			GetType<void>, #Type
+			&CLASS::f1, #Type
 			{ 
 				{"i", GetType<int>() }, 
 				{"j", GetType<float>()}
@@ -169,7 +201,7 @@ namespace Eggy
 			PConstuctor generator,
 			FieldInfo* fields,
 			uint16 numFieldInfo,
-			FunctionInfo* functions,
+			FunctionInfo** functions,
 			uint16 numFunctionInfo
 		);
 
@@ -196,7 +228,7 @@ namespace Eggy
 		ClassType(
 			String name, PConstuctor generator,
 			FieldInfo* fields, uint16 numFieldInfo,
-			FunctionInfo* functions, uint16 numFunctionInfo
+			FunctionInfo** functions, uint16 numFunctionInfo
 		)
 			: Type(name, generator)
 			, NumFields(numFieldInfo)
@@ -204,24 +236,45 @@ namespace Eggy
 		{
 			if (NumFields)
 			{
-				Fields = new FieldInfo[NumFields];
-				for (uint16 i = 0; i < NumFields; ++i)
-					Fields[i] = std::move(fields[i]);
+				std::swap(Fields, fields);
 			}
 
 			if (NumFunctions)
 			{
-				Functions = new FunctionInfo[NumFunctions];
-				for (uint16 i = 0; i < NumFunctions; ++i)
-					Functions[i] = std::move(functions[i]);
+				std::swap(Functions, functions);
 			}
 		}
 
 		FieldInfo* Fields{ nullptr };
 		uint16 NumFields{ 0 };
 
-		FunctionInfo* Functions{ nullptr };
+		FunctionInfo** Functions{ nullptr };
 		uint16 NumFunctions{ 0 };
+
+	public:
+		FieldInfo* GetProperty(const String& propName)
+		{
+			for (uint16 i = 0; i < NumFields; ++i)
+			{
+				if (Fields[i].Name == propName)
+				{
+					return &Fields[i];
+				}
+			}
+			return nullptr;
+		}
+
+		FunctionInfo* GetFunction(const String& funcName)
+		{
+			for (uint16 i = 0; i < NumFunctions; ++i)
+			{
+				if (Functions[i]->Name == funcName)
+				{
+					return Functions[i];
+				}
+			}
+			return nullptr;
+		}
 	};
 
 	class IntrinsicType : public ClassType
@@ -275,6 +328,7 @@ namespace Eggy
 	{ \
 		using primitive=TPrimitives; \
 		static constexpr bool is_intrinsic = true; \
+		static constexpr bool with_vtable = false; \
 		using type=IntrinsicType__##TPrimitives; \
 		static type* value; \
 	};
@@ -285,36 +339,10 @@ namespace Eggy
 
 
 	template<typename TPrimitive>
-	void Reflection::RegisterType(String name, PConstuctor generator, FieldInfo* fields, uint16 numFieldInfo, FunctionInfo* functions, uint16 numFunctionInfo)
+	void Reflection::RegisterType(String name, PConstuctor generator, FieldInfo* fields, uint16 numFieldInfo, FunctionInfo** functions, uint16 numFunctionInfo)
 	{
 		ClassType* info = new ClassType(name, generator, fields, numFieldInfo, functions, numFunctionInfo);
 		GetType_Template<TPrimitive>::value = info;
 		AddReflectionInfo(name, info);
 	}
-
-	
-#define IMP_GETCLASS(TPrimitive) \
-	static const ClassType* GetClass() \
-	{\
-		return static_cast<const ClassType*>(IObject::GetClassInfo(#TPrimitive)); \
-	}
-	
-
-	class IObject
-	{
-	public:
-		static const Type* GetClass()
-		{
-			return GetClassInfo("IObject");
-		}
-
-		static const Type* GetClassInfo(const Name& name)
-		{
-			return Reflection::GRegistrationDict.find(name)->second;
-		}
-	};
-
-
-	
-
 }

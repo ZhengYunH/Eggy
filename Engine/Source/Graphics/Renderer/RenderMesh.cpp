@@ -17,11 +17,11 @@ namespace Eggy
 
 	void RenderMesh::Deserialize(class MeshResource* Resource)
 	{
-		mRenderElements_.push_back(new RenderMeshElement());
-		RenderMeshElement* ele = *(mRenderElements_.cbegin());
-		
 		for(IMeshData* meshData : Resource->GetGeometrys())
 		{
+			mRenderElements_.push_back(new RenderMeshElement());
+			RenderMeshElement* ele = *(mRenderElements_.cbegin());
+
 			auto& vertexInfo = ele->vertexInfo;
 			vertexInfo.Count = meshData->GetVertexData(vertexInfo.Data);
 			vertexInfo.Stride = meshData->GetVertexStride();

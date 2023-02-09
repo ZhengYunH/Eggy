@@ -1,56 +1,35 @@
-#include "../Reflection.h"
+#include "Core/Object/IObject.h"
 #include <iostream>
 
 namespace Eggy
 {
-	static const char ReflectionClassTesterNameStr[] = "ReflectionClassTester";
-
 	class ReflectionClassTester : public IObject
 	{
 	public:
-		class ReflectionClassTesterClassInfo
-		{
-		public:
-			ReflectionClassTesterClassInfo()
-			{
-				FieldInfo fieldInfos[]{
-					FieldInfo("TestFieldInt", GetType<int>(), offsetof(ReflectionClassTester, TestFieldInt)),
-					FieldInfo("TestFieldFloat", GetType<float>(), offsetof(ReflectionClassTester, TestFieldFloat)),
-					FieldInfo("TestFieldBool", GetType<bool>(), offsetof(ReflectionClassTester, TestFieldBool)),
-				};
-				uint16 numFieldInfos = 3;
-				FunctionInfo* funcInfos = nullptr;
-
-				Reflection::RegisterType<ReflectionClassTester>(
-					"ReflectionClassTester",
-					[] {return new ReflectionClassTester(); },
-					fieldInfos, 
-					numFieldInfos,
-					funcInfos, 
-					0
-				);
-			}
-		};
-		static ReflectionClassTesterClassInfo __mClassInfo;
-		
 		IMP_GETCLASS(ReflectionClassTester);
 
+		EProperty()
 		int TestFieldInt;
+
+		EProperty()
 		float TestFieldFloat;
+
+		EProperty()
 		bool TestFieldBool;
 
-		void TestFunc1();
-		float TestFunc2();
-		float TestFunc3(int a, float b, bool c);
-	};
+		EFunction()
+		void TestFunc1() { std::cout << "Func1" << std::endl; }
 
-	template<> struct GetType_Template<ReflectionClassTester>
-	{
-		using primitive = ReflectionClassTester;
-		static constexpr bool is_intrinsic = false;
-		using type = ClassType;
-		static type* value;
-	};
+		EFunction()
+		float TestFunc2() { std::cout << "Func2" << std::endl; return 0.f; }
 
+		EFunction();
+		int TestFunc3(int a, float b, bool c) { std::cout << "Func1£º" << a << std::endl;  return 1; }
+	};
+	EnableReflection(ReflectionClassTester);
+	
 	void DoTest();
+	ReflectionClassTester* DoTestConstruct();
+	void DoTestProperty(ReflectionClassTester* object);
+	void DoTestFunction(ReflectionClassTester* object);
 }
