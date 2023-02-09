@@ -17,6 +17,7 @@ namespace Eggy
 
 	void RenderPass::Clear()
 	{
+		mInputPasses.clear();
 		while (DrawCallHead)
 		{
 			DrawCall* dp = DrawCallHead;

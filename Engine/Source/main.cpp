@@ -11,8 +11,8 @@
 int main()
 {
 	using namespace Eggy;
-	Eggy::DoTest();
-	MathTester::Test();
+	// Eggy::DoTest();
+	// MathTester::Test();
 	// Initial System
 	ConfigSystem* config = new ConfigSystem();
 	InputSystem* inputSystem = new InputSystem();

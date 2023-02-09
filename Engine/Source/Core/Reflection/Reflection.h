@@ -80,7 +80,7 @@ namespace Eggy
 
 		String Name;
 		Type* Type { nullptr };
-		size_t Address;
+		size_t Address{ 0 };
 	};
 
 	struct FunctionInfo
@@ -88,7 +88,7 @@ namespace Eggy
 		struct FunctionParameterInfo
 		{
 			String Name;
-			Type* Type;
+			Type* Type{ nullptr };
 		};
 		
 		FunctionInfo(){}
@@ -306,7 +306,6 @@ namespace Eggy
 		static type* value;
 	};
 
-#define StaticName(Name) #Name
 #define DECLARE_INTRINSIC_TYPE(AliasName, TPrimitives)  \
 	class IntrinsicType__##TPrimitives : public IntrinsicType \
 	{ \

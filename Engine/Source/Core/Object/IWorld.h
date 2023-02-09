@@ -23,8 +23,8 @@ namespace Eggy
 		virtual void Tick() {};
 		List<IPrimitive*>& GetPrimitives() { return mPrimitives_; }
 
-		virtual void StartFrame() = 0;
-		virtual void EndFrame() = 0;
+		virtual void StartLogicFrame() = 0;
+		virtual void EndLogicFrame() = 0;
 
 	protected:
 		List<IEntity*> mEntities_;

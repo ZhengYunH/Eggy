@@ -56,30 +56,37 @@ namespace Eggy
 	void ClientScene::Tick_ot()
 	{
 		StartLogicFrame();
-		mWorld_->Tick();
-		for (auto prim : mWorld_->GetPrimitives())
-		{
-			prim->CollectPrimitives(GetRenderScene()->GetContext());
-		}
+		
 		EndLogicFrame();
 	}
 
 	void ClientScene::Tick_rdt()
 	{
 		StartRenderFrame();
+		mWorld_->Tick();
+		for (auto prim : mWorld_->GetPrimitives())
+		{
+			prim->CollectPrimitives(GetRenderScene()->GetContext());
+		}
+		EndRenderFrame();
+	}
+
+	void ClientScene::Tick_dt()
+	{
+		StartDeviceFrame();
 		GRenderDevice->PrepareResource();
 		GRenderDevice->DrawFrame();
-		EndRenderFrame();
+		EndDeviceFrame();
 	}
 
 	void ClientScene::StartLogicFrame()
 	{
-		mWorld_->StartFrame();
+		mWorld_->StartLogicFrame();
 	}
 
 	void ClientScene::EndLogicFrame()
 	{
-		mWorld_->EndFrame();
+		mWorld_->EndLogicFrame();
 	}
 
 	void ClientScene::StartRenderFrame()
@@ -90,6 +97,16 @@ namespace Eggy
 	void ClientScene::EndRenderFrame()
 	{
 		mWorld_->EndRenderFrame();
+	}
+
+	void ClientScene::StartDeviceFrame()
+	{
+		mWorld_->StartDeviceFrame();
+	}
+
+	void ClientScene::EndDeviceFrame()
+	{
+		mWorld_->EndDeviceFrame();
 	}
 
 }

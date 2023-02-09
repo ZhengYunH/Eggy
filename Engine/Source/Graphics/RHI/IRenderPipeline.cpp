@@ -20,22 +20,6 @@ namespace Eggy
 	{
 		DrawCall* dp = GenerateDrawCall(item);
 		mPipeline_->AddDrawCall(set, dp);
-		while (dp)
- 		{
- 			uint8 globalConstantSlot = dp->ShaderCollection_->GetConstantSlot(EShaderConstant::Global);
-			if (globalConstantSlot == IShaderCollection::INVALID_SLOT || globalConstantSlot >= dp->ResourceBinding_->Buffers)
- 			{
- 				dp = dp->Next_;
- 				continue;
- 
- 			}
- 			dp->ResourceBinding_->Data[globalConstantSlot] = new IConstantBuffer();
-			auto& globalConstant = mPipeline_->GetGlobalConstant();
-			static_cast<IConstantBuffer*>(dp->ResourceBinding_->Data[globalConstantSlot])->Data = &globalConstant;
-			static_cast<IConstantBuffer*>(dp->ResourceBinding_->Data[globalConstantSlot])->ByteWidth = sizeof(globalConstant);
-			static_cast<IConstantBuffer*>(dp->ResourceBinding_->Data[globalConstantSlot])->Count = 1;
- 			dp = dp->Next_;
- 		}
 	}
 
 	RenderContext::~RenderContext()
@@ -115,10 +99,16 @@ namespace Eggy
 		Clear();
 	}
 
-	RenderPass* RenderPipeline::AddRenderPass()
+	RenderPass* RenderPipeline::GenerateRenderPass()
 	{
 		RenderPass* pass = new RenderPass(this);
 		return pass;
+	}
+
+	void RenderPipeline::AddRenderPass(RenderPass* pass)
+	{
+		pass->SetPipeline(this);
+		mRenderPasses_.push_back(pass);
 	}
 
 	void RenderPipeline::AddDrawCallChannel(ERenderSets sets, RenderPass* pass)
@@ -132,9 +122,7 @@ namespace Eggy
 
 	void RenderPipeline::AddDrawCallChannel(ERenderSet set, RenderPass* pass)
 	{
-		if (std::find(mRenderPasses_.begin(), mRenderPasses_.end(), pass) == mRenderPasses_.end())
-			mRenderPasses_.push_back(pass);
-
+		HYBRID_CHECK(std::find(mRenderPasses_.begin(), mRenderPasses_.end(), pass) != mRenderPasses_.end());
 		if (mRenderPassSet_.find(set) == mRenderPassSet_.end())
 		{
 			mRenderPassSet_[set] = List<RenderPass*>();
@@ -143,14 +131,20 @@ namespace Eggy
 		mRenderPassSet_[set].push_back(pass);
 	}
 
+	void RenderPipeline::Compile()
+	{
+		for (RenderPass* renderPass : mRenderPasses_)
+		{
+			renderPass->Compile();
+		}
+	}
+
 	void RenderPipeline::Clear()
 	{
 		mRenderPassSet_.clear();
-
 		for (RenderPass* pass : mRenderPasses_)
 		{
 			pass->Clear();
-			delete pass;
 		}
 		mRenderPasses_.clear();
 	}
@@ -161,12 +155,9 @@ namespace Eggy
 
 	void RenderPipeline::Consolidate()
 	{
-		for (auto& pair : mRenderPassSet_)
+		for (RenderPass* renderPass : mRenderPasses_)
 		{
-			for (auto renderPass : pair.second)
-			{
-				renderPass->Consolidate();
-			}
+			renderPass->Consolidate();
 		}
 	}
 

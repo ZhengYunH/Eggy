@@ -29,6 +29,7 @@ namespace Eggy
 		String Serialize() const override;
 		void Tick_ot();
 		void Tick_rdt();
+		void Tick_dt();
 
 	protected:
 		void StartLogicFrame();
@@ -36,6 +37,9 @@ namespace Eggy
 
 		void StartRenderFrame();
 		void EndRenderFrame();
+
+		void StartDeviceFrame();
+		void EndDeviceFrame();
 
 	protected:
 		class World* mWorld_{ nullptr };

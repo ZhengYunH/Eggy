@@ -35,5 +35,6 @@ namespace Eggy
 		mLastFrameTime_ = mCurrFrameTime_;
 		mClientScene_->Tick_ot();
 		mClientScene_->Tick_rdt();
+		mClientScene_->Tick_dt();
 	}
 }

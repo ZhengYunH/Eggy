@@ -59,7 +59,7 @@ namespace Eggy
 		String mFilePath_;
 		EFileState mState_{ EFileState::INIT };
 		EFileType mFileType_{ EFileType::NONE };
-		size_t mDataSize_;
+		size_t mDataSize_{ 0 };
 
 		DEBUG_RUN(String  mErrorMsg_;)
 	};

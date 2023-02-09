@@ -26,4 +26,5 @@
 #define SafeDestroy(X) if(X){ delete X; X=nullptr;}
 #define SafeDestroyArray(X) if(X){delete[] X; X=nullptr;}
 #define FORCEINLINE __forceinline
+#define StaticName(Name) #Name
 

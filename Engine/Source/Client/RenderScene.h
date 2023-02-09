@@ -29,14 +29,7 @@ namespace Eggy
 		RenderContext* GetContext() { return mContext_; }
 		RenderPipeline* GetPipeline() { return mPipeline_; }
 
-	private:
-		void ClearRenderObjects();
-		void ClearRenderElements();
-		void ClearResourcePool();
-
 	protected:
-		Map<ERenderSet, List<IRenderObject*>> mRenderObjects_;
-		List<IRenderElement*> mRenderElements_;
 		Camera* mCamera_{ nullptr };
 		RenderContext* mContext_{ nullptr };
 		RenderPipeline* mPipeline_{ nullptr };

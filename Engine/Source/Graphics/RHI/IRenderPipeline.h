@@ -79,9 +79,14 @@ namespace Eggy
 		RenderPipeline() = default;
 		virtual ~RenderPipeline();
 
+		virtual RenderPass* Setup() { return nullptr; }
+		virtual void ResolveConnection(RenderPass* output) {}
+		virtual void Compile();
+
 		void Clear();
 
-		RenderPass* AddRenderPass();
+		RenderPass* GenerateRenderPass();
+		void AddRenderPass(RenderPass* pass);
 		
 		void AddDrawCallChannel(ERenderSets sets, RenderPass* pass);
 		void AddDrawCallChannel(ERenderSet set, RenderPass* pass);

@@ -28,26 +28,33 @@ namespace Eggy
 		SafeDestroy(mRenderScene_);
 	}
 
-	void World::StartFrame()
+	void World::StartLogicFrame()
 	{
-		mRenderScene_->StartFrame();
 	}
 
-	void World::EndFrame()
+	void World::EndLogicFrame()
 	{
-		mRenderScene_->EndFrame();
 	}
 
 	void World::StartRenderFrame()
 	{
-		mRenderScene_->StartDeviceFrame();
+		mRenderScene_->StartFrame();
 	}
 
 	void World::EndRenderFrame()
 	{
-		mRenderScene_->EndDeviceFrame();
+		mRenderScene_->EndFrame();
 	}
 
+	void World::StartDeviceFrame()
+	{
+		mRenderScene_->StartDeviceFrame();
+	}
+
+	void World::EndDeviceFrame()
+	{
+		mRenderScene_->EndDeviceFrame();
+	}
 
 	void World::Tick()
 	{

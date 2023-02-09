@@ -16,11 +16,14 @@ namespace Eggy
 		IRenderScene* GetRenderScene() { return mRenderScene_; }
 		void Tick() override;
 
-		void StartFrame() override;
-		void EndFrame() override;
+		void StartLogicFrame() override;
+		void EndLogicFrame() override;
 
 		void StartRenderFrame();
 		void EndRenderFrame();
+
+		void StartDeviceFrame();
+		void EndDeviceFrame();
 
 		const Camera* GetCamera() { return mMainCamera_; }
 
