@@ -1,6 +1,6 @@
 # Eggy
 
-GameEngine for self-learning
+toy Game-Engine
 
 ## File Structure
 
@@ -8,4 +8,14 @@ GameEngine for self-learning
 + Package: all Resource except shaders
 
 ## Setup
+
+### Prerequisite
+
++ cmake 3.22.0
++ C++20
++ Visual Studio 2022
+
+### Generate Project
+
+run `Build.bat` and  you will get ***EggyEngine.sln***
 
