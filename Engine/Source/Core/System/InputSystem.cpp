@@ -16,6 +16,10 @@ namespace Eggy
 
 	void InputSystem::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		bool isSwallowed = MessageEvent.BoardCast(uMsg, wParam, lParam);
+		if(isSwallowed && (IS_MOUSE_EVENT(uMsg) || IS_KEY_EVENT(uMsg)))
+			return;
+
 #define BOARDCAST_EVENT(Msg, OpType, ...)\
 case Msg: \
 	INPUT_SYSTEM_OP_EVENT(OpType).BoardCast(##__VA_ARGS__); \

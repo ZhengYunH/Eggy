@@ -6,7 +6,10 @@
 
 
 #define INPUT_SYSTEM_OP_EVENT(OP) Event_##OP
-#define DEFINE_EVENT(OP, ...) Event<##__VA_ARGS__> INPUT_SYSTEM_OP_EVENT(OP)
+#define DEFINE_EVENT(OP, ...) Event<void, ##__VA_ARGS__> INPUT_SYSTEM_OP_EVENT(OP)
+#define IS_MOUSE_EVENT(msg) (msg > WM_MOUSEFIRST && msg < WM_MOUSELAST)
+#define IS_KEY_EVENT(msg) (msg == WM_KEYDOWN || msg == WM_KEYUP)
+
 namespace Eggy
 {
 	class InputSystem : public ISystem<InputSystem>
@@ -35,6 +38,9 @@ namespace Eggy
 
 		void Initialize() override;
 		void Finalize() override;
+
+		Event<bool, UINT, WPARAM, LPARAM > MessageEvent;
+
 
 	private:
 #if defined(_WIN32)

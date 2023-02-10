@@ -5,18 +5,30 @@
 
 namespace Eggy
 {
-	template<typename... TArgs>
+	template<typename TRetType=void, typename... TArgs>
 	class Event
 	{
 	public:
-		using FuncType = std::function<void(TArgs...)>;
+		using FuncType = std::function<TRetType(TArgs...)>;
 
 	public:
-		virtual void BoardCast(TArgs... args)
+		virtual TRetType BoardCast(TArgs... args)
 		{
-			for (auto& func : BindingFunc)
+			if constexpr (std::is_same <TRetType, bool>::value)
 			{
-				(func)(std::forward<TArgs>(args)...);
+				bool ret = false;
+				for (auto& func : BindingFunc)
+				{
+					ret = (func)(std::forward<TArgs>(args)...);
+				}
+				return ret;
+			}
+			else
+			{
+				for (auto& func : BindingFunc)
+				{
+					(func)(std::forward<TArgs>(args)...);
+				}
 			}
 		}
 
