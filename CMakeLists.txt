@@ -35,6 +35,7 @@ set(
     ${LIBRARY_DIR}/VulkanSDK/Include
     ${LIBRARY_DIR}/stb-master
     ${LIBRARY_DIR}/boost/Include
+	${LIBRARY_DIR}/imgui
 )
 target_include_directories(EggyEngine PUBLIC ${ADDITIONAL_INCLUDE_DIR})
 

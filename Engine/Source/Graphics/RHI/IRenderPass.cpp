@@ -3,6 +3,17 @@
 
 namespace Eggy
 {
+	size_t RenderPass::GetOutput()
+	{
+		HYBRID_CHECK(!mOutputRTs.empty());
+		return mOutputRTs[0];
+	}
+
+	void RenderPass::SetOutput(RenderGraphBuilder* builder, RenderTargetDesc desc, uint8 rtIndex)
+	{
+
+	}
+
 	void RenderPass::AddDrawCall(DrawCall* drawCall)
 	{
 		if (!DrawCallHead)
@@ -41,7 +52,6 @@ namespace Eggy
 			{
 				dp = dp->Next_;
 				continue;
-
 			}
 			dp->ResourceBinding_->Data[globalConstantSlot] = new IConstantBuffer();
 			auto& globalConstant = Pipeline->GetGlobalConstant();

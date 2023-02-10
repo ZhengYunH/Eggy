@@ -205,6 +205,40 @@ namespace Eggy
 		}
 	}
 
+	void D3D11ResourceFactory::CreateRenderTarget(struct IRenderTarget* renderTarget)
+	{
+		D3D11RenderTarget* deviceRT = new D3D11RenderTarget(renderTarget);
+		renderTarget->DeviceResource = deviceRT;
+
+		D3D11_TEXTURE2D_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+
+		desc.ArraySize = 1;
+		desc.BindFlags = Converter::BufferType(renderTarget->BindType);
+		desc.CPUAccessFlags = Converter::CPUAccessFlag(renderTarget->CPUAcesssFlags);
+		desc.Format = Converter::Format(renderTarget->Format);
+		desc.Height = renderTarget->Height;
+		desc.Width = renderTarget->Width;
+		desc.MipLevels = 1;
+		desc.MiscFlags = 0;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = Converter::Usage(renderTarget->Usage);
+
+		D3D11_SUBRESOURCE_DATA initData = { 
+			renderTarget->Data, 
+			renderTarget->Width * GetFormatInfo(renderTarget->Format).DataSize, 
+			renderTarget->Width * renderTarget->Height * GetFormatInfo(renderTarget->Format).DataSize 
+		};
+
+		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, &initData, deviceRT->ppTex.GetAddressOf()));
+
+		D3D11_RENDER_TARGET_VIEW_DESC RTVDesc;
+		ZeroMemory(&RTVDesc, sizeof(RTVDesc));
+		RTVDesc.Format = desc.Format;
+		HR(mD3D11Device_->mDevice_->CreateRenderTargetView(deviceRT->ppTex.Get(), &RTVDesc, deviceRT->ppRenderTargetView.GetAddressOf()));
+	}
+
 	void D3D11ResourceFactory::CreateTexture2D(ITexture* texture)
 	{
 		D3D11Texture2D* deviceTexture = new D3D11Texture2D(texture);
@@ -218,7 +252,7 @@ namespace Eggy
 		desc.Format = Converter::Format(texture->Format);
 		desc.SampleDesc.Count = 1;
 		desc.Usage = Converter::Usage(texture->Usage);;
-		desc.BindFlags = Converter::BufferType(EBufferType::ShaderResource);
+		desc.BindFlags = Converter::BufferType(texture->BindType);
 
 		D3D11_SUBRESOURCE_DATA initData = { texture->Data, texture->Width * GetFormatInfo(texture->Format).DataSize, texture->Width * texture->Height * GetFormatInfo(texture->Format).DataSize};
 		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, &initData, deviceTexture->ppTex.GetAddressOf()));

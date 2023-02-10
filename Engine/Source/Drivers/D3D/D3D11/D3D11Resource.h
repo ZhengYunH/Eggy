@@ -73,6 +73,15 @@ namespace Eggy
 		PipelineState* State;
 		TComPtr<ID3D11RasterizerState> ppRasterizerState;
 	};
+	
+	struct D3D11RenderTarget
+	{
+		D3D11RenderTarget(IRenderTarget* rt) : RenderTarget(rt)
+		{}
+		IRenderTarget* RenderTarget;
+		TComPtr<ID3D11Texture2D> ppTex;
+		TComPtr<ID3D11RenderTargetView> ppRenderTargetView;
+	};
 
 	class D3D11ResourceFactory : public IRenderResourceFactory
 	{
@@ -81,12 +90,13 @@ namespace Eggy
 		{
 		}
 
-		void CreateInputLayout(IInputLayout* inputLayout, IShaderCollection* shaderCollection) override;
-		void CreateShader(IShader* shader) override;
-		void CreateBuffer(IBuffer* buffer) override;
-		void CreateTexture(ITexture* texture) override;
+		void CreateInputLayout(struct IInputLayout* inputLayout, struct IShaderCollection* shaderCollection) override;
+		void CreateShader(struct IShader* shader) override;
+		void CreateBuffer(struct IBuffer* buffer) override;
+		void CreateTexture(struct ITexture* texture) override;
 		void CreateSamplerState(struct SamplerState* samplerState) override;
-		void CreatePipelineState(PipelineState* pipelineState) override;
+		void CreatePipelineState(struct PipelineState* pipelineState) override;
+		void CreateRenderTarget(struct IRenderTarget* renderTarget) override;
 
 	protected:
 		void CreateShaderFromFile(D3D11Shader* deviceShader);

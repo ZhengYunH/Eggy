@@ -72,6 +72,16 @@ namespace Eggy
 			mImmediateContext_->ClearState();
 	}
 
+	void* D3D11Device::GetDevice()
+	{
+		return mDevice_.Get();
+	}
+
+	void* D3D11Device::GetContext()
+	{
+		return mImmediateContext_.Get();
+	}
+
 	void D3D11Device::PrepareResource()
 	{
 	}
@@ -93,6 +103,7 @@ namespace Eggy
 			EncodeDrawCall(drawCall);
 			drawCall = drawCall->Next_;
 		}
+		renderPass->EncodeRenderPassEnd();
 	}
 
 	void D3D11Device::EncodeDrawCall(DrawCall* drawCall)

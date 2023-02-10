@@ -99,23 +99,22 @@ namespace Eggy
 			return D3D11_USAGE::D3D11_USAGE_DEFAULT;
 		}
 
-		static D3D11_BIND_FLAG BufferType(EBufferType type)
+		static UINT BufferType(EBufferTypes types)
 		{
-			switch (type)
+			UINT d3dType = 0;
+			auto MapType = [&d3dType, &types](EBufferType type, D3D11_BIND_FLAG d3dFlag)
 			{
-			case EBufferType::VertexBuffer:
-				return D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
-			case EBufferType::IndexBuffer:
-				return D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
-			case EBufferType::ConstantBuffer:
-				return D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-			case EBufferType::ShaderResource:
-				return D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
-			default:
-				Unimplement(0);
-				break;
-			}
-			return D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
+				if (types & EBufferTypes(type))
+					d3dType |= d3dFlag;
+			};
+			MapType(EBufferType::VertexBuffer, D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER);
+			MapType(EBufferType::IndexBuffer, D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER);
+			MapType(EBufferType::ConstantBuffer, D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER);
+			MapType(EBufferType::ShaderResource, D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE);
+			MapType(EBufferType::StreamOutput, D3D11_BIND_FLAG::D3D11_BIND_STREAM_OUTPUT);
+			MapType(EBufferType::RenderTarget, D3D11_BIND_FLAG::D3D11_BIND_RENDER_TARGET);
+			MapType(EBufferType::DepthStencil, D3D11_BIND_FLAG::D3D11_BIND_DEPTH_STENCIL);
+			return d3dType;
 		}
 
 		static uint32 CPUAccessFlag(uint32 flag)

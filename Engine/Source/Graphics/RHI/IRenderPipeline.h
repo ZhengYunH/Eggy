@@ -73,16 +73,39 @@ namespace Eggy
 		~DrawCall();
 	};
 
+	// Render Graph Builder
+	struct RenderTargetDesc
+	{
+		EFormat Format;
+		uint16	Width;
+		uint16  Height;
+	};
+
+	struct DepthStencilDesc
+	{
+
+	};
+
+	class RenderGraphBuilder
+	{
+	public:
+		void ResolveConnection(RenderPass* outputPass, List<RenderPass*>& validPasses);
+		size_t SetOutput(RenderPass* pass) { return 0; }
+		void Append(RenderPass* src) {}
+
+	protected:
+		List<RenderTargetDesc> mRenderTargetDescs;
+		List<DepthStencilDesc> mDepthStencilDesc;
+	};
+
 	class RenderPipeline
 	{
 	public:
 		RenderPipeline() = default;
 		virtual ~RenderPipeline();
 
-		virtual RenderPass* Setup() { return nullptr; }
-		virtual void ResolveConnection(RenderPass* output) {}
-		virtual void Compile();
-
+		virtual RenderPass* Setup(RenderGraphBuilder* builder) { return nullptr; }
+		virtual void Compile(RenderGraphBuilder* builder);
 		void Clear();
 
 		RenderPass* GenerateRenderPass();
@@ -118,6 +141,7 @@ namespace Eggy
 
 	protected:
 		RenderPipeline* mPipeline_;
+		RenderGraphBuilder mBuilder_;
 	};
 
 }

@@ -7,7 +7,9 @@ namespace Eggy
 {
 	void RenderContext::Prepare()
 	{
-
+		RenderPass* output = mPipeline_->Setup(&mBuilder_);
+		mBuilder_.ResolveConnection(output);
+		mPipeline_->Compile(&mBuilder_);
 	}
  
 	void RenderContext::Clear()
@@ -131,11 +133,11 @@ namespace Eggy
 		mRenderPassSet_[set].push_back(pass);
 	}
 
-	void RenderPipeline::Compile()
+	void RenderPipeline::Compile(RenderGraphBuilder* builder)
 	{
 		for (RenderPass* renderPass : mRenderPasses_)
 		{
-			renderPass->Compile();
+			renderPass->Compile(builder);
 		}
 	}
 
@@ -168,6 +170,16 @@ namespace Eggy
 		{
 			renderPass->AddDrawCall(dp);
 		}
+	}
+
+	void RenderGraphBuilder::ResolveConnection(RenderPass* outputPass, List<RenderPass*>& validPasses)
+	{
+		// DFS
+		for (RenderPass* inputPass : outputPass->GetInput())
+		{
+			ResolveConnection(inputPass, validPasses);
+		}
+		validPasses.push_back(outputPass);
 	}
 
 }

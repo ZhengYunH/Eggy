@@ -19,14 +19,12 @@ namespace Eggy
 
 	void RenderScene::StartFrame()
 	{
-		RenderPass* output = mPipeline_->Setup();
-		mPipeline_->ResolveConnection(output);
-		mPipeline_->Compile();
+		mContext_->Prepare();
+
 	}
 
 	void RenderScene::EndFrame()
 	{
-		mContext_->Prepare();
 		auto& globalConstant = mPipeline_->GetGlobalConstant();
 		globalConstant.ProjectTransform = GetCamera()->getProjMatrix();
 		globalConstant.ViewTransform = GetCamera()->getViewMatrix();

@@ -99,8 +99,17 @@ namespace Eggy
 		IndexBuffer = 0x2L,
 		ConstantBuffer = 0x4L,
 		ShaderResource = 0x8L,
+		StreamOutput = 0x10L,
+		RenderTarget = 0x20L,
+		DepthStencil = 0x40L,
 		END
 	};
+	using EBufferTypes = uint32;
+	inline EBufferTypes operator | (EBufferType a, EBufferType b) 
+	{
+		return EBufferTypes(a) | EBufferTypes(b);
+	}
+
 
 	enum class ECPUAccessFlag
 	{

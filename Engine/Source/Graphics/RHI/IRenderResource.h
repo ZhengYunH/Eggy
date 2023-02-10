@@ -23,7 +23,7 @@ namespace Eggy
 	struct IBuffer : public IRenderResource
 	{
 		EBufferUsage Usage{ EBufferUsage::Immutable };
-		EBufferType BindType{ EBufferType::UNDEFINE };
+		EBufferTypes BindType{ EBufferTypes(EBufferType::UNDEFINE) };
 		size_t Count{ 0 };
 		size_t ByteWidth{ 0 };
 		ECPUAccessFlags CPUAcesssFlags{ 0 };
@@ -39,7 +39,7 @@ namespace Eggy
 
 		virtual bool IsValid() override 
 		{
-			return BindType != EBufferType::UNDEFINE && Count && Data;
+			return BindType != EBufferTypes(EBufferType::UNDEFINE) && Count && Data;
 		}
 	};
 
@@ -48,7 +48,7 @@ namespace Eggy
 		IConstantBuffer()
 		{
 			Usage = EBufferUsage::Dynamic;
-			BindType = EBufferType::ConstantBuffer;
+			BindType = EBufferTypes(EBufferType::ConstantBuffer);
 			CPUAcesssFlags = ECPUAccessFlags(ECPUAccessFlag::Write);
 		}
 
@@ -63,7 +63,7 @@ namespace Eggy
 		ITexture() : IBuffer()
 		{
 			Usage = EBufferUsage::Immutable;
-			BindType = EBufferType::ShaderResource;
+			BindType = EBufferTypes(EBufferType::ShaderResource);
 			Count = 1;
 			CPUAcesssFlags = ECPUAccessFlags(ECPUAccessFlag::Read);
 		}
@@ -80,6 +80,17 @@ namespace Eggy
 		uint8 Mips{ 0 };
 		ETextureType TextureType{ ETextureType::UNDEFINE };
 		EFormat Format{ EFormat::UNDEFINED };
+	};
+
+	struct IRenderTarget : public ITexture
+	{
+		IRenderTarget() : ITexture()
+		{
+			Usage = EBufferUsage::Default;
+			CPUAcesssFlags = 0;
+			Count = 1;
+			BindType = EBufferTypes(EBufferType::ShaderResource | EBufferType::VertexBuffer);
+		}
 	};
 
 	struct IInputLayout : public IRenderResource
@@ -125,8 +136,8 @@ namespace Eggy
 
 		GeometryBinding()
 		{
-			VertexBuffer.BindType = EBufferType::VertexBuffer;
-			IndexBuffer.BindType = EBufferType::IndexBuffer;
+			VertexBuffer.BindType = EBufferTypes(EBufferType::VertexBuffer);
+			IndexBuffer.BindType = EBufferTypes(EBufferType::IndexBuffer);
 		}
 
 		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory)

@@ -13,6 +13,7 @@ namespace Eggy
 		virtual void CreateTexture(struct ITexture* texture) = 0;
 		virtual void CreateSamplerState(struct SamplerState* samplerState) = 0;
 		virtual void CreatePipelineState(struct PipelineState* pipelineState) = 0;
+		virtual void CreateRenderTarget(struct IRenderTarget* renderTarget) = 0;
 	};
 
 	class IRenderDevice
@@ -24,6 +25,8 @@ namespace Eggy
 		virtual void PrepareResource() = 0;
 		virtual void DrawFrame() = 0;
 		virtual IRenderResourceFactory* GetResourceFactory() = 0;
+		virtual void* GetDevice() = 0;
+		virtual void* GetContext() = 0;
 
 	protected:
 		virtual void CreateSwapChain() {};

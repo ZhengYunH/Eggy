@@ -13,6 +13,9 @@ namespace Eggy
 		D3D11Device();
 		~D3D11Device();
 	
+		void* GetDevice() override;
+		void* GetContext() override;
+
 	public:
 		void PrepareResource() override final;
 		void DrawFrame() override final;
