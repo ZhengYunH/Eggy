@@ -13,6 +13,11 @@ namespace Eggy
 			mTexturePaths_.push_back("Test");
 		}
 
+		void Deserialize(String shaderPath)
+		{
+			mShader_ = shaderPath;
+		}
+
 		String mShader_;
 		List<String> mTexturePaths_;
 	};

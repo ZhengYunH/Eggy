@@ -18,6 +18,11 @@ namespace Eggy
 		virtual bool IsValid() { return true; }
 		virtual bool IsResourceCreated() { return DeviceResource != nullptr; }
 		void* DeviceResource{ nullptr };
+
+		virtual ~IRenderResource()
+		{
+			SafeDestroy(DeviceResource);
+		}
 	};
 
 	struct IBuffer : public IRenderResource
@@ -89,7 +94,43 @@ namespace Eggy
 			Usage = EBufferUsage::Default;
 			CPUAcesssFlags = 0;
 			Count = 1;
-			BindType = EBufferTypes(EBufferType::ShaderResource | EBufferType::VertexBuffer);
+			BindType = EBufferTypes(EBufferType::ShaderResource | EBufferType::RenderTarget);
+			TextureType = ETextureType::Texture2D;
+		}
+
+		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
+		{
+			if (IsResourceCreated())
+				return;
+			if (IsDepthStencil())
+			{
+				factory->CreateDepthStencil(this);
+			}
+			else
+			{
+				factory->CreateRenderTarget(this);
+			}
+		}
+
+		bool IsDepthStencil()
+		{
+			return BindType & EBufferTypes(EBufferType::DepthStencil);
+		}
+
+		bool IsBackBuffer{ false };
+		ESamplerQuality Quality{ ESamplerQuality::DEFAULT };
+	};
+
+	struct IDepthStencil : public ITexture
+	{
+		IDepthStencil() : ITexture()
+		{
+			Usage = EBufferUsage::Default;
+			CPUAcesssFlags = 0;
+			Count = 1;
+			BindType = EBufferTypes(EBufferType::DepthStencil);
+			TextureType = ETextureType::Texture2D;
+			Format = EFormat::D32_SFLOAT_S8X24_UINT;
 		}
 	};
 
@@ -176,13 +217,6 @@ namespace Eggy
 			factory->CreateSamplerState(this);
 		}
 
-	};
-
-	
-
-	struct ShadingState : IRenderResource 
-	{
-		IConstantBuffer Constant;
 	};
 
 	struct PipelineState : IRenderResource

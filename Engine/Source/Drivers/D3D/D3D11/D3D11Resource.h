@@ -80,15 +80,23 @@ namespace Eggy
 		{}
 		IRenderTarget* RenderTarget;
 		TComPtr<ID3D11Texture2D> ppTex;
-		TComPtr<ID3D11RenderTargetView> ppRenderTargetView;
+		TComPtr<ID3D11RenderTargetView> ppRTV;
+		TComPtr<ID3D11ShaderResourceView> ppSRV;
+	};
+
+	struct D3D11DepthStencil
+	{
+		D3D11DepthStencil(IRenderTarget* rt) : RenderTarget(rt)
+		{}
+		IRenderTarget* RenderTarget;
+		TComPtr<ID3D11Texture2D> ppTex;
+		TComPtr<ID3D11DepthStencilView> ppDSV;
 	};
 
 	class D3D11ResourceFactory : public IRenderResourceFactory
 	{
 	public:
-		D3D11ResourceFactory(class D3D11Device* device) : mD3D11Device_(device)
-		{
-		}
+		D3D11ResourceFactory(class D3D11Device* device);
 
 		void CreateInputLayout(struct IInputLayout* inputLayout, struct IShaderCollection* shaderCollection) override;
 		void CreateShader(struct IShader* shader) override;
@@ -97,15 +105,15 @@ namespace Eggy
 		void CreateSamplerState(struct SamplerState* samplerState) override;
 		void CreatePipelineState(struct PipelineState* pipelineState) override;
 		void CreateRenderTarget(struct IRenderTarget* renderTarget) override;
+		void CreateDepthStencil(struct IRenderTarget* renderTarget) override;
+		void CreateBackBuffer(struct IRenderTarget* renderTarget, void* backBufferImage) override;
 
 	protected:
 		void CreateShaderFromFile(D3D11Shader* deviceShader);
 		void CreateVertexShader(D3D11Shader* deviceShader);
 		void CreatePixelShader(D3D11Shader* deviceShader);
-		
 		void CreateTexture2D(ITexture* texture);
-		void CreateTextureCube(ITexture* texture) { Unimplement(); }
-
+		void CreateTextureCube(ITexture* texture);
 
 	protected:
 		class D3D11Device* mD3D11Device_;

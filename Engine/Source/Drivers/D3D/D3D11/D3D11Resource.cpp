@@ -7,8 +7,14 @@
 
 namespace Eggy
 {
+	D3D11ResourceFactory::D3D11ResourceFactory(class D3D11Device* device) : mD3D11Device_(device)
+	{
+
+	}
+
 	void D3D11ResourceFactory::CreateInputLayout(IInputLayout* inputLayout, IShaderCollection* shaderCollection)
 	{
+		SafeDestroy(inputLayout->DeviceResource);
 		D3D11InputLayout* deviceInputLayout = new D3D11InputLayout(inputLayout);
 		inputLayout->DeviceResource = (void*)deviceInputLayout;
 
@@ -34,11 +40,14 @@ namespace Eggy
 			pShaderBytecodeWithInputSignature, bytecodeLength,
 			deviceInputLayout->ppAddress.GetAddressOf()
 		));
+		SafeDestroyArray(layoutDescs);
 	}
 
 
 	void D3D11ResourceFactory::CreateShader(IShader* shader)
 	{
+		SafeDestroy(shader->DeviceResource);
+
 		D3D11Shader* deviceShader = nullptr;
 		switch (shader->Type)
 		{
@@ -130,6 +139,7 @@ namespace Eggy
 
 	void D3D11ResourceFactory::CreateBuffer(IBuffer* buffer)
 	{
+		SafeDestroy(buffer->DeviceResource);
 		D3D11Buffer* deviceBuffer = new D3D11Buffer(buffer);
 		buffer->DeviceResource = deviceBuffer;
 		D3D11_BUFFER_DESC bufferDesc;
@@ -168,6 +178,7 @@ namespace Eggy
 
 	void D3D11ResourceFactory::CreateSamplerState(struct SamplerState* samplerState)
 	{
+		SafeDestroy(samplerState->DeviceResource);
 		D3D11SamplerState* deviceSamplerState = new D3D11SamplerState(samplerState);
 		samplerState->DeviceResource = deviceSamplerState;
 
@@ -185,6 +196,7 @@ namespace Eggy
 
 	void D3D11ResourceFactory::CreatePipelineState(PipelineState* pipelineState)
 	{
+		SafeDestroy(pipelineState->DeviceResource);
 		D3D11PipelineState* devicePipelineState = new D3D11PipelineState(pipelineState);
 		pipelineState->DeviceResource = devicePipelineState;
 
@@ -207,6 +219,7 @@ namespace Eggy
 
 	void D3D11ResourceFactory::CreateRenderTarget(struct IRenderTarget* renderTarget)
 	{
+		SafeDestroy(renderTarget->DeviceResource);
 		D3D11RenderTarget* deviceRT = new D3D11RenderTarget(renderTarget);
 		renderTarget->DeviceResource = deviceRT;
 
@@ -221,8 +234,9 @@ namespace Eggy
 		desc.Width = renderTarget->Width;
 		desc.MipLevels = 1;
 		desc.MiscFlags = 0;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
+		desc.SampleDesc.Count = Converter::SamplerCount(renderTarget->Quality);
+		UINT quality = UINT(Converter::SamplerQualityFactor(renderTarget->Quality) * mD3D11Device_->m4xMsaaQaulity_);
+		desc.SampleDesc.Quality = quality > 0 ? quality - 1 : 0;
 		desc.Usage = Converter::Usage(renderTarget->Usage);
 
 		D3D11_SUBRESOURCE_DATA initData = { 
@@ -231,16 +245,65 @@ namespace Eggy
 			renderTarget->Width * renderTarget->Height * GetFormatInfo(renderTarget->Format).DataSize 
 		};
 
-		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, &initData, deviceRT->ppTex.GetAddressOf()));
+		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, nullptr, deviceRT->ppTex.GetAddressOf()));
 
 		D3D11_RENDER_TARGET_VIEW_DESC RTVDesc;
 		ZeroMemory(&RTVDesc, sizeof(RTVDesc));
 		RTVDesc.Format = desc.Format;
-		HR(mD3D11Device_->mDevice_->CreateRenderTargetView(deviceRT->ppTex.Get(), &RTVDesc, deviceRT->ppRenderTargetView.GetAddressOf()));
+		HR(mD3D11Device_->mDevice_->CreateRenderTargetView(deviceRT->ppTex.Get(), nullptr, deviceRT->ppRTV.GetAddressOf()));
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = desc.Format;
+		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Texture2D.MipLevels = desc.MipLevels;
+		HR(mD3D11Device_->mDevice_->CreateShaderResourceView(deviceRT->ppTex.Get(), &SRVDesc, deviceRT->ppSRV.GetAddressOf()));
+	}
+
+	void D3D11ResourceFactory::CreateDepthStencil(struct IRenderTarget* renderTarget)
+	{
+		SafeDestroy(renderTarget->DeviceResource);
+		D3D11DepthStencil* deviceRT = new D3D11DepthStencil(renderTarget);
+		renderTarget->DeviceResource = deviceRT;
+
+		D3D11_TEXTURE2D_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+
+		desc.ArraySize = 1;
+		desc.BindFlags = Converter::BufferType(renderTarget->BindType);
+		desc.CPUAccessFlags = Converter::CPUAccessFlag(renderTarget->CPUAcesssFlags);
+		desc.Format = Converter::Format(renderTarget->Format);
+		desc.Height = renderTarget->Height;
+		desc.Width = renderTarget->Width;
+		desc.MipLevels = 1;
+		desc.MiscFlags = 0;
+		desc.SampleDesc.Count = Converter::SamplerCount(renderTarget->Quality);
+		UINT quality = UINT(Converter::SamplerQualityFactor(renderTarget->Quality) * mD3D11Device_->m4xMsaaQaulity_);
+		desc.SampleDesc.Quality = quality > 0 ? quality - 1 : 0;
+		desc.Usage = Converter::Usage(renderTarget->Usage);
+
+		D3D11_SUBRESOURCE_DATA initData = {
+			renderTarget->Data,
+			renderTarget->Width * GetFormatInfo(renderTarget->Format).DataSize,
+			renderTarget->Width * renderTarget->Height * GetFormatInfo(renderTarget->Format).DataSize
+		};
+
+		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, nullptr, deviceRT->ppTex.GetAddressOf()));
+		D3D11_DEPTH_STENCIL_VIEW_DESC DSVDesc;
+		ZeroMemory(&DSVDesc, sizeof(DSVDesc));
+		HR(mD3D11Device_->mDevice_->CreateDepthStencilView(deviceRT->ppTex.Get(), &DSVDesc, deviceRT->ppDSV.GetAddressOf()));
+	}
+
+	void D3D11ResourceFactory::CreateBackBuffer(struct IRenderTarget* renderTarget, void* backBufferImage)
+	{
+		SafeDestroy(renderTarget->DeviceResource);
+		D3D11RenderTarget* deviceRT = new D3D11RenderTarget(renderTarget);
+		renderTarget->DeviceResource = deviceRT;
+		HR(mD3D11Device_->mDevice_->CreateRenderTargetView((ID3D11Texture2D*)backBufferImage, nullptr, deviceRT->ppRTV.GetAddressOf()));
 	}
 
 	void D3D11ResourceFactory::CreateTexture2D(ITexture* texture)
 	{
+		SafeDestroy(texture->DeviceResource);
 		D3D11Texture2D* deviceTexture = new D3D11Texture2D(texture);
 		texture->DeviceResource = deviceTexture;
 
@@ -263,5 +326,11 @@ namespace Eggy
 		SRVDesc.Texture2D.MipLevels = texture->Mips;
 		HR(mD3D11Device_->mDevice_->CreateShaderResourceView(deviceTexture->ppTex.Get(), &SRVDesc, deviceTexture->ppSRV.GetAddressOf()));
 	}
+
+	void D3D11ResourceFactory::CreateTextureCube(ITexture* deviceShader)
+	{
+		Unimplement(0);
+	}
+
 }
 

@@ -4,6 +4,7 @@
 #include "Graphics/RHI/IRenderPass.h"
 #include "Client/RenderScene.h"
 #include "D3D11Shader.h"
+#include "Core/System/RenderSystem.h"
 
 
 // just for render-test, will be deleted soon
@@ -22,7 +23,18 @@ namespace Eggy
 
 	D3D11Device::D3D11Device()
 	{
+		mSwapchainFormat_ = Converter::Format(RenderSystem::Get()->ScreenFormat);
+		mDepthStencilFormat_ = Converter::Format(RenderSystem::Get()->ScreenFormat);
+
 		mResourceFactory_ = new D3D11ResourceFactory(this);
+		mBufferCount_ = RenderSystem::Get()->GetBackBufferCount();
+		mBackBuffers_ = new IRenderTarget* [mBufferCount_];
+		mDepthStencilBuffers_ = new IRenderTarget * [mBufferCount_];
+		for (UINT i = 0; i < mBufferCount_; ++i)
+		{
+			mBackBuffers_[i] = RenderSystem::Get()->GetBackBuffer(i);
+			mDepthStencilBuffers_[i] = RenderSystem::Get()->GetDepthStencilBuffer(i);
+		}
 
 		// IDXGIFactory::EnumAdapters();
 		IDXGIAdapter* pAdapter = nullptr;
@@ -84,6 +96,16 @@ namespace Eggy
 
 	void D3D11Device::PrepareResource()
 	{
+		auto pipeline = Engine::Get()->GetClientScene()->GetRenderScene()->GetPipeline();
+		for (auto renderPass : pipeline->GetRenderPasses())
+		{
+			const size_t nRT = renderPass->GetOutputCount();
+			for (size_t i = 0; i < nRT; ++i)
+			{
+				IRenderTarget* rt = renderPass->GetPipeline()->GetRenderTargetResource(renderPass->GetOutput(static_cast<uint8>(i)));
+				rt->CreateDeviceResource(GetResourceFactory());
+			}
+		}
 	}
 	
 	void D3D11Device::DrawFrame()
@@ -91,7 +113,9 @@ namespace Eggy
 		ClearScreen();
 		auto pipeline = Engine::Get()->GetClientScene()->GetRenderScene()->GetPipeline();
 		for (auto renderPass : pipeline->GetRenderPasses())
+		{
 			EncodeRenderPass(renderPass);
+		}
 		Present();
 	}
 
@@ -109,13 +133,13 @@ namespace Eggy
 	void D3D11Device::EncodeDrawCall(DrawCall* drawCall)
 	{
 		drawCall->CreateDeviceResource(GetResourceFactory());
-		IRenderResource** pDataBase = drawCall->ResourceBinding_->Data;
+		ResourceBinding* resourceBinding = drawCall->ResourceBinding_;
 		
 		// Update Constant Buffer
 		{
-			for (uint16 i = 0; i < drawCall->ResourceBinding_->Buffers; ++i)
+			for (uint16 i = 0; i < resourceBinding->Buffers; ++i)
 			{
-				IBuffer* srcBuffer = (IBuffer*)pDataBase[i];
+				IBuffer* srcBuffer = resourceBinding->GetConstant(i);
 				if (!srcBuffer)
 					continue;
 				D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
@@ -129,11 +153,12 @@ namespace Eggy
 		// VS
 		{
 			// Constant	
-			for (uint16 i = 0; i < drawCall->ResourceBinding_->Buffers; ++i)
+			for (uint16 i = 0; i < resourceBinding->Buffers; ++i)
 			{
-				if (!pDataBase[i])
+				IBuffer* srcBuffer = resourceBinding->GetConstant(i);
+				if (!srcBuffer)
 					continue;
-				D3D11Buffer* buffer = (D3D11Buffer*)pDataBase[i]->DeviceResource;
+				D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
 				UINT numBuffer = 1;
 				mImmediateContext_->VSSetConstantBuffers(i, numBuffer, buffer->ppBuffer.GetAddressOf());
 			}
@@ -146,7 +171,6 @@ namespace Eggy
 		// RS
 		{
 			mImmediateContext_->RSSetState(((D3D11PipelineState*)drawCall->Pipeline_.DeviceResource)->ppRasterizerState.Get());
-
 		}
 
 		// PS
@@ -154,29 +178,40 @@ namespace Eggy
 			auto psShader = drawCall->ShaderCollection_->GetShader(EShaderType::PS);
 
 			// Constant
-			for (uint16 i = 0; i < drawCall->ResourceBinding_->Buffers; ++i)
+			for (uint16 i = 0; i < resourceBinding->Buffers; ++i)
 			{
-				if (!pDataBase[i])
+				IBuffer* srcBuffer = resourceBinding->GetConstant(i);
+				if (!srcBuffer)
 					continue;
-				D3D11Buffer* buffer = (D3D11Buffer*)pDataBase[i]->DeviceResource;
+				D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
 				UINT numBuffer = 1;
 				mImmediateContext_->VSSetConstantBuffers(i, numBuffer, buffer->ppBuffer.GetAddressOf());
 			}
 
 			// Texture
-			IRenderResource** pTextureBase = drawCall->ResourceBinding_->Data + drawCall->ResourceBinding_->Buffers;
 			List<ID3D11ShaderResourceView*> texViews;
-			texViews.reserve(drawCall->ResourceBinding_->Textures);
-			for (uint16 i = drawCall->ResourceBinding_->Buffers; i < drawCall->ResourceBinding_->Buffers + drawCall->ResourceBinding_->Textures; ++i)
+			texViews.reserve(resourceBinding->Textures);
+			for (uint16 i = 0; i < resourceBinding->Textures; ++i)
 			{
-				IRenderResource* tex = pDataBase[i];
-				texViews.push_back(((D3D11Texture*)(tex->DeviceResource))->ppSRV.Get());
+				ITexture* tex = (ITexture*)resourceBinding->GetTexture(i);
+				HYBRID_CHECK(tex->BindType & EBufferTypes(EBufferType::ShaderResource));
+				if (tex)
+				{
+					if (tex->BindType & EBufferTypes(EBufferType::RenderTarget))
+						texViews.push_back(((D3D11RenderTarget*)(tex->DeviceResource))->ppSRV.Get());
+					else
+						texViews.push_back(((D3D11Texture*)(tex->DeviceResource))->ppSRV.Get());
+				}
+				else
+				{
+					texViews.push_back(nullptr);
+				}
 			}
 			mImmediateContext_->PSSetShaderResources(0, (UINT)texViews.size(), texViews.data());
 
 			// Sampler
 			List<ID3D11SamplerState*> samplerStates;
-			HYBRID_CHECK(drawCall->ResourceBinding_->Textures == psShader->Samplers.size());
+			HYBRID_CHECK(resourceBinding->Textures == psShader->Samplers.size());
 			samplerStates.reserve(psShader->Samplers.size());
 			for (size_t i = 0; i < psShader->Samplers.size(); ++i)
 			{
@@ -187,8 +222,17 @@ namespace Eggy
 			
 			D3D11PixelShader* pixelShader = (D3D11PixelShader*)psShader->DeviceResource;
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
-
 		}
+
+		UINT nRT = resourceBinding->Views;
+		List<ID3D11RenderTargetView*> RTs(nRT);
+		for (UINT i = 0; i < nRT; ++i)
+		{
+			IRenderTarget* rt = resourceBinding->GetView(static_cast<uint16>(i));
+			D3D11RenderTarget* d3dRT = (D3D11RenderTarget*)rt->DeviceResource;
+			RTs[i] = d3dRT->ppRTV.Get();
+		}
+		mImmediateContext_->OMSetRenderTargets(nRT, RTs.data(), nullptr);
 
 		// Draw
 		{
@@ -237,8 +281,8 @@ namespace Eggy
 
 			DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
 			ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-			swapChainDesc.Width = SCREEN_INIT_WIDTH;
-			swapChainDesc.Height = SCREEN_INIT_HEIGHT;
+			swapChainDesc.Width = GetBackBuffer()->Width;
+			swapChainDesc.Height = GetBackBuffer()->Height;
 			swapChainDesc.Format = mSwapchainFormat_;
 			if (mEnable4xMsaa_)
 			{
@@ -251,7 +295,7 @@ namespace Eggy
 				swapChainDesc.SampleDesc.Quality = 0;
 			}
 			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapChainDesc.BufferCount = 1;
+			swapChainDesc.BufferCount = mBufferCount_;
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 			swapChainDesc.Flags = 0;
 
@@ -269,8 +313,8 @@ namespace Eggy
 		{
 			DXGI_SWAP_CHAIN_DESC swapChainDesc;
 			ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-			swapChainDesc.BufferDesc.Width = SCREEN_INIT_WIDTH;
-			swapChainDesc.BufferDesc.Height = SCREEN_INIT_HEIGHT;
+			swapChainDesc.BufferDesc.Width = RenderSystem::Get()->ScreenWidth;
+			swapChainDesc.BufferDesc.Height = RenderSystem::Get()->ScreenHeight;
 			swapChainDesc.BufferDesc.Format = mSwapchainFormat_;
 			if (mEnable4xMsaa_)
 			{
@@ -283,7 +327,7 @@ namespace Eggy
 				swapChainDesc.SampleDesc.Quality = 0;
 			}
 			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapChainDesc.BufferCount = 1;
+			swapChainDesc.BufferCount = mBufferCount_;
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 			swapChainDesc.Flags = 0;
 
@@ -300,7 +344,6 @@ namespace Eggy
 		// Forbid enter alt + enter to set fullScreen
 		DXGIFactory1->MakeWindowAssociation(mMainWnd_, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES);
 		
-		
 		OnResize();
 	}
 
@@ -316,47 +359,22 @@ namespace Eggy
 			HYBRID_CHECK(mSwapChain1_);
 		}
 
-		mRenderTargetView_.Reset();
-		mDepthStencilView_.Reset();
-		mDepthStencilBuffer_.Reset();
-
-		TComPtr<ID3D11Texture2D> backBuffer;
-		const UINT width = SCREEN_INIT_WIDTH;
-		const UINT height = SCREEN_INIT_HEIGHT;
+		const UINT width = GetBackBuffer()->Width;
+		const UINT height = GetBackBuffer()->Height;
 
 		HR(mSwapChain_->ResizeBuffers(1, width, height, mSwapchainFormat_, 0));
-		HR(mSwapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
-		HR(mDevice_->CreateRenderTargetView(backBuffer.Get(), nullptr, mRenderTargetView_.GetAddressOf()));
 
-		backBuffer.Reset();
-
-		D3D11_TEXTURE2D_DESC depthStencilDesc;
-		depthStencilDesc.Width = width;
-		depthStencilDesc.Height = height;
-		depthStencilDesc.MipLevels = 1;
-		depthStencilDesc.ArraySize = 1;
-		depthStencilDesc.Format = mDepthStencilFormat_;
-
-		if (mEnable4xMsaa_)
+		for (UINT i = 0; i < mBufferCount_; ++i)
 		{
-			depthStencilDesc.SampleDesc.Count = 4;
-			depthStencilDesc.SampleDesc.Quality = m4xMsaaQaulity_ - 1;
+			SafeDestroy(mBackBuffers_[i]->DeviceResource);
+			TComPtr<ID3D11Texture2D> backBuffer;
+			HR(mSwapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())));
+			GetResourceFactory()->CreateBackBuffer(mBackBuffers_[i], backBuffer.Get());
+			backBuffer.Reset();
+
+			SafeDestroy(mDepthStencilBuffers_[i]->DeviceResource);
+			GetResourceFactory()->CreateDepthStencil(mDepthStencilBuffers_[i]);
 		}
-		else
-		{
-			depthStencilDesc.SampleDesc.Count = 1;
-			depthStencilDesc.SampleDesc.Quality = 0;
-		}
-
-		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		depthStencilDesc.CPUAccessFlags = 0;
-		depthStencilDesc.MiscFlags = 0;
-
-		mDevice_->CreateTexture2D(&depthStencilDesc, nullptr, mDepthStencilBuffer_.GetAddressOf());
-		mDevice_->CreateDepthStencilView(mDepthStencilBuffer_.Get(), nullptr, mDepthStencilView_.GetAddressOf());
-
-		mImmediateContext_->OMSetRenderTargets(1, mRenderTargetView_.GetAddressOf(), mDepthStencilView_.Get());
 
 		mScreenViewport_.TopLeftX = 0;
 		mScreenViewport_.TopLeftY = 0;
@@ -371,13 +389,14 @@ namespace Eggy
 	void D3D11Device::ClearScreen()
 	{
 		float clearValue[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		mImmediateContext_->ClearRenderTargetView(mRenderTargetView_.Get(), clearValue);
+		mImmediateContext_->ClearRenderTargetView(((D3D11RenderTarget*)GetBackBuffer()->DeviceResource)->ppRTV.Get(), clearValue);
 		mImmediateContext_->ClearDepthStencilView(mDepthStencilView_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
 	void D3D11Device::Present()
 	{
 		mSwapChain_->Present(0, 0);
+		mCurrentFrameIndex_ = (mCurrentFrameIndex_ + 1) % mBufferCount_;
 	}
 
 }

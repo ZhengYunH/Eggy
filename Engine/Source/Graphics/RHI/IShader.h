@@ -133,6 +133,11 @@ namespace Eggy
 			return uint8(EShaderConstant::END);
 		}
 
+		uint8 GetViewSize()
+		{
+			return 1;
+		}
+
 
 	protected:
 		Map<EShaderType, IShader*> mAllShader_;

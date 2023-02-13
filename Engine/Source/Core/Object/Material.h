@@ -21,9 +21,6 @@ namespace Eggy
 				mTextures_[key] = new Texture();
 				mTextures_[key]->SetResource(res);
 			}
-			mShaderCollection_ = new IShaderCollection();
-			mShaderCollection_->SetShaderPath(EShaderType::VS, GetShaderPath(EShaderType::VS));
-			mShaderCollection_->SetShaderPath(EShaderType::PS, GetShaderPath(EShaderType::PS));
 		}
 
 		String GetShaderPath(EShaderType shaderType)
@@ -50,15 +47,8 @@ namespace Eggy
 			return mTextures_;
 		}
 
-		IShaderCollection* GetShaderCollection()
-		{
-			HYBRID_CHECK(mShaderCollection_);
-			return mShaderCollection_;
-		}
-
 	protected:
 		MaterialResource* mResource_;
 		Map<String, Texture*> mTextures_;
-		IShaderCollection* mShaderCollection_;
 	};
 }

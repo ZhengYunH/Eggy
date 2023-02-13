@@ -8,15 +8,19 @@ namespace Eggy
 	void RenderContext::Prepare()
 	{
 		RenderPass* output = mPipeline_->Setup(&mBuilder_);
-		mBuilder_.ResolveConnection(output);
+		mBuilder_.Prepare();
+		mBuilder_.ResolveConnection(output, mPipeline_->GetRenderPasses());
 		mPipeline_->Compile(&mBuilder_);
+		mBuilder_.Resolve();
+		mPipeline_->Render(this);
+		mPipeline_->CopyRenderTargetList(mBuilder_.GetRenderTargetResource());
 	}
  
 	void RenderContext::Clear()
 	{
-		mPipeline_->Clear(); 
+		mBuilder_.Clear();
+		mPipeline_->Clear(this); 
  	}
-
 
 	void RenderContext::SubmitRenderItem(ERenderSet set, RenderItem* item)
 	{
@@ -60,35 +64,26 @@ namespace Eggy
 			auto resourceBinding = dp->ResourceBinding_;
 			auto constantSize = dp->ShaderCollection_->GetConstantSize();
 			auto textureSize = dp->ShaderCollection_->GetTextureSize();
-			auto viewSize = 0;
+			auto viewSize = dp->ShaderCollection_->GetViewSize();
 			resourceBinding->Buffers = constantSize;
 			resourceBinding->Textures = textureSize;
+			resourceBinding->Views = viewSize;
 			resourceBinding->Data = new IRenderResource * [constantSize + textureSize + viewSize];
 			for (uint16 i = 0; i < constantSize + textureSize + viewSize; ++i)
 				resourceBinding->Data[i] = nullptr;
 
+			// Bind Batch Constant
 			auto shaderCollection = dp->ShaderCollection_;
-			resourceBinding->Data[shaderCollection->GetConstantSlot(EShaderConstant::Batch)] = new IConstantBuffer();
-			auto batchConstant = static_cast<IConstantBuffer*>(resourceBinding->Data[dp->ShaderCollection_->GetConstantSlot(EShaderConstant::Batch)]);
+			uint8 batchSlot = shaderCollection->GetConstantSlot(EShaderConstant::Batch);
+			auto batchConstant = info->ShadingState_->BindingConstants[batchSlot];
 			batchConstant->Data = &object->ObjectConstantData_;
 			batchConstant->ByteWidth = sizeof(object->ObjectConstantData_);
 			batchConstant->Count = 1;
+			resourceBinding->SetConstant(batchSlot, batchConstant);
 
 			for (size_t i = 0; i < info->ShadingState_->BindingTextures.size(); ++i)
 			{
-				Texture* texture = info->ShadingState_->BindingTextures[i];
-				if (!texture)
-					continue;
-				resourceBinding->Data[constantSize + i] = new ITexture();
-				auto bindingTex = static_cast<ITexture*>(resourceBinding->Data[constantSize + i]);
-				auto& resource = texture->GetResource();
-				bindingTex->Data = resource.GetData();
-				bindingTex->Width = resource.Size.x;
-				bindingTex->Height = resource.Size.y;
-				bindingTex->Mips = resource.Mips;
-				bindingTex->Format = resource.Format;
-				bindingTex->ByteWidth = resource.ByteWidth;
-				bindingTex->TextureType = resource.TextureType;
+				resourceBinding->SetTexture(static_cast<uint16>(i), info->ShadingState_->BindingTextures[i]);
 			}
 		}
 		
@@ -96,9 +91,17 @@ namespace Eggy
 		return dp;
 	}
 
+	// ! must compatible with GenerateDrawCall
+	void RenderContext::RecycleDrawCall(DrawCall* dp)
+	{
+		SafeDestroy(dp->Item_);
+		SafeDestroyArray(dp->ResourceBinding_->Data); 
+		SafeDestroy(dp->ResourceBinding_);
+		SafeDestroy(dp);
+	}
+
 	RenderPipeline::~RenderPipeline()
 	{
-		Clear();
 	}
 
 	RenderPass* RenderPipeline::GenerateRenderPass()
@@ -137,22 +140,40 @@ namespace Eggy
 	{
 		for (RenderPass* renderPass : mRenderPasses_)
 		{
+			renderPass->SetPipeline(this);
 			renderPass->Compile(builder);
 		}
 	}
 
-	void RenderPipeline::Clear()
+	void RenderPipeline::Render(RenderContext* context)
 	{
+		for (RenderPass* renderPass : mRenderPasses_)
+		{
+			renderPass->Render(context);
+		}
+	}
+
+	void RenderPipeline::Clear(RenderContext* context)
+{
 		mRenderPassSet_.clear();
 		for (RenderPass* pass : mRenderPasses_)
 		{
-			pass->Clear();
+			pass->Clear(context);
 		}
 		mRenderPasses_.clear();
+
+		for (auto rt : mRenderTargetResource_)
+		{
+			if(!rt->IsBackBuffer)
+				delete rt;
+		}
+		mRenderTargetResource_.clear();
 	}
 
 	DrawCall::~DrawCall()
 	{
+		SafeDestroy(Item_);
+
 	}
 
 	void RenderPipeline::Consolidate()
@@ -172,14 +193,15 @@ namespace Eggy
 		}
 	}
 
-	void RenderGraphBuilder::ResolveConnection(RenderPass* outputPass, List<RenderPass*>& validPasses)
+	void RenderPipeline::CopyRenderTargetList(List<IRenderTarget*>&& RenderTargets)
 	{
-		// DFS
-		for (RenderPass* inputPass : outputPass->GetInput())
-		{
-			ResolveConnection(inputPass, validPasses);
-		}
-		validPasses.push_back(outputPass);
+		mRenderTargetResource_.swap(RenderTargets);
+	}
+
+	IRenderTarget* RenderPipeline::GetRenderTargetResource(size_t rtIndex) const 
+	{
+		HYBRID_CHECK(rtIndex < mRenderTargetResource_.size());
+		return mRenderTargetResource_[rtIndex];
 	}
 
 }

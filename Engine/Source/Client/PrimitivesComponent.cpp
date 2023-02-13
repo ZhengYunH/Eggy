@@ -62,7 +62,7 @@ namespace Eggy
 			info.Object = mRenderObject_;
 			element->PrepareRenderItemInfo(context, &info);
 			RenderItem* item = context->GenerateRenderItem(&info);
-			context->SubmitRenderItem(ERenderSet::MAIN, item);
+			context->SubmitRenderItem(ERenderSet::Main, item);
 		}
 	}
 

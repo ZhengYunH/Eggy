@@ -7,11 +7,11 @@ namespace Eggy
 {
 	struct IMeshData
 	{
-		virtual size_t GetVertexData(void*& Data) = 0;
-		virtual size_t GetIndexData(void*& Data) = 0;
+		virtual size_t GetVertexData(void*& Data) const = 0;
+		virtual size_t GetIndexData(void*& Data) const = 0;
 
-		virtual size_t GetVertexStride() = 0;
-		virtual size_t GetIndexStride() = 0;
+		virtual size_t GetVertexStride() const = 0;
+		virtual size_t GetIndexStride() const = 0;
 
 		virtual void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) = 0;
 	};
@@ -51,7 +51,7 @@ namespace Eggy
 			SetupData(vertex, index);
 		}
 
-		virtual size_t GetVertexData(void*& Data) override
+		virtual size_t GetVertexData(void*& Data) const override
 		{
 			HYBRID_CHECK(Vertex);
 
@@ -59,7 +59,7 @@ namespace Eggy
 			return nVertex;
 		}
 
-		size_t GetIndexData(void*& Data) override
+		size_t GetIndexData(void*& Data) const override
 		{
 			HYBRID_CHECK(Index);
 
@@ -67,12 +67,12 @@ namespace Eggy
 			return nIndex;
 		}
 
-		size_t GetVertexStride() override
+		size_t GetVertexStride() const override
 		{
 			return VertexType::GetSize();
 		}
 
-		size_t GetIndexStride() override
+		size_t GetIndexStride() const override
 		{
 			return sizeof(IndexType);
 		}
@@ -83,9 +83,9 @@ namespace Eggy
 		}
 	};
 
-	struct QuatMesh : public MeshData<EVF_P3F_C4B>
+	struct QuatMesh : public MeshData<EVF_P3F_C4B_T2F>
 	{
-		using Parent = MeshData<EVF_P3F_C4B>;
+		using Parent = MeshData<EVF_P3F_C4B_T2F>;
 		QuatMesh() : Parent()
 		{
 			CreateMeshData();
@@ -100,19 +100,21 @@ namespace Eggy
 		{
 			SetupData(
 				List<VertexType>({
-						{ Vector3(-0.5f, -0.5f, 0.0f), Color },
-						{ Vector3(-0.5f, 0.5f, 0.0f), Color },
-						{ Vector3(0.5f, 0.5f, 0.0f), Color },
-						{ Vector3(0.5f, -0.5f, 0.0f), Color }
+						{ Vector3(0.0f, 0.0f, 0.0f), Color, Vector2(0, 0)},
+						{ Vector3(0.0f, 1.0f, 0.0f), Color, Vector2(0, 1)},
+						{ Vector3(1.0f, 0.0f, 0.0f), Color, Vector2(1, 0)},
+						{ Vector3(1.0f, 1.0f, 0.0f), Color,  Vector2(1, 1) }
 					}),
 				List<IndexType>({
 						0, 1, 2,
-						0, 2, 3
+						1, 2, 3
 					})
 			);
 		}
 
 		Color4B Color{ Color4B_RED };
+
+		static const QuatMesh ConstMesh;
 	};
 
 	template<EVertexFormat Format>

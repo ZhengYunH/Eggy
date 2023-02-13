@@ -1,6 +1,7 @@
 #pragma once
 #include "IRenderHeader.h"
 #include "IRenderResource.h"
+#include "RenderGraph.h"
 #include "IShader.h"
 #include "RenderItem.h"
 
@@ -36,6 +37,33 @@ namespace Eggy
 				texture->CreateDeviceResource(factory);
 			}
 		}
+
+		void SetConstant(uint16 i, IConstantBuffer* tex)
+		{
+			Data[i] = tex;
+		}
+		IConstantBuffer* GetConstant(uint16 i)
+		{
+			return (IConstantBuffer*)Data[i];
+		}
+
+		void SetTexture(uint16 i, ITexture* tex)
+		{
+			Data[Buffers + i] = tex;
+		}
+		ITexture* GetTexture(uint16 i)
+		{
+			return (ITexture*)Data[Buffers + i];
+		}
+
+		void SetView(uint16 i, IRenderTarget* view)
+		{
+			Data[Buffers + Textures + i] = view;
+		}
+		IRenderTarget* GetView(uint16 i)
+		{
+			return (IRenderTarget*)Data[Buffers + Textures + i];
+		}
 	};
 
 	class RenderPipeline;
@@ -49,6 +77,7 @@ namespace Eggy
 		DrawCall* Next_{ nullptr };
 
 		PipelineState Pipeline_;
+		RenderPass* Pass_;
 		GeometryBinding* GeometryBinding_{ nullptr };
 		ResourceBinding* ResourceBinding_{ nullptr };
 		IShaderCollection* ShaderCollection_{ nullptr };
@@ -73,31 +102,6 @@ namespace Eggy
 		~DrawCall();
 	};
 
-	// Render Graph Builder
-	struct RenderTargetDesc
-	{
-		EFormat Format;
-		uint16	Width;
-		uint16  Height;
-	};
-
-	struct DepthStencilDesc
-	{
-
-	};
-
-	class RenderGraphBuilder
-	{
-	public:
-		void ResolveConnection(RenderPass* outputPass, List<RenderPass*>& validPasses);
-		size_t SetOutput(RenderPass* pass) { return 0; }
-		void Append(RenderPass* src) {}
-
-	protected:
-		List<RenderTargetDesc> mRenderTargetDescs;
-		List<DepthStencilDesc> mDepthStencilDesc;
-	};
-
 	class RenderPipeline
 	{
 	public:
@@ -105,8 +109,9 @@ namespace Eggy
 		virtual ~RenderPipeline();
 
 		virtual RenderPass* Setup(RenderGraphBuilder* builder) { return nullptr; }
-		virtual void Compile(RenderGraphBuilder* builder);
-		void Clear();
+		void Compile(RenderGraphBuilder* builder);
+		void Render(RenderContext* context);
+		void Clear(RenderContext* context);
 
 		RenderPass* GenerateRenderPass();
 		void AddRenderPass(RenderPass* pass);
@@ -117,12 +122,18 @@ namespace Eggy
 		void Consolidate();
 		void AddDrawCall(ERenderSet set, DrawCall* dp);
 		GlobalConstant& GetGlobalConstant() { return mConstant_; }
+		virtual const RenderTargetDesc& GetBackBuffer(RenderGraphBuilder* builder) = 0;
+
+		void CopyRenderTargetList(List<IRenderTarget*>&& RenderTargets);
+		IRenderTarget* GetRenderTargetResource(size_t rtIndex) const;
 
 	protected:
 		List<RenderPass*> mRenderPasses_;
 		Map<ERenderSet, List<RenderPass*>> mRenderPassSet_;
 		GlobalConstant mConstant_;
 		RenderContext* mContext_;
+
+		List<IRenderTarget*> mRenderTargetResource_;
 	};
 
 	class RenderContext
@@ -134,6 +145,7 @@ namespace Eggy
 
 		RenderItem* GenerateRenderItem(RenderItemInfo* info);
 		DrawCall* GenerateDrawCall(RenderItem* item);
+		void RecycleDrawCall(DrawCall* dp);
 
 		void Prepare();
 		void Clear();

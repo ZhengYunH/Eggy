@@ -20,7 +20,6 @@ namespace Eggy
 	void RenderScene::StartFrame()
 	{
 		mContext_->Prepare();
-
 	}
 
 	void RenderScene::EndFrame()

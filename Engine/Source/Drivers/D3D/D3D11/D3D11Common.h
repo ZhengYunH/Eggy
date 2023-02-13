@@ -178,5 +178,33 @@ namespace Eggy
 			HYBRID_CHECK(uint32(mode) <= uint32(ECullMode::END));
 			return cullModes[uint32(mode)];
 		}
+		
+		static UINT SamplerCount(ESamplerQuality quality)
+		{
+			static UINT smplerCounts[uint32(ESamplerQuality::END)] =
+			{
+				1, //DEFAULT
+				2,
+				4,
+				8
+			};
+
+			HYBRID_CHECK(uint32(quality) <= uint32(ESamplerQuality::END));
+			return smplerCounts[uint32(quality)];
+		}
+
+		static float SamplerQualityFactor(ESamplerQuality quality)
+		{
+			static float smplerQualities[uint32(ESamplerQuality::END)] =
+			{
+				0, //DEFAULT
+				0.25,
+				0.5,
+				1
+			};
+
+			HYBRID_CHECK(uint32(quality) <= uint32(ESamplerQuality::END));
+			return smplerQualities[uint32(quality)];
+		}
 	};
 }

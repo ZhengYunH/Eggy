@@ -7,10 +7,11 @@ namespace Eggy
 	enum class ERenderSet : uint32
 	{
 		NONE = 0,
-		MAIN = 0x1,
+		Main = 0x1,
+		PostProcess = 0x2,
 
-		START = MAIN,
-		END = MAIN + 1,
+		START = Main,
+		END = Main + 1,
 	};
 	using ERenderSets = uint32;
 
@@ -60,7 +61,7 @@ namespace Eggy
 
 	enum class ESamplerQuality
 	{
-		UNDEFINE = 0,
+		DEFAULT = 0,
 		Quality2X,
 		Quality4X,
 		Quality8X,

@@ -5,7 +5,7 @@
 #include "Graphics/Renderer/VertexFactory.h"
 #include "Graphics/RHI/IRenderPipeline.h"
 #include "Graphics/RHI/IShadingState.h"
-#include "Core/Object/Material.h"
+#include "Core/DataType/WeakPtr.h"
 
 #include "Core/Math/Matrix4x3.h"
 #include "Core/Math/Matrix4x4.h"
@@ -95,16 +95,7 @@ namespace Eggy
 			GetVertexData(Geometry->VertexBuffer.Data, Geometry->VertexBuffer.Count, Geometry->VertexBuffer.ByteWidth);
 			GetIndexData(Geometry->IndexBuffer.Data, Geometry->IndexBuffer.Count, Geometry->IndexBuffer.ByteWidth);
 			GetVertexDesc(Geometry->Layout.Descs);
-			ShadingState->ShaderCollection = material->GetShaderCollection();
-			ShadingState->BindingTextures.resize(ShadingState->ShaderCollection->GetTextureSize(), nullptr);
-			for (auto& pair : material->GetTextures())
-			{
-				uint8 slot = ShadingState->ShaderCollection->GetTextureSlot(pair.first);
-				if (slot != IShaderCollection::INVALID_SLOT)
-				{
-					ShadingState->BindingTextures[slot] = pair.second;
-				}
-			}
+			ShadingState->Initialize(TWeakPtr(material));
 		}
 
 		void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) override

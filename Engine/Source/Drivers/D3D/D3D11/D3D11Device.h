@@ -15,13 +15,13 @@ namespace Eggy
 	
 		void* GetDevice() override;
 		void* GetContext() override;
+		IRenderTarget* GetBackBuffer() override { return mBackBuffers_[mCurrentFrameIndex_]; }
+		D3D11ResourceFactory* GetResourceFactory() override { return mResourceFactory_; }
 
 	public:
 		void PrepareResource() override final;
 		void DrawFrame() override final;
 
-		D3D11ResourceFactory* GetResourceFactory() override { return mResourceFactory_; }
-	
 	protected:
 		void EncodeRenderPass(class RenderPass* renderPass);
 		void EncodeDrawCall(struct DrawCall* drawCall);
@@ -57,9 +57,13 @@ namespace Eggy
 
 		HWND      mMainWnd_{ nullptr };
 
-		TComPtr<ID3D11Texture2D> mDepthStencilBuffer_;
-		TComPtr<ID3D11RenderTargetView> mRenderTargetView_;
 		TComPtr<ID3D11DepthStencilView> mDepthStencilView_;
 		D3D11_VIEWPORT mScreenViewport_;
+
+		IRenderTarget** mBackBuffers_;
+		IRenderTarget** mDepthStencilBuffers_;
+
+		UINT mBufferCount_{ 1 };
+		UINT mCurrentFrameIndex_{ 0 };
 	};
 }

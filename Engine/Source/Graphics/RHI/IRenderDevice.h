@@ -14,6 +14,8 @@ namespace Eggy
 		virtual void CreateSamplerState(struct SamplerState* samplerState) = 0;
 		virtual void CreatePipelineState(struct PipelineState* pipelineState) = 0;
 		virtual void CreateRenderTarget(struct IRenderTarget* renderTarget) = 0;
+		virtual void CreateBackBuffer(struct IRenderTarget* renderTarget, void* backBufferImage) = 0;
+		virtual void CreateDepthStencil(struct IRenderTarget* renderTarget) = 0;
 	};
 
 	class IRenderDevice
@@ -27,6 +29,7 @@ namespace Eggy
 		virtual IRenderResourceFactory* GetResourceFactory() = 0;
 		virtual void* GetDevice() = 0;
 		virtual void* GetContext() = 0;
+		virtual IRenderTarget* GetBackBuffer() = 0;
 
 	protected:
 		virtual void CreateSwapChain() {};

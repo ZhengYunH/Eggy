@@ -31,5 +31,7 @@ namespace Eggy
 		}
 	}
 
+	const QuatMesh QuatMesh::ConstMesh;
+
 }
 
