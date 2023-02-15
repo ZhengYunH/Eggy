@@ -58,6 +58,9 @@ namespace Eggy
 		auto& gConstant = Pipeline->GetGlobalConstant();
 		gConstant.Color = ImGuiData::sUseCustomColor ? mData.cCustomColor : Vector4(1.f, 1.f, 1.f, 1.f);
 
+		RenderPass* inputPass = GetInput(0);
+		SetOutput(builder, inputPass->GetOutput(0));
+		SetDepthStencil(builder, inputPass->GetDepthStencil());
 	}
 
 	void ImguiPass::Consolidate()

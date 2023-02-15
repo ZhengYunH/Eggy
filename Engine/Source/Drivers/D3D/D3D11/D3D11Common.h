@@ -37,6 +37,8 @@ namespace Eggy
 				return DXGI_FORMAT::DXGI_FORMAT_R16_UINT;
 			case EFormat::R32_UINT:
 				return DXGI_FORMAT::DXGI_FORMAT_R32_UINT;
+			case EFormat::R32G32F:
+				return DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
 			default:
 				Unimplement();
 				break;

@@ -79,6 +79,9 @@ namespace Eggy
 
 		virtual void EncodeRenderPassEnd() {}
 
+		List<IRenderTarget*>& GetRenderTargetResources() { return mRenderTargets; }
+		IRenderTarget* GetDepthStencilResource() { return mDepthStencilTarget; }
+
 	protected:
 		RenderPipeline* Pipeline{ nullptr };
 		DrawCall* DrawCallHead{ nullptr };
@@ -91,6 +94,10 @@ namespace Eggy
 
 		List<size_t> mSamples;
 		RenderPassBatch mBatch;
+
+		List<IRenderTarget*> mRenderTargets;
+		IRenderTarget* mDepthStencilTarget{ nullptr };
+
 	};
 }
 

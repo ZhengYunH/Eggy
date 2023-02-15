@@ -90,8 +90,16 @@ namespace Eggy
 	}
 
 	void RenderPass::Clear(RenderContext* context)
-{
+	{
+		mSamples.clear();
 		mInputPasses.clear();
+		
+		mOutputRTs.clear();
+		mRenderTargets.clear();
+
+		mDepthStencilTarget = nullptr;
+		mDepthStencil = RenderGraphBuilder::INVALID_RT;
+
 		while (DrawCallHead)
 		{
 			DrawCall* dp = DrawCallHead;
@@ -114,8 +122,8 @@ namespace Eggy
 			uint8 globalConstantSlot = dp->ShaderCollection_->GetConstantSlot(EShaderConstant::Global);
 			if (globalConstantSlot != IShaderCollection::INVALID_SLOT && globalConstantSlot < dp->ResourceBinding_->Buffers)
 			{
-				dp->ResourceBinding_->Data[globalConstantSlot] = new IConstantBuffer();
 				auto& globalConstant = Pipeline->GetGlobalConstant();
+				dp->ResourceBinding_->SetConstant(globalConstantSlot, dp->Item_->Info->ShadingState_->BindingConstants[globalConstantSlot]);
 				IConstantBuffer* globalConstantBuffer = static_cast<IConstantBuffer*>(dp->ResourceBinding_->Data[globalConstantSlot]);
 				globalConstantBuffer->Data = &globalConstant;
 				globalConstantBuffer->ByteWidth = sizeof(globalConstant);
@@ -131,15 +139,20 @@ namespace Eggy
 				dp->ResourceBinding_->SetTexture(textureSlot, Pipeline->GetRenderTargetResource(pair.second));
 			}
 
-			// Bind RenderTarget
-			for (size_t i = 0; i < Min(GetOutputCount(), dp->ResourceBinding_->Views); ++i)
-			{
-				IRenderTarget* target = Pipeline->GetRenderTargetResource(GetOutput(static_cast<uint8>(i)));
-				dp->ResourceBinding_->SetView(static_cast<uint16>(i), target);
-			}
 			dp = dp->Next_;
 		}
 
+		// Consolidate RenderTarget
+		mRenderTargets.resize(GetOutputCount(), nullptr);
+		for (size_t i = 0; i < GetOutputCount(); ++i)
+		{
+			IRenderTarget* target = Pipeline->GetRenderTargetResource(GetOutput(static_cast<uint8>(i)));
+			mRenderTargets[i] = target;
+		}
+		if (mDepthStencil != RenderGraphBuilder::INVALID_RT)
+		{
+			mDepthStencilTarget = Pipeline->GetRenderTargetResource(mDepthStencil);
+		}
 		bIsConsolidated = true;
 	}
 

@@ -12,12 +12,15 @@ namespace Eggy
 	struct D3D11Shader;
 	struct IShaderCollection;
 
-	struct D3D11Resource
+	struct D3D11Resource : public IDevcieResource
 	{
-		virtual void CreateResource(class D3D11Device& Device) {};
+		D3D11Resource() = default;
+		virtual ~D3D11Resource() {}
+
+		virtual void CreateResource(class D3D11Device& Device) {}
 	};
 
-	struct D3D11InputLayout 
+	struct D3D11InputLayout : public D3D11Resource
 	{
 		D3D11InputLayout(IInputLayout* inputLayout): InputLayout(inputLayout)
 		{}
@@ -26,7 +29,7 @@ namespace Eggy
 		TComPtr<ID3D11InputLayout> ppAddress;
 	};
 
-	struct D3D11Buffer
+	struct D3D11Buffer : public D3D11Resource
 	{
 		D3D11Buffer(IBuffer* buffer): Buffer(buffer)
 		{}
@@ -35,7 +38,7 @@ namespace Eggy
 		TComPtr<ID3D11Buffer> ppBuffer;
 	};
 
-	struct D3D11Texture
+	struct D3D11Texture : public D3D11Resource
 	{
 		D3D11Texture(ITexture* texture) : Texture(texture)
 		{}
@@ -56,7 +59,7 @@ namespace Eggy
 		TComPtr<ID3D11Texture2D> ppTex;
 	};
 
-	struct D3D11SamplerState
+	struct D3D11SamplerState : public D3D11Resource
 	{
 		D3D11SamplerState(SamplerState* state) : State(state)
 		{}
@@ -65,7 +68,7 @@ namespace Eggy
 		TComPtr<ID3D11SamplerState> ppSamplerState;
 	};
 
-	struct D3D11PipelineState
+	struct D3D11PipelineState : public D3D11Resource
 	{
 		D3D11PipelineState(PipelineState* state) : State(state)
 		{}
@@ -74,7 +77,7 @@ namespace Eggy
 		TComPtr<ID3D11RasterizerState> ppRasterizerState;
 	};
 	
-	struct D3D11RenderTarget
+	struct D3D11RenderTarget : public D3D11Resource
 	{
 		D3D11RenderTarget(IRenderTarget* rt) : RenderTarget(rt)
 		{}
@@ -84,7 +87,7 @@ namespace Eggy
 		TComPtr<ID3D11ShaderResourceView> ppSRV;
 	};
 
-	struct D3D11DepthStencil
+	struct D3D11DepthStencil : public D3D11Resource
 	{
 		D3D11DepthStencil(IRenderTarget* rt) : RenderTarget(rt)
 		{}

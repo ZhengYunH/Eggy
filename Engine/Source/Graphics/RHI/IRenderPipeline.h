@@ -17,6 +17,22 @@ namespace Eggy
 		// Buffer -> Texture -> Views
 		IRenderResource** Data{ nullptr };
 
+		ResourceBinding(uint16 buffers, uint16 textures, uint16 views)
+		{
+			Buffers = buffers;
+			Textures = textures;
+			Views = views;
+
+			Data = new IRenderResource * [buffers + textures + views];
+			for (uint16 i = 0; i < Buffers + Textures + Views; ++i)
+				Data[i] = nullptr;
+		}
+
+		~ResourceBinding()
+		{
+			SafeDestroyArray(Data);
+		}
+
 		void CreateDeviceResource(IRenderResourceFactory* factory)
 		{
 			for (uint16 i = 0; i < Buffers; ++i)
@@ -64,6 +80,7 @@ namespace Eggy
 		{
 			return (IRenderTarget*)Data[Buffers + Textures + i];
 		}
+
 	};
 
 	class RenderPipeline;
@@ -143,6 +160,7 @@ namespace Eggy
 		{}
 		virtual ~RenderContext();
 
+		RenderItemInfo* AddRenderSceneInfo(RenderObject* object);
 		RenderItem* GenerateRenderItem(RenderItemInfo* info);
 		DrawCall* GenerateDrawCall(RenderItem* item);
 		void RecycleDrawCall(DrawCall* dp);
@@ -154,6 +172,7 @@ namespace Eggy
 	protected:
 		RenderPipeline* mPipeline_;
 		RenderGraphBuilder mBuilder_;
+		List<RenderItemInfo*> mRenderInfoItems_;
 	};
 
 }

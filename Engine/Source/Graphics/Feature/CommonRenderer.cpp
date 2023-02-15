@@ -14,6 +14,7 @@ namespace Eggy
 		
 		RenderPass* inputPass = GetInput(0);
 		SetOutput(builder, inputPass->GetOutput(0));
+		SetDepthStencil(builder, inputPass->GetDepthStencil());
 	}
 
 	void Denotator::Compile(RenderGraphBuilder* builder)

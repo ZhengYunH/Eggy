@@ -39,7 +39,7 @@ namespace Eggy
 		DXGI_FORMAT mDepthStencilFormat_{ DXGI_FORMAT_D24_UNORM_S8_UINT };
 
 		UINT m4xMsaaQaulity_{ 0 };
-		bool mEnable4xMsaa_{ true };
+		bool mEnable4xMsaa_{ false };
 
 	private:
 		D3D11ResourceFactory* mResourceFactory_;

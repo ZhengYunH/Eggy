@@ -179,7 +179,7 @@ namespace Eggy
 			Descs = {
 				{"POSITION",  0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
 				{"COLOR",  0, EFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
-				{"TEXCOORD",  0, EFormat::R8G8B8A8, 0, sizeof(Vector3) + sizeof(Color4B), EInputClassification::PerVertex },
+				{"TEXCOORD",  0, EFormat::R32G32F, 0, sizeof(Vector3) + sizeof(Color4B), EInputClassification::PerVertex },
 			};
 		}
 

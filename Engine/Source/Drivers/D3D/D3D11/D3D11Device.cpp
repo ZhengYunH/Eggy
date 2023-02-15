@@ -104,7 +104,18 @@ namespace Eggy
 			{
 				IRenderTarget* rt = renderPass->GetPipeline()->GetRenderTargetResource(renderPass->GetOutput(static_cast<uint8>(i)));
 				rt->CreateDeviceResource(GetResourceFactory());
+
+				float clearValue[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+				mImmediateContext_->ClearRenderTargetView(((D3D11RenderTarget*)(rt->DeviceResource))->ppRTV.Get(), clearValue);
 			}
+
+			IRenderTarget* rt = renderPass->GetPipeline()->GetRenderTargetResource(renderPass->GetDepthStencil());
+			if (rt)
+			{
+				rt->CreateDeviceResource(GetResourceFactory());
+				mImmediateContext_->ClearDepthStencilView(((D3D11DepthStencil*)(rt->DeviceResource))->ppDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+			}
+			
 		}
 	}
 	
@@ -121,6 +132,30 @@ namespace Eggy
 
 	void D3D11Device::EncodeRenderPass(RenderPass* renderPass)
 	{
+		auto& rts = renderPass->GetRenderTargetResources();
+		auto ds = renderPass->GetDepthStencilResource();
+
+
+		size_t nRTV = rts.size();
+		List<ID3D11RenderTargetView*> RTVs(nRTV);
+		ID3D11DepthStencilView* DSV = nullptr;
+		for (size_t i = 0; i < nRTV; ++i)
+		{
+			IRenderTarget* rt = rts[i];
+			D3D11RenderTarget* d3dRT = (D3D11RenderTarget*)rt->DeviceResource;
+			RTVs[i] = d3dRT->ppRTV.Get();
+		}
+
+
+		if (ds)
+		{
+			HYBRID_CHECK(ds->IsDepthStencil());
+			DSV = ((D3D11DepthStencil*)ds->DeviceResource)->ppDSV.Get();
+		}
+
+		UINT UAVInitialCount = 0;
+		mImmediateContext_->OMSetRenderTargetsAndUnorderedAccessViews((UINT)nRTV, RTVs.data(), DSV, 0, 0, nullptr, &UAVInitialCount);
+
 		DrawCall* drawCall = renderPass->GetDrawCallHead();
 		while (drawCall)
 		{
@@ -149,6 +184,7 @@ namespace Eggy
 				mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
 			}
 		}
+
 		
 		// VS
 		{
@@ -224,15 +260,6 @@ namespace Eggy
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
 		}
 
-		UINT nRT = resourceBinding->Views;
-		List<ID3D11RenderTargetView*> RTs(nRT);
-		for (UINT i = 0; i < nRT; ++i)
-		{
-			IRenderTarget* rt = resourceBinding->GetView(static_cast<uint16>(i));
-			D3D11RenderTarget* d3dRT = (D3D11RenderTarget*)rt->DeviceResource;
-			RTs[i] = d3dRT->ppRTV.Get();
-		}
-		mImmediateContext_->OMSetRenderTargets(nRT, RTs.data(), nullptr);
 
 		// Draw
 		{
@@ -284,16 +311,9 @@ namespace Eggy
 			swapChainDesc.Width = GetBackBuffer()->Width;
 			swapChainDesc.Height = GetBackBuffer()->Height;
 			swapChainDesc.Format = mSwapchainFormat_;
-			if (mEnable4xMsaa_)
-			{
-				swapChainDesc.SampleDesc.Count = 4;
-				swapChainDesc.SampleDesc.Quality = m4xMsaaQaulity_ - 1;
-			}
-			else
-			{
-				swapChainDesc.SampleDesc.Count = 1;
-				swapChainDesc.SampleDesc.Quality = 0;
-			}
+			swapChainDesc.SampleDesc.Count = Converter::SamplerCount(GetBackBuffer()->Quality);
+			UINT quality = UINT(Converter::SamplerQualityFactor(GetBackBuffer()->Quality) * m4xMsaaQaulity_);
+			swapChainDesc.SampleDesc.Quality = quality > 0 ? quality - 1 : 0;
 			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			swapChainDesc.BufferCount = mBufferCount_;
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
@@ -316,16 +336,9 @@ namespace Eggy
 			swapChainDesc.BufferDesc.Width = RenderSystem::Get()->ScreenWidth;
 			swapChainDesc.BufferDesc.Height = RenderSystem::Get()->ScreenHeight;
 			swapChainDesc.BufferDesc.Format = mSwapchainFormat_;
-			if (mEnable4xMsaa_)
-			{
-				swapChainDesc.SampleDesc.Count = 4;
-				swapChainDesc.SampleDesc.Quality = m4xMsaaQaulity_ - 1;
-			}
-			else
-			{
-				swapChainDesc.SampleDesc.Count = 1;
-				swapChainDesc.SampleDesc.Quality = 0;
-			}
+			swapChainDesc.SampleDesc.Count = Converter::SamplerCount(GetBackBuffer()->Quality);
+			UINT quality = UINT(Converter::SamplerQualityFactor(GetBackBuffer()->Quality) * m4xMsaaQaulity_);
+			swapChainDesc.SampleDesc.Quality = quality > 0 ? quality - 1 : 0;
 			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			swapChainDesc.BufferCount = mBufferCount_;
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;

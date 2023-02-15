@@ -4,7 +4,9 @@
 VertexOut VS(VertexIn vIn)
 {
     VertexOut vOut;
-    vOut.posH = float4(vIn.pos, 1.0);
+	float3 vPos = vIn.pos;
+	vPos.y = 1 - vPos.y;
+    vOut.posH = float4(vPos.xy * 2 - 1, vPos.z, 1.0);
     vOut.st = vIn.st;
     return vOut;
 }

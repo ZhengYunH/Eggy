@@ -7,7 +7,7 @@ namespace Eggy
 
 	void RenderSystem::Initialize()
 	{
-		mBackBufferCount_ = 1;
+		mBackBufferCount_ = 2;
 
 		mBackBuffers_ = new IRenderTarget[mBackBufferCount_];
 		mDepthStencilsBuffer_ = new IRenderTarget[mBackBufferCount_];

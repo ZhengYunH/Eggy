@@ -17,7 +17,7 @@ namespace Eggy
 		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) = 0;
 		virtual bool IsValid() { return true; }
 		virtual bool IsResourceCreated() { return DeviceResource != nullptr; }
-		void* DeviceResource{ nullptr };
+		IDevcieResource* DeviceResource{ nullptr };
 
 		virtual ~IRenderResource()
 		{

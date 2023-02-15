@@ -135,7 +135,7 @@ namespace Eggy
 
 		uint8 GetViewSize()
 		{
-			return 1;
+			return 0;
 		}
 
 

@@ -70,7 +70,7 @@ namespace Eggy
 			rt->BindType = desc.IsDepthStencil ? EBufferTypes(EBufferType::DepthStencil) : EBufferTypes(EBufferType::RenderTarget);
 			// TODO
 			bool beSampled = true;
-			if (beSampled)
+			if (beSampled && !desc.IsDepthStencil)
 			{
 				rt->BindType |= EBufferTypes(EBufferType::ShaderResource);
 			}
@@ -80,6 +80,10 @@ namespace Eggy
 	void RenderGraphBuilder::Clear()
 	{
 		mRenderTargetDescs.clear();
+		for (size_t i = 2; i < mRenderTargetResource.size(); ++i)
+		{
+			SafeDestroy(mRenderTargetResource[i]);
+		}
 		mRenderTargetResource.clear();
 
 		mCurrentFrame_ = (mCurrentFrame_ + 1) % mBackBufferCount_;

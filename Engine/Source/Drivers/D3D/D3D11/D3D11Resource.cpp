@@ -16,7 +16,7 @@ namespace Eggy
 	{
 		SafeDestroy(inputLayout->DeviceResource);
 		D3D11InputLayout* deviceInputLayout = new D3D11InputLayout(inputLayout);
-		inputLayout->DeviceResource = (void*)deviceInputLayout;
+		inputLayout->DeviceResource = deviceInputLayout;
 
 		UINT numElements = static_cast<UINT>(inputLayout->Descs.size());
 		D3D11_INPUT_ELEMENT_DESC* layoutDescs = new D3D11_INPUT_ELEMENT_DESC[numElements];
@@ -66,7 +66,7 @@ namespace Eggy
 		}
 
 		HYBRID_CHECK(deviceShader);
-		shader->DeviceResource = (void*)deviceShader;
+		shader->DeviceResource = deviceShader;
 		CreateShaderFromFile(deviceShader);
 
 		switch (shader->Type)
@@ -239,19 +239,14 @@ namespace Eggy
 		desc.SampleDesc.Quality = quality > 0 ? quality - 1 : 0;
 		desc.Usage = Converter::Usage(renderTarget->Usage);
 
-		D3D11_SUBRESOURCE_DATA initData = { 
-			renderTarget->Data, 
-			renderTarget->Width * GetFormatInfo(renderTarget->Format).DataSize, 
-			renderTarget->Width * renderTarget->Height * GetFormatInfo(renderTarget->Format).DataSize 
-		};
-
 		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, nullptr, deviceRT->ppTex.GetAddressOf()));
 
 		D3D11_RENDER_TARGET_VIEW_DESC RTVDesc;
 		ZeroMemory(&RTVDesc, sizeof(RTVDesc));
 		RTVDesc.Format = desc.Format;
-		HR(mD3D11Device_->mDevice_->CreateRenderTargetView(deviceRT->ppTex.Get(), nullptr, deviceRT->ppRTV.GetAddressOf()));
-
+		RTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		HR(mD3D11Device_->mDevice_->CreateRenderTargetView(deviceRT->ppTex.Get(), &RTVDesc, deviceRT->ppRTV.GetAddressOf()));
+		
 		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = desc.Format;
 		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -290,6 +285,8 @@ namespace Eggy
 		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, nullptr, deviceRT->ppTex.GetAddressOf()));
 		D3D11_DEPTH_STENCIL_VIEW_DESC DSVDesc;
 		ZeroMemory(&DSVDesc, sizeof(DSVDesc));
+		DSVDesc.Format = desc.Format;
+		DSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		HR(mD3D11Device_->mDevice_->CreateDepthStencilView(deviceRT->ppTex.Get(), &DSVDesc, deviceRT->ppDSV.GetAddressOf()));
 	}
 

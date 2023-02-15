@@ -37,4 +37,11 @@ namespace Eggy
 	};
 	extern void CreateRenderDevice();
 	extern IRenderDevice* GRenderDevice;
+
+	class IDevcieResource
+	{
+	public:
+		IDevcieResource() = default;
+		virtual ~IDevcieResource() {}
+	};
 }

@@ -6,7 +6,7 @@
 
 namespace Eggy
 {
-	struct D3D11Shader
+	struct D3D11Shader : public IDevcieResource
 	{
 		D3D11Shader(IShader* shader);
 		virtual ~D3D11Shader() {}

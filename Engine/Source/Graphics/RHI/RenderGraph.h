@@ -36,7 +36,7 @@ namespace Eggy
 		size_t NewRenderTarget(RenderPass* pass, const RenderTargetDesc& desc);
 		void Append(RenderPass* src) {}
 		const RenderTargetDesc& GetOutputTarget(size_t index);
-		List<IRenderTarget*> GetRenderTargetResource() { return mRenderTargetResource; }
+		List<IRenderTarget*>& GetRenderTargetResource() { return mRenderTargetResource; }
 		void Resolve();
 		void Clear();
 		void GetBackBuffer(size_t& backBuffer, size_t& backDS);

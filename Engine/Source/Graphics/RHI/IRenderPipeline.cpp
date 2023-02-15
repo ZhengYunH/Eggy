@@ -13,13 +13,18 @@ namespace Eggy
 		mPipeline_->Compile(&mBuilder_);
 		mBuilder_.Resolve();
 		mPipeline_->Render(this);
-		mPipeline_->CopyRenderTargetList(mBuilder_.GetRenderTargetResource());
+		mPipeline_->CopyRenderTargetList(std::move(mBuilder_.GetRenderTargetResource()));
 	}
  
 	void RenderContext::Clear()
 	{
 		mBuilder_.Clear();
 		mPipeline_->Clear(this); 
+		for (auto info : mRenderInfoItems_)
+		{
+			delete info;
+		}
+		mRenderInfoItems_.clear();
  	}
 
 	void RenderContext::SubmitRenderItem(ERenderSet set, RenderItem* item)
@@ -31,6 +36,14 @@ namespace Eggy
 	RenderContext::~RenderContext()
 	{
 
+	}
+
+	RenderItemInfo* RenderContext::AddRenderSceneInfo(RenderObject* object)
+	{
+		RenderItemInfo* info = new RenderItemInfo();
+		mRenderInfoItems_.push_back(info);
+		info->Object = object;
+		return info;
 	}
 
 	RenderItem* RenderContext::GenerateRenderItem(RenderItemInfo* info)
@@ -60,17 +73,10 @@ namespace Eggy
 
 		// Resource Binding
 		{
-			dp->ResourceBinding_ = new ResourceBinding();
-			auto resourceBinding = dp->ResourceBinding_;
 			auto constantSize = dp->ShaderCollection_->GetConstantSize();
 			auto textureSize = dp->ShaderCollection_->GetTextureSize();
 			auto viewSize = dp->ShaderCollection_->GetViewSize();
-			resourceBinding->Buffers = constantSize;
-			resourceBinding->Textures = textureSize;
-			resourceBinding->Views = viewSize;
-			resourceBinding->Data = new IRenderResource * [constantSize + textureSize + viewSize];
-			for (uint16 i = 0; i < constantSize + textureSize + viewSize; ++i)
-				resourceBinding->Data[i] = nullptr;
+			dp->ResourceBinding_ = new ResourceBinding(constantSize, textureSize, viewSize);
 
 			// Bind Batch Constant
 			auto shaderCollection = dp->ShaderCollection_;
@@ -79,11 +85,10 @@ namespace Eggy
 			batchConstant->Data = &object->ObjectConstantData_;
 			batchConstant->ByteWidth = sizeof(object->ObjectConstantData_);
 			batchConstant->Count = 1;
-			resourceBinding->SetConstant(batchSlot, batchConstant);
-
+			dp->ResourceBinding_->SetConstant(batchSlot, batchConstant);
 			for (size_t i = 0; i < info->ShadingState_->BindingTextures.size(); ++i)
 			{
-				resourceBinding->SetTexture(static_cast<uint16>(i), info->ShadingState_->BindingTextures[i]);
+				dp->ResourceBinding_->SetTexture(static_cast<uint16>(i), info->ShadingState_->BindingTextures[i]);
 			}
 		}
 		
@@ -95,7 +100,6 @@ namespace Eggy
 	void RenderContext::RecycleDrawCall(DrawCall* dp)
 	{
 		SafeDestroy(dp->Item_);
-		SafeDestroyArray(dp->ResourceBinding_->Data); 
 		SafeDestroy(dp->ResourceBinding_);
 		SafeDestroy(dp);
 	}
@@ -164,16 +168,16 @@ namespace Eggy
 
 		for (auto rt : mRenderTargetResource_)
 		{
-			if(!rt->IsBackBuffer)
-				delete rt;
+			if (!rt->IsBackBuffer)
+			{
+				SafeDestroy(rt);
+			}
 		}
 		mRenderTargetResource_.clear();
 	}
 
 	DrawCall::~DrawCall()
 	{
-		SafeDestroy(Item_);
-
 	}
 
 	void RenderPipeline::Consolidate()
@@ -200,6 +204,8 @@ namespace Eggy
 
 	IRenderTarget* RenderPipeline::GetRenderTargetResource(size_t rtIndex) const 
 	{
+		if (rtIndex == RenderGraphBuilder::INVALID_RT)
+			return nullptr;
 		HYBRID_CHECK(rtIndex < mRenderTargetResource_.size());
 		return mRenderTargetResource_[rtIndex];
 	}

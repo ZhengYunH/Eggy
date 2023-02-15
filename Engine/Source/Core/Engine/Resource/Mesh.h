@@ -106,13 +106,13 @@ namespace Eggy
 						{ Vector3(1.0f, 1.0f, 0.0f), Color,  Vector2(1, 1) }
 					}),
 				List<IndexType>({
-						0, 1, 2,
+						0, 2, 1,
 						1, 2, 3
 					})
 			);
 		}
 
-		Color4B Color{ Color4B_RED };
+		Color4B Color{ Color4B_WRITE };
 
 		static const QuatMesh ConstMesh;
 	};
