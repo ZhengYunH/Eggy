@@ -3,7 +3,14 @@
 
 namespace Eggy
 {
-	template<typename _Type>
+	template<typename T>
+	concept CWeakable = requires(T * a)
+	{
+		{a->Acquire()} -> std::same_as<void>;
+		{a->Release()} -> std::same_as<void>;
+	};
+
+	template<CWeakable _Type>
 	class TWeakPtr
 	{
 	public:

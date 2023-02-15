@@ -13,5 +13,19 @@ namespace Eggy
 	{
 		
 	}
+
+	void IObject::Acquire()
+	{
+		mRef_.fetch_add(1, std::memory_order_acq_rel);
+	}
+
+	void IObject::Release()
+	{
+		if (mRef_.fetch_sub(1, std::memory_order_acq_rel))
+		{
+			SafeDestroy(mGhost_);
+		}
+	}
+
 }
 

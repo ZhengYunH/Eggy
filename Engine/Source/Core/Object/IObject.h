@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Config.h"
 #include "Core/Reflection/Reflection.h"
+#include "Core/DataType/WeakPtr.h"
 
 
 namespace Eggy
@@ -21,5 +22,18 @@ namespace Eggy
 	public:
 		virtual String Serialize() const;
 		virtual void Deserialize(const String& s);
+		void Acquire();
+		void Release();
+
+	private:
+		std::atomic<uint32> mRef_{ 0 };
+		class Ghost* mGhost_;
 	};
+
+	class Ghost : TWeakPtr<IObject>
+	{
+	public:
+		~Ghost() {}
+	};
+
 }
