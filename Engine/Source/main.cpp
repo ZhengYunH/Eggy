@@ -25,7 +25,8 @@ int main()
 	engine->Initialize();
 	while (true)
 	{
-		platform->PumpMessage();
+		if (!platform->PumpMessage())
+			break;
 		engine->TickLoop();
 	}
 	engine->Finalize();

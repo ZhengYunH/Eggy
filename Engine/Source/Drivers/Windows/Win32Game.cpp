@@ -12,23 +12,31 @@ namespace Eggy
 		InitializeWindow();
 	}
 
-	void Win32Game::PumpMessage()
+	bool Win32Game::PumpMessage()
 	{
 		MSG msg;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT) {
-				return;
+				return false;
 			}
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-			
 		}
+		return true;
 	}
 
 	LRESULT Win32Game::WndProc(WINDOW_HANDLE hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		InputSystem::Get()->HandleMessage(hWnd, uMsg, wParam, lParam);
+		switch (uMsg)
+		{
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			return 0;
+		default:
+			break;
+		}
 		return (DefWindowProc(hWnd, uMsg, wParam, lParam));
 	}
 

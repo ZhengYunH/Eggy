@@ -8,6 +8,6 @@ namespace Eggy
 	{
 	public:
 		virtual WINDOW_HANDLE GetWindow() = 0;
-		virtual void PumpMessage() = 0;
+		virtual bool PumpMessage() = 0;
 	};
 }

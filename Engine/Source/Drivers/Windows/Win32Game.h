@@ -10,7 +10,7 @@ namespace Eggy
 	public:
 		Win32Game();
 		WINDOW_HANDLE GetWindow() override { return mWindow_; }
-		void PumpMessage() override;
+		bool PumpMessage() override;
 
 	protected:
 		static LRESULT CALLBACK WndProc(WINDOW_HANDLE hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
