@@ -12,7 +12,7 @@
 
 namespace Eggy
 {
-	class InputSystem : public ISystem<InputSystem>
+	class InputSystem : public TSystem<InputSystem>
 	{
 		DeclareSystem(InputSystem);
 

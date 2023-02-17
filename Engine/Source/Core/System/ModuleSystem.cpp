@@ -1,0 +1,49 @@
+#include "ModuleSystem.h"
+
+namespace Eggy
+{
+	DefineSystem(ModuleSystem);
+
+	void ModuleSystem::Initialize()
+	{
+		mModuleParentPaths_[EModuleType::Default] = "./Engine/";
+		mModuleParentPaths_[EModuleType::Plugins] = "./Engine/Plugins";
+		mModuleParentPaths_[EModuleType::External] = "./Engine/External";
+	}
+
+	bool ModuleSystem::LoadModule(const String& dllName, EModuleType type)
+	{
+		String realName = mModuleParentPaths_[type] + dllName;
+#if defined(_WIN32)
+		HMODULE module = ::LoadLibraryA(realName.c_str());
+		if (!module)
+		{
+			// TODO: LOG(Eggy, Fatal) << "Load Module" << dllName << "Fail";
+			LOG(Main, "Load Module Fail"); 
+			return false;
+		}
+		mModules_[dllName] = module;
+#endif
+		return true;
+	}
+
+	void ModuleSystem::UnloadModule(const String& dllName)
+	{
+		if (HMODULE module = GetModule(dllName))
+		{
+#if defined(_WIN32)
+			::FreeLibrary(module);
+			mModules_.erase(dllName);
+#endif
+		}
+	}
+
+	HMODULE ModuleSystem::GetModule(const String& dllName)
+	{
+		auto itr = mModules_.find(dllName);
+		if (itr == mModules_.end())
+			return NULL;
+		return itr->second;
+	}
+}
+

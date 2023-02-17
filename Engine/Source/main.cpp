@@ -1,33 +1,27 @@
 #include "Graphics/RHI/IRenderDevice.h"
 #include "Core/Reflection/ReflectionTester/ReflectionClass.h"
+#include "Core/Math/MathTester.h"
 #include "Drivers/Windows/Win32Game.h"
 #include "Core/Engine/Engine.h"
 #include "Core/System/ConfigSystem.h"
 #include "Core/System/InputSystem.h"
 #include "Core/System/FileSystem.h"
 #include "Core/System/RenderSystem.h"
-#include "Core/Math/MathTester.h"
+#include "Core/System/ModuleSystem.h"
 
 
 int main()
 {
 	using namespace Eggy;
-	// Eggy::DoTest();
-	// MathTester::Test();
 	// Initial System
-	ConfigSystem* config = new ConfigSystem();
-	InputSystem* inputSystem = new InputSystem();
-	FileSystem* fileSystem = new FileSystem();
-	RenderSystem* renderSystem = new RenderSystem();
-	renderSystem->Initialize();
-	Win32Game* platform = new Win32Game();
-	Engine* engine = new Engine(platform);
+	Engine* engine = new Engine();
 	engine->Initialize();
+	engine->SetPlatform(new Win32Game());
+	engine->PostInitialize();
 	while (true)
 	{
-		if (!platform->PumpMessage())
+		if (!engine->TickLoop())
 			break;
-		engine->TickLoop();
 	}
 	engine->Finalize();
 	return 0;

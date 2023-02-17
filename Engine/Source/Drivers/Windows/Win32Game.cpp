@@ -17,6 +17,7 @@ namespace Eggy
 		MSG msg;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
+			InputSystem::Get()->HandleMessage(mWindow_, msg.message, msg.wParam, msg.lParam);
 			if (msg.message == WM_QUIT) {
 				return false;
 			}
@@ -28,7 +29,6 @@ namespace Eggy
 
 	LRESULT Win32Game::WndProc(WINDOW_HANDLE hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		InputSystem::Get()->HandleMessage(hWnd, uMsg, wParam, lParam);
 		switch (uMsg)
 		{
 		case WM_DESTROY:

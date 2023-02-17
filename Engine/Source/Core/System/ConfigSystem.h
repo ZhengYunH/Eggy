@@ -21,7 +21,7 @@ namespace Eggy
 
 	};
 
-	class ConfigSystem : public ISystem<ConfigSystem>
+	class ConfigSystem : public TSystem<ConfigSystem>
 	{
 		DeclareSystem(ConfigSystem);
 	public:

@@ -6,7 +6,7 @@
 
 namespace Eggy
 {
-	class RenderSystem : public ISystem<RenderSystem>
+	class RenderSystem : public TSystem<RenderSystem>
 	{
 		DeclareSystem(RenderSystem);
 	public:

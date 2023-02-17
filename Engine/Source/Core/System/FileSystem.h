@@ -92,7 +92,7 @@ namespace Eggy
 		String mFile_;
 	};
 
-	class FileSystem : public ISystem<FileSystem>
+	class FileSystem : public TSystem<FileSystem>
 	{
 		DeclareSystem(FileSystem);
 	public:

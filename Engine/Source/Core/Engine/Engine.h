@@ -6,19 +6,20 @@
 
 namespace Eggy
 {
-	class Engine : public ISystem<Engine>
+	class Engine : public TSystem<Engine>
 	{
 		DeclareSystem(Engine);
 
 	public:
-		Engine(IPlatform* platform);
-
 		void Initialize() override;
+		void PostInitialize();
 		void Finalize() override;
 	
 	public:
-		void TickLoop();
+		void SetPlatform(IPlatform* platform);
+		bool TickLoop();
 		class ClientScene* GetClientScene() { return mClientScene_; }
+		float const& GetDeltaTime() { return _DeltaTime; }
 
 	public:
 		IPlatform* Platform{ nullptr };
@@ -31,7 +32,6 @@ namespace Eggy
 
 		float _DeltaTime;
 
-	public:
-		float const& GetDeltaTime() { return _DeltaTime; }
+		class SystemManager* mSystemManager_{ nullptr };
 	};
 }
