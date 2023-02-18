@@ -14,6 +14,8 @@ toy Game-Engine
 + cmake 3.22.0
 + C++20
 + Visual Studio 2022
++ (optional)C++ ATL v143 generator(x86 & x64) (Installed in Visual Studio Installer, to compile ShaderCondutor )
++ (optional) Python3
 
 ### Generate Project
 
@@ -24,7 +26,7 @@ run `Build.bat` and  you will get ***EggyEngine.sln***
 ### Cross-Platform Render 
 
 + Shader Language(based on HLSL): compile to SPIR-V
-  + converted by [***DirectXShaderCompiler***](https://github.com/microsoft/DirectXShaderCompiler), see [SPIR‐V CodeGen](https://github.com/Microsoft/DirectXShaderCompiler/wiki/SPIR%E2%80%90V-CodeGen) for more information
+  + [ShaderConductor](https://github.com/microsoft/ShaderConductor)
   + reflection information are extracted by  ***SPIRV-Reflect***
 + Abstract Interface: IRenderDevice \ IDeviceResource
   + Specific Graphics API should inherit IRenderDevice, such as D3D11Device, and implement virtual function provided in these Interface.
