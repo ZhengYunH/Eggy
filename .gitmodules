@@ -1,0 +1,3 @@
+[submodule "Library/ShaderConductor"]
+	path = Library/ShaderConductor
+	url = https://github.com/microsoft/ShaderConductor
