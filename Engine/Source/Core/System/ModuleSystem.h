@@ -14,15 +14,15 @@ namespace Eggy
 	class ModuleSystem : public TSystem<ModuleSystem>
 	{
 		DeclareSystem(ModuleSystem);
-
-		
+#if defined(_WIN32)
+		typedef HMODULE ModuleHandle;
+#endif	
 	public:
 		bool LoadModule(const String& dllName, EModuleType type=EModuleType::Default);
 		void UnloadModule(const String& dllName);
 
-#if defined(_WIN32)
-		HMODULE GetModule(const String& dllName);
-#endif
+		ModuleHandle GetModule(const String& dllName);
+
 		void Initialize() override;
 
 		void Finalize() override
@@ -30,9 +30,8 @@ namespace Eggy
 		}
 
 	protected:
-#if defined(_WIN32)
-		Map<String, HMODULE> mModules_;
-#endif
+		Map<String, ModuleHandle> mModules_;
 		Map<EModuleType, String> mModuleParentPaths_;
 	};
+	using ModuleHandle = ModuleSystem::ModuleHandle;
 }

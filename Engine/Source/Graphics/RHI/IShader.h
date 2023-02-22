@@ -14,6 +14,12 @@ namespace Eggy
 		END
 	};
 
+	struct ShaderMacroDefine
+	{
+		String Name;
+		String Value;
+	};
+
 	struct IShader : public IRenderResource
 	{
 		IShader(EShaderType type, const String& filePath) : Type(type), FilePath(filePath)
@@ -57,7 +63,9 @@ namespace Eggy
 
 		EShaderType Type;
 		String FilePath;
+		String EntryPoint{ "Unknown" };
 		List<SamplerState*> Samplers;
+		List<ShaderMacroDefine> Macros;
 	};
 
 	struct IShaderCollection : public IRenderResource

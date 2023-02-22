@@ -9,6 +9,15 @@ namespace Eggy
 	{
 		HLSLPath = shader->FilePath;
 		CSOPath = IShader::GetCacheFilePath(HLSLPath);
+
 	}
+
+	D3D11VertexShader::D3D11VertexShader(IShader* shader) : D3D11Shader(shader)
+	{
+		EntryPoint = "VS";
+		ShaderModel = "vs_5_0";
+		D3D11ShaderReflect reflect(*this);
+	}
+	
 }
 

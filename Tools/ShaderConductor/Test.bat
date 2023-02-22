@@ -1,0 +1,1 @@
+ShaderConductorCmd.exe -I shader.hlsl -S vs -E VS -T spirv  -O shader.spirv

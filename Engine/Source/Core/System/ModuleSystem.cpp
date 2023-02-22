@@ -13,9 +13,12 @@ namespace Eggy
 
 	bool ModuleSystem::LoadModule(const String& dllName, EModuleType type)
 	{
-		String realName = mModuleParentPaths_[type] + dllName;
+		if (mModules_.find(dllName) != mModules_.end())
+			return true;
+
+		String realName = mModuleParentPaths_[type] + dllName + ".dll";
 #if defined(_WIN32)
-		HMODULE module = ::LoadLibraryA(realName.c_str());
+		ModuleHandle module = ::LoadLibraryA(realName.c_str());
 		if (!module)
 		{
 			// TODO: LOG(Eggy, Fatal) << "Load Module" << dllName << "Fail";
@@ -29,7 +32,7 @@ namespace Eggy
 
 	void ModuleSystem::UnloadModule(const String& dllName)
 	{
-		if (HMODULE module = GetModule(dllName))
+		if (ModuleHandle module = GetModule(dllName))
 		{
 #if defined(_WIN32)
 			::FreeLibrary(module);
@@ -38,7 +41,7 @@ namespace Eggy
 		}
 	}
 
-	HMODULE ModuleSystem::GetModule(const String& dllName)
+	ModuleHandle ModuleSystem::GetModule(const String& dllName)
 	{
 		auto itr = mModules_.find(dllName);
 		if (itr == mModules_.end())
