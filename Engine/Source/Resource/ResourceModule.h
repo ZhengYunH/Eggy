@@ -103,6 +103,11 @@ namespace Eggy
 		{
 			return new ResourceItem(Guid::Generate(), object, path);
 		}
+
+		ResourceObject* NewResourceObject(EResourceType type)
+		{
+
+		}
 	};
 
 	class ResourceModule : IModule
