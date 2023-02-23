@@ -1,6 +1,7 @@
 #pragma once
 #include <concepts>
 
+// TODO: impl all concepts in https://www.enseignement.polytechnique.fr/informatique/INF478/docs/Cpp/en/cpp/concept.html
 namespace Eggy
 {
 	template<typename T>
