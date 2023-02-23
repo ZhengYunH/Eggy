@@ -11,6 +11,7 @@ namespace Eggy
 		static void Test()
 		{
 			TestVector();
+			TestOperator();
 		}
 
 	private:
@@ -33,6 +34,13 @@ namespace Eggy
 
 			Matrix4x3 m43 = Matrix4x3_Identity;
 			Vector4 v44 = m43.TransformVector(v41);
+		}
+
+		static void TestOperator()
+		{
+			Vector3F v31(1, 2, 3);
+			Vector3F v32(-1, -2, -3);
+			DEBUG_CHECK(v32 == -v31);
 		}
 	};
 }
