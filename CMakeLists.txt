@@ -38,7 +38,6 @@ set(
     ${EXTERNAL_ROOT}/stb-master
     ${EXTERNAL_ROOT}/boost/Include
     ${EXTERNAL_ROOT}/imgui
-    ${LIBRARY_ROOT}/ShaderConductor/Include
 )
 target_include_directories(EggyEngine PUBLIC ${ADDITIONAL_INCLUDE_DIR})
 
@@ -64,7 +63,6 @@ set(
     dxguid.lib
     D3DCompiler.lib
     winmm.lib
-    ShaderConductor.lib
 )
 target_link_libraries(EggyEngine ${ADDITIONAL_DEP_LIB})
 
