@@ -437,6 +437,7 @@ CMakeCache.txt
 CMakeFiles
 *.sln
 *.cmake
+*.spirv.cache
 
 *.vcxproj*
 *.cso
