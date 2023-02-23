@@ -29,10 +29,11 @@ namespace Eggy
 			SplitString(path, outPath);
 			if (path.empty())
 				return;
-			if (*(path.cbegin()) != '/')
+			if (*(path.rbegin()) != '/')
 			{
-				auto itr = outPath.erase(outPath.cbegin());
+				auto itr = outPath.rbegin();
 				mFile_ = *itr;
+				outPath.pop_back();
 			}
 			mDirectories_.swap(outPath);
 		}
@@ -69,7 +70,7 @@ namespace Eggy
 			auto index = mFile_.rfind('.');
 			if (index != std::string::npos)
 			{
-				mFile_ = mFile_.substr(0, index) + postFix;
+				mFile_ = mFile_.substr(0, index + 1) + postFix;
 			}
 			else
 			{
@@ -82,8 +83,8 @@ namespace Eggy
 			if (mFile_.empty())
 				return "";
 			auto index = mFile_.rfind('.');
-			if (index != std::string::npos)
-				return mFile_.substr(index, mFile_.size() - index);
+			if (index != std::string::npos || index + 1 == mFile_.size())
+				return mFile_.substr(index + 1, mFile_.size() - index - 1);
 			else
 				return "";
 		}
@@ -103,11 +104,46 @@ namespace Eggy
 			}
 		}
 
+		bool IsDirectory()
+		{
+			return mFile_.empty();
+		}
+
+		bool IsFile()
+		{
+			return !mFile_.empty();
+		}
+
+		void ConvertToDirectory()
+		{
+			if (IsFile())
+			{
+				mDirectories_.emplace_back(std::move(mFile_));
+				mFile_ = "";
+			}
+		}
+
+		FPath operator+ (FPath&& rhs)
+		{
+			FPath ret = *this;
+			if (ret.IsFile())
+				ret.mDirectories_.emplace_back(std::move(ret.mFile_));
+
+			ret.mDirectories_.reserve(ret.mDirectories_.size() + rhs.mDirectories_.size());
+			ret.mDirectories_.insert(ret.mDirectories_.end(), rhs.mDirectories_.begin(), rhs.mDirectories_.end());
+			ret.mFile_ = rhs.mFile_;
+			return ret;
+		}
+
+		FPath operator+ (const char* str)
+		{
+			return *this + String(str);
+		}
+
 	protected:
 		List<String> mDirectories_;
 		String mFile_;
 	};
-
 
 	enum class EFileState
 	{
@@ -188,8 +224,12 @@ namespace Eggy
 	public:
 		void Read(void* buffer, size_t& inOutDataSize)
 		{
-			if (inOutDataSize > mDataSize_ || inOutDataSize == 0)
+			if (inOutDataSize == 0)
+			{
 				inOutDataSize = mDataSize_;
+				return;
+			}
+			HYBRID_CHECK(inOutDataSize <= mDataSize_);
 			mStream_.seekg(0);
 			mStream_.read((char*)buffer, inOutDataSize);
 		}

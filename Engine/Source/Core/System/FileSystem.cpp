@@ -1,8 +1,22 @@
 #include "FileSystem.h"
+#include "Core/Misc/StringHelper.h"
+
+#if defined(_WIN32)
+#	include <filesystem>
+#endif
 
 namespace Eggy
 {
 	DefineSystem(FileSystem);
+	
+	void FileSystem::Initialize()
+	{
+#if defined(_WIN32)
+		mRoot_ = StringHelper::WString2String(std::filesystem::current_path());
+#endif
+		if (mRoot_.IsFile())
+			mRoot_.ConvertToDirectory();
+	}
 
 	FileHandle FileSystem::LoadFile(String resource)
 	{
@@ -59,6 +73,8 @@ namespace Eggy
 		static String s_CachePath = "Cache/";
 		return s_CachePath;
 	}
+
+	
 
 }
 

@@ -5,7 +5,17 @@
 
 namespace Eggy
 {
-	class FileSystem : public TSystem<FileSystem>
+	class IFileSystem
+	{
+
+	};
+
+	class SubFileSystem : public IFileSystem
+	{
+
+	};
+
+	class FileSystem : public TSystem<FileSystem>, public IFileSystem
 	{
 		DeclareSystem(FileSystem);
 	public:
@@ -13,11 +23,31 @@ namespace Eggy
 		bool FileExist(String path);
 		String& GetCacheDirectory();
 
-		void Initialize() override {}
+		void Initialize() override;
 		void Finalize() override {}
+
+		FPath GetRoot()
+		{
+			return mRoot_;
+		}
+
+		FPath GetPackageRoot()
+		{
+			return mRoot_ + "Package/";
+		}
+
+		FPath GetShaderRoot()
+		{
+			return mRoot_ + "Engine/Shader/";
+		}
+
+		FPath GetToolRoot()
+		{
+			return mRoot_ + "Tools/";
+		}
 
 	protected:
 		Map<String, FileHandle> mFilesCache_;
-
+		FPath mRoot_;
 	};
 }
