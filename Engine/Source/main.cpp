@@ -3,11 +3,13 @@
 #include "Core/Math/MathTester.h"
 #include "Drivers/Windows/Win32Game.h"
 #include "Core/Engine/Engine.h"
+#include "UnitTest/UnitTest.h"
 
 
 int main()
 {
 	using namespace Eggy;
+	DEBUG_RUN(UnitTest::TestAll());
 	// Initial System
 	Engine* engine = new Engine();
 	engine->Initialize();
