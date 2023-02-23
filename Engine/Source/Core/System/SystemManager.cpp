@@ -12,7 +12,6 @@ namespace Eggy
 
 	void SystemManager::Initialize()
 	{
-		mSystems[StaticName(SystemManager)] = this;
 		ConstructSystems();
 		InitializeSystems();
 	}
@@ -38,7 +37,7 @@ namespace Eggy
 	{
 		// build dependency graph
 		Map<String, TNode<ISystem*>*> nodes;
-		for (auto pair : mSystems)
+		for (auto& pair : mSystems)
 		{
 			auto node = mDependencyGraph.AddNode(pair.second);
 			nodes[pair.first] = node;
