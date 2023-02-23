@@ -5,14 +5,12 @@
 #include "Core/Engine/Event/Event.h"
 #include "spirv_reflect.h"
 
+
 namespace Eggy
 {
 	template<typename TImpl>
 	class TSingleton
 	{
-	private:
-		TSingleton() = default;
-
 	public:
 		static TImpl& GetInstance()
 		{
@@ -105,7 +103,11 @@ namespace Eggy
 	class ShaderReflection
 	{
 	public:
-		ShaderReflection(const String& inputFilePath) : mInputFilePath_(inputFilePath) {}
+		ShaderReflection(const String& inputFilePath, const String& entry, EShaderType shaderType) 
+			: mInputFilePath_(inputFilePath) 
+			, mEntry_(entry)
+			, mShaderType_(shaderType)
+		{}
 		virtual ~ShaderReflection();
 
 		const std::vector<SShaderInputVariableData>& GetInputVariable()
@@ -129,17 +131,20 @@ namespace Eggy
 		void _GenerateDescriptor();
 
 	protected:
-		String	mInputFilePath_;
+		String mInputFilePath_;
+		String mEntry_;
+		EShaderType mShaderType_;
+
 		std::vector<SShaderInputVariableData> mInputVariable_;
 		std::unordered_map<uint32_t/*set*/, std::unordered_map<uint32_t/* binding*/, SShaderDescriptorData>> mDescriptor_;
 		SpvReflectShaderModule mModule_;
 		std::atomic<bool> mIsResourceReady_{ false };
 	};
 
-	class ShaderReflectionFactory : TSingleton<ShaderReflectionFactory>
+	class ShaderReflectionFactory : public TSingleton<ShaderReflectionFactory>
 	{
 	public:
-		ShaderReflection* GetReflection(const String& shaderPath);
+		ShaderReflection* GetReflection(const String& shaderPath, const String& entry, EShaderType shaderType);
 		EShaderLanguage GetShaderLanguage(const String& shaderPath);
 
 	private:
@@ -150,9 +155,11 @@ namespace Eggy
 	class ShaderReflectionSpirv : public ShaderReflection
 	{
 	public:
-		ShaderReflectionSpirv(const String& inputFilePath) : ShaderReflection(inputFilePath) {}
+		ShaderReflectionSpirv(const String& inputFilePath, const String& entry, EShaderType shaderType)
+			: ShaderReflection(inputFilePath, entry, shaderType)
+		{}
 	protected:
-		void Prepare() override;
+		virtual void Prepare() override;
 		virtual void PrepareSpirvFilePath();
 	protected:
 		void* mSpirvCode_{ nullptr };
@@ -163,7 +170,8 @@ namespace Eggy
 	class ShaderReflectionHLSL : public ShaderReflectionSpirv
 	{
 	public:
-		ShaderReflectionHLSL(const String& inputFilePath) : ShaderReflectionSpirv(inputFilePath) {}
+		ShaderReflectionHLSL(const String& inputFilePath, const String& entry, EShaderType shaderType) 
+			: ShaderReflectionSpirv(inputFilePath, entry, shaderType) {}
 	protected:
 		void PrepareSpirvFilePath() override;
 	};
@@ -171,7 +179,8 @@ namespace Eggy
 	class ShaderReflectionGLSL : public ShaderReflectionSpirv
 	{
 	public:
-		ShaderReflectionGLSL(const String& inputFilePath) : ShaderReflectionSpirv(inputFilePath) {}
+		ShaderReflectionGLSL(const String& inputFilePath, const String& entry, EShaderType shaderType) 
+			: ShaderReflectionSpirv(inputFilePath, entry, shaderType) {}
 	protected:
 		void PrepareSpirvFilePath() override;
 	};

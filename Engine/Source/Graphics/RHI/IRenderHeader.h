@@ -77,12 +77,18 @@ namespace Eggy
 		END
 	};
 
-	enum class EShaderType
+	enum class EShaderType : uint8
 	{
 		UNDEFINE = 0,
 		VS = 1,
 		PS = 2,
 		END
+	};
+	static const char* ESHADER_TYPE_STR[uint8(EShaderType::END)] =
+	{
+		"undefine",
+		"vs",
+		"ps"
 	};
 
 	enum class EBufferUsage

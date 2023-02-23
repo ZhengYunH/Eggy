@@ -2,6 +2,7 @@
 #include "Core/Config.h"
 #include "Graphics/RHI/IRenderResource.h"
 #include "Core/System/FileSystem.h"
+#include "Graphics/RHI/Shader/ShaderReflection.h"
 
 
 namespace Eggy
@@ -25,6 +26,7 @@ namespace Eggy
 		IShader(EShaderType type, const String& filePath) : Type(type), FilePath(filePath)
 		{
 			Samplers.resize(1);
+			ShaderReflectionFactory::GetInstance().GetReflection(filePath, type == EShaderType::VS ? "VS" : "PS", type);
 		}
 
 		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override
@@ -45,6 +47,7 @@ namespace Eggy
 			return !FileSystem::Get()->FileExist(FilePath);
 		}
 
+		static String GetAbsShaderFilePath(String shaderPath);
 		static String GetCacheFilePath(String path);
 
 		bool IsResourceCreated() override

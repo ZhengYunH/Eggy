@@ -6,20 +6,20 @@
 // can refer to SPIRV-Reflect/examples/main_descriptors.cpp
 namespace Eggy
 {
-	ShaderReflection* ShaderReflectionFactory::GetReflection(const String& shaderPath)
+	ShaderReflection* ShaderReflectionFactory::GetReflection(const String& shaderPath, const String& entry, EShaderType shaderType)
 	{
 		EShaderLanguage sl = GetShaderLanguage(shaderPath);
 		ShaderReflection* reflect = nullptr;
 		switch (sl)
 		{
-		case Eggy::EShaderLanguage::Default:
-			reflect = new ShaderReflectionSpirv(shaderPath);
+		case EShaderLanguage::Default:
+			reflect = new ShaderReflectionSpirv(shaderPath, entry, shaderType);
 			break;
-		case Eggy::EShaderLanguage::HLSL:
-			reflect = new ShaderReflectionHLSL(shaderPath);
+		case EShaderLanguage::HLSL:
+			reflect = new ShaderReflectionHLSL(shaderPath, entry, shaderType);
 			break;
-		case Eggy::EShaderLanguage::GLSL:
-			reflect = new ShaderReflectionGLSL(shaderPath);
+		case EShaderLanguage::GLSL:
+			reflect = new ShaderReflectionGLSL(shaderPath, entry, shaderType);
 			break;
 		default:
 			Unimplement();
@@ -57,10 +57,13 @@ namespace Eggy
 	{
 		PrepareSpirvFilePath();
 		auto file = FileSystem::Get()->LoadFile(mSpirvFilePath_);
-		file->Read(mSpirvCode_, mSpirvCode_nByte);
-		HYBRID_CHECK(mSpirvCode_nByte);
+		size_t nSpirvCode = 0;
+		file->Read(nullptr, nSpirvCode);
+		byte* spirvCode = new byte[nSpirvCode];
+		file->Read(spirvCode, nSpirvCode);
+		HYBRID_CHECK(nSpirvCode);
 
-		_PrepareReflectModule(mSpirvCode_, mSpirvCode_nByte);
+		_PrepareReflectModule(spirvCode, nSpirvCode);
 		{
 			_GenerateInputVariable();
 			_GenerateDescriptor();
@@ -70,13 +73,29 @@ namespace Eggy
 
 	void ShaderReflectionSpirv::PrepareSpirvFilePath()
 	{
-		mSpirvFilePath_ = mInputFilePath_;
+		mSpirvFilePath_ = (FileSystem::Get()->GetShaderRoot() + mInputFilePath_).ToString();
 	}
 
 	void ShaderReflectionHLSL::PrepareSpirvFilePath()
 	{
 		// convert hlsl -> spirv
-		Unimplement();
+		FPath shaderConductorEXE = FileSystem::Get()->GetToolRoot() + "ShaderConductor/ShaderConductorCmd.exe";
+		FPath hlslShaderFile = FileSystem::Get()->GetShaderRoot() + mInputFilePath_;
+		FPath spirvFilePath = hlslShaderFile;
+		spirvFilePath.replaceFilePostfix("spirv");
+
+		std::stringstream ss;
+		ss << shaderConductorEXE.ToString();
+		ss << " -I " << hlslShaderFile.ToString();
+		ss << " -S " << ESHADER_TYPE_STR[uint8(mShaderType_)];
+		ss << " -E " << mEntry_;
+		ss << " -T spirv";
+		ss << " -O " << spirvFilePath.ToString();
+		String s = ss.str().c_str();
+		int result = system(ss.str().c_str());
+		HYBRID_CHECK(result == 0, "Compile Error");
+
+		mSpirvFilePath_ = spirvFilePath.ToString();
 	}
 
 	void ShaderReflectionGLSL::PrepareSpirvFilePath()
@@ -103,8 +122,10 @@ namespace Eggy
 		for (size_t i = 0; i < varCount; ++i)
 		{
 			SpvReflectInterfaceVariable* inputVar = inputVars[i];
-			mInputVariable_[i].Name = inputVar->name;
-			mInputVariable_[i].Location = inputVar->location;
+			if(inputVar->name)
+				mInputVariable_[i].Name = inputVar->name;
+			if(inputVar->location != ~(uint32)0)
+				mInputVariable_[i].Location = inputVar->location;
 			if (inputVar->semantic)
 				mInputVariable_[i].Semantic = inputVar->semantic;
 

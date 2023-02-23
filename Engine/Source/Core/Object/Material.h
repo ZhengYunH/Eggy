@@ -27,14 +27,14 @@ namespace Eggy
 		{
 			switch (shaderType)
 			{
-			case Eggy::EShaderType::UNDEFINE:
+			case EShaderType::UNDEFINE:
 				Unimplement();
 				break;
-			case Eggy::EShaderType::VS:
-				return "Engine/Shader/HLSL/" + mResource_->mShader_ + "_VS.hlsl";
+			case EShaderType::VS:
+				return mResource_->mShader_ + "_VS.hlsl";
 				break;
-			case Eggy::EShaderType::PS:
-				return "Engine/Shader/HLSL/" + mResource_->mShader_ + "_PS.hlsl";
+			case EShaderType::PS:
+				return mResource_->mShader_ + "_PS.hlsl";
 				break;
 			default:
 				break;
