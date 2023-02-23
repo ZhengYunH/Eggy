@@ -93,23 +93,21 @@ namespace Eggy
 
 	protected:
 		ResourceItem* mItem_;
-		List<ResourceObject*>
+		List<ResourceObject*> mDeps_;
 	};
 
 	class ResourceFactory
 	{
 	public:
-		ResourceItem* NewResourceItem(ResourceObject* object)
+		ResourceItem* NewResourceItem(ResourceObject* object, String path)
 		{
-			return new ResourceItem();
+			return new ResourceItem(Guid::Generate(), object, path);
 		}
-
-
 	};
 
 	class ResourceModule : IModule
 	{
-		void Load(Guid)
+		void Load(Guid resourceID);
 	};
 
 }
