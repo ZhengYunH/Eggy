@@ -3,11 +3,6 @@
 #include "Core/Math/MathTester.h"
 #include "Drivers/Windows/Win32Game.h"
 #include "Core/Engine/Engine.h"
-#include "Core/System/ConfigSystem.h"
-#include "Core/System/InputSystem.h"
-#include "Core/System/FileSystem.h"
-#include "Core/System/RenderSystem.h"
-#include "Core/System/ModuleSystem.h"
 
 
 int main()
