@@ -1,12 +1,7 @@
 #include "PostProcessBasic.hlsli"
 
 Texture2D Base : register(t0);
-SamplerState BaseSampler : register(s0)
-{
-    Filter = Linear;
-    AddressU = Wrap;
-    AddressV = Wrap;
-};
+SamplerState BaseSampler : register(s0);
 
 float4 PS(VertexOut pIn) : SV_Target
 {
