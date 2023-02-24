@@ -66,8 +66,8 @@ namespace Eggy
 
 		Guid& operator = (const Guid& rhs) noexcept = default;
 		Guid& operator = (Guid&& rhs) noexcept = default;
-		inline bool operator == (Guid& rhs) { return memcmp(mU32, rhs.mU32, sizeof(uint32) * 4); }
-		inline bool operator != (Guid& rhs) { return *this == rhs; }
+		inline bool operator == (const Guid& rhs) const { return memcmp(mU32, rhs.mU32, sizeof(uint32) * 4) == 0; }
+		inline bool operator != (const Guid& rhs) const { return *this == rhs; }
 
 	protected:
 		uint32 mU32[4];
@@ -86,4 +86,16 @@ namespace Eggy
 			DEBUG_CHECK(generateGuid == guid2);
 		}
 	}
+}
+
+namespace std
+{
+	using namespace Eggy;
+	template<> struct hash<Guid>
+	{
+		size_t operator()(Guid const& guid) const noexcept
+		{
+			return boost::uuids::hash_value(*(boost::uuids::uuid*)(&guid));
+		}
+	};
 }
