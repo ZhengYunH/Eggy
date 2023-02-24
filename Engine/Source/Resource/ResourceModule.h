@@ -69,18 +69,8 @@ namespace Eggy
 		std::atomic<uint32> mRef_;
 	};
 
-	template<typename T>
-	concept CRef = requires(T * a)
-	{
-		{a->Acquire()} -> std::same_as<void>;
-		{a->Release()} -> std::same_as<void>;
-	};
-
-	template<CRef _Type>
-	class TSharedPtr
-	{
-
-	};
+	
+	
 
 	class ResourceObject : public IRefObject
 	{

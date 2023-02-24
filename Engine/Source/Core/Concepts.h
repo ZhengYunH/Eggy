@@ -9,4 +9,14 @@ namespace Eggy
 
 	template<typename _Base, typename _Derived>
 	concept cDerivedFrom = std::derived_from<_Derived, _Base>;
+
+
+	// Customize
+	template<typename T>
+	concept cEnableShared = requires(T * a)
+	{
+		{a->Acquire()} -> std::same_as<void>;
+		{a->Release()} -> std::same_as<void>;
+		{a->GetRefCount()} -> std::same_as<int>;
+	};
 }
