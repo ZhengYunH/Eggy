@@ -8,6 +8,17 @@
 
 namespace Eggy
 {
+	template<typename _Product>
+	class TSimpleFactory : public TSingleton<TSimpleFactory<_Product>>
+	{
+	public:
+		template<typename... _Args>
+		_Product* Create(_Args... args)
+		{
+			return new _Product(std::forward<_Args>(args)...);
+		}
+	};
+
 	template<typename _AbstaractProduct>
 	class TAbstractFactory
 	{

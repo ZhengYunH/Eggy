@@ -49,6 +49,15 @@ namespace Eggy::UnitTest
 			DefineProductImpl(CPA, ConcreteProductA);
 			DefineProductImpl(CPB, ConcreteProductB);
 
+			static void TestSimpleFactory()
+			{
+				using SimpleFactory = TSimpleFactory<ConcreteProductA>;
+				auto cp1 = SimpleFactory::Instance().Create();
+				auto cp2 = SimpleFactory::Instance().Create(1);
+				UT_EXPECT_EQ(cp1->I == 0);
+				UT_EXPECT_EQ(cp2->I == 1);
+			}
+
 			static void TestConcreteFactory()
 			{
 				using ConcreteFactory = TConcreteFactory<ProductBase, ConcreteProductA>;
@@ -65,8 +74,8 @@ namespace Eggy::UnitTest
 				ProductBase* cpa = Factory::Instance().Create(EKey::CPA);
 				ProductBase* cpb = Factory::Instance().Create(EKey::CPB);
 
-				HYBRID_CHECK(dynamic_cast<ConcreteProductA*>(cpa));
-				HYBRID_CHECK(dynamic_cast<ConcreteProductB*>(cpb));
+				UT_ASSERT(dynamic_cast<ConcreteProductA*>(cpa));
+				UT_ASSERT(dynamic_cast<ConcreteProductB*>(cpb));
 
 			}
 
@@ -76,6 +85,7 @@ namespace Eggy::UnitTest
 
 		static void Test()
 		{
+			DP_Factory::TestSimpleFactory();
 			DP_Factory::TestConcreteFactory();
 			DP_Factory::TestFactory();
 		}
