@@ -48,25 +48,25 @@ namespace Eggy
 		const IProductRegister& operator=(const IProductRegister&) = delete;
 	};
 
-	template<typename _Product>
-	class TFactory : public TSingleton<TFactory<_Product>>
+	template<typename _Product, typename _Key=String>
+	class TFactory : public TSingleton<TFactory<_Product, _Key>>
 	{
-		friend class TSingleton<TFactory<_Product>>;
+		friend class TSingleton<TFactory<_Product, _Key>>;
 	public:
-		void Register(const String& name, IProductRegister<_Product>* registrar)
+		void Register(const _Key& key, IProductRegister<_Product>* registrar)
 		{
-			HYBRID_CHECK(mRegisteriesMap.find(name) == mRegisteriesMap.end());
-			mRegisteriesMap[name] = registrar;
+			HYBRID_CHECK(mRegisteriesMap.find(key) == mRegisteriesMap.end());
+			mRegisteriesMap[key] = registrar;
 		}
 
-		_Product* Create(const String& name)
+		_Product* Create(const _Key& key)
 		{
-			auto itr = mRegisteriesMap.find(name);
+			auto itr = mRegisteriesMap.find(key);
 			if (itr != mRegisteriesMap.end())
 			{
 				return itr->second->Create();
 			}
-			LOG("Create Product Fail For: ", name);
+			LOG("Create Product Fail For: ", key);
 			return nullptr;
 		}
 
@@ -77,16 +77,16 @@ namespace Eggy
 		const TFactory& operator=(const TFactory&) = delete;
 
 	private:
-		Map<String, IProductRegister<_Product>*> mRegisteriesMap;
+		Map<_Key, IProductRegister<_Product>*> mRegisteriesMap;
 	};
 
-	template<typename _Product, typename _ProductImpl>
+	template<typename _Product, typename _ProductImpl, typename _Key=String>
 	class TProductRegistrar : public IProductRegister<_Product>
 	{
 	public:
-		explicit TProductRegistrar(const String& name)
+		explicit TProductRegistrar(const _Key& key)
 		{
-			TFactory<_Product>::Instance().Register(name, this);
+			TFactory<_Product, _Key>::Instance().Register(key, this);
 		}
 
 		_Product* Create() override
