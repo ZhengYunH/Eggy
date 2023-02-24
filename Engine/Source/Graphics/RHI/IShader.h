@@ -26,7 +26,7 @@ namespace Eggy
 		IShader(EShaderType type, const String& filePath) : Type(type), FilePath(filePath)
 		{
 			Samplers.resize(1);
-			ShaderReflectionFactory::GetInstance().GetReflection(filePath, type == EShaderType::VS ? "VS" : "PS", type);
+			ShaderReflectionFactory::Instance().GetReflection(filePath, type == EShaderType::VS ? "VS" : "PS", type);
 		}
 
 		virtual void CreateDeviceResource_Impl(IRenderResourceFactory* factory) override

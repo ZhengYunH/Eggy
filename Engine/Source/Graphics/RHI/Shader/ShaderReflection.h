@@ -3,22 +3,12 @@
 #include "Graphics/RHI/IRenderResource.h"
 #include "Core/System/FileSystem.h"
 #include "Core/Engine/Event/Event.h"
+#include "Core/DataType/DesignPattern/DP_Singleton.h"
 #include "spirv_reflect.h"
 
 
 namespace Eggy
 {
-	template<typename TImpl>
-	class TSingleton
-	{
-	public:
-		static TImpl& GetInstance()
-		{
-			static TImpl instance;
-			return instance;
-		}
-	};
-
 	enum class SShaderInputNumericType
 	{
 		SCALER = 0,
