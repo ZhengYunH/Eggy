@@ -1,108 +1,24 @@
 #pragma once
-#include "Core/Config.h"
-#include "Core/Misc/Guid.h"
+#include "ResourceHeader.h"
 
 
 namespace Eggy
 {
-	class IModule
-	{
-
-	};
-
-	enum class EResourceType
-	{
-		Model,
-		Texture,
-		Material,
-		Mesh,
-		End
-	};
-
+	class ResourceItem;
 	class ResourceObject;
 
-	class ResourceItem
+	class ResourceModule : public TSingleton<ResourceModule>
 	{
-		friend class ResourceFactory;
 	public:
-		ResourceItem(Guid id, ResourceObject* object, const String& path) 
-			: mResourceID_(id)
-			, mResourceObject_(object)
-			, mPath_(path)
-		{
-		}
+		TSharedPtr<ResourceObject> Load(Guid resourceID);
+		ResourceItem* GetItem(Guid resourceID);
+		void AcquireResource(TSharedPtr<ResourceObject>&& resourceObject);
 
-		void SetDependency()
-		{
-
-		}
-
-	public:
-		Guid GetResourceID() const { return mResourceID_; }
-		ResourceObject* GetResourceObject() const { return mResourceObject_; }
-		String GetPath() const { return mPath_; }
-
+		void Tick_rst();
 	protected:
-		Guid mResourceID_;
-		ResourceObject* mResourceObject_{ nullptr };
-		String mPath_;
-		List<Guid> mDeps_;
-	};
-
-	class IRefObject
-	{
-	public:
-		void Acquire()
-		{
-			mRef_.fetch_add(1);
-		}
-
-		void Release()
-		{
-			if (mRef_.fetch_sub(1) == 0)
-			{
-				delete this;
-			}
-		}
-	
-	protected:
-		std::atomic<uint32> mRef_;
-	};
-
-	
-	
-
-	class ResourceObject : public IRefObject
-	{
-		friend class ResourceFactory;
-	public:
-		ResourceObject() = default;
-		void AddDependency(ResourceObject* dep);
-		void SetDependency(List<ResourceObject*>& deps);
-		void ResetDependency();
-
-	protected:
-		ResourceItem* mItem_;
-		List<ResourceObject*> mDeps_;
-	};
-
-	class ResourceFactory
-	{
-	public:
-		ResourceItem* NewResourceItem(ResourceObject* object, String path)
-		{
-			return new ResourceItem(Guid::Generate(), object, path);
-		}
-
-		ResourceObject* NewResourceObject(EResourceType type)
-		{
-
-		}
-	};
-
-	class ResourceModule : IModule
-	{
-		void Load(Guid resourceID);
+		Map<Guid, ResourceItem*> mItems_;
+		uint8 mLoadResourcePerframe_{ 0 };
+		List<TSharedPtr<ResourceObject>> mLoadingQueue_;
 	};
 
 }
