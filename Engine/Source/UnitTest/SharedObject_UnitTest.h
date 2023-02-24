@@ -21,6 +21,8 @@ namespace Eggy::UnitTest
 				{
 					NotSharedClassIsExpired = true;
 				}
+
+				int I{ 1 };
 			};
 
 			class SharedClass
@@ -47,6 +49,7 @@ namespace Eggy::UnitTest
 					TSharedPtr<SharedClass> ptr4(ptr2);
 					ptr1 = std::move(ptr2);
 					UT_ASSERT(!ptr2);
+					UT_ASSERT(ptr1.GetRefCount());
 					UT_ASSERT(ptr->GetRefCount() == 3);
 				}
 				UT_ASSERT(ptr->GetRefCount() == 0);
@@ -62,6 +65,7 @@ namespace Eggy::UnitTest
 					TSharedPtr<NotSharedClass> ptr4(ptr2);
 					ptr1 = std::move(ptr2);
 					UT_ASSERT(!ptr2);
+					UT_ASSERT(ptr3->I == 1);
 					UT_ASSERT(ptr3.GetRefCount() == 3);
 				}
 				UT_ASSERT(NotSharedClassIsExpired); // now ptr is invalid

@@ -49,6 +49,16 @@ namespace Eggy
 			return mRef_.load(std::memory_order_acquire);
 		}
 
+		_Type* operator->()
+		{
+			return mPtr_;
+		}
+
+		_Type& operator*()
+		{
+			return *mPtr_;
+		}
+
 	private:
 		std::atomic<int> mRef_{ 0 };
 		_Type* mPtr_{ nullptr };
@@ -60,8 +70,11 @@ namespace Eggy
 		using RefType = std::conditional_t<cEnableShared<_Type>, _Type, TRefObject<_Type>>;
 	public:
 		// ctor && dtor
-		TSharedPtr(_Type* ref) requires cEnableShared<_Type>
-			: mPtr_(ref)
+		TSharedPtr(){}
+
+		TSharedPtr(std::nullptr_t){}
+
+		TSharedPtr(_Type* ref) requires cEnableShared<_Type> : mPtr_(ref)
 		{
 			IncRef();
 		}
@@ -148,6 +161,15 @@ namespace Eggy
 			return *this;
 		}
 
+		RefType& operator->()
+		{
+			return *mPtr_;
+		}
+
+		RefType& operator*()
+		{
+			return *mPtr_;
+		}
 	public:
 		int GetRefCount()
 		{
