@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Config.h"
-#include "ResourceObject.h"
+#include "Resource/ResourceObject.h"
 
 namespace Eggy
 {

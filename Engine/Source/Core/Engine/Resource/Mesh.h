@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Config.h"
-#include "ResourceObject.h"
+#include "Graphics/RHI/IRenderResource.h"
+#include "Graphics/Renderer/VertexFactory.h"
+#include "Resource/ResourceObject.h"
 
 
 namespace Eggy
