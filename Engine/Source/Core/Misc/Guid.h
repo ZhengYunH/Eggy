@@ -45,10 +45,14 @@ namespace Eggy
 				else
 				{
 					HYBRID_CHECK(s[i] == '-');
-					ss >> std::hex >> guid.mU32[i / 8];
+					ss >> std::hex >> guid.mU32[i / 8 - 1];
 					ss.clear();
+					ss.str("");
 				}
 			}
+			ss >> std::hex >> guid.mU32[3];
+			ss.clear();
+			ss.str("");
 			return guid;
 		}
 
