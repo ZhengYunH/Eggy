@@ -46,6 +46,8 @@ namespace Eggy
 			return mRoot_ + "Tools/";
 		}
 
+		List<String> GetSubDirectories(FPath path, bool retAbsPath=false);
+
 	protected:
 		Map<String, FileHandle> mFilesCache_;
 		FPath mRoot_;

@@ -18,6 +18,24 @@ namespace Eggy
 			mRoot_.ConvertToDirectory();
 	}
 
+	List<String> FileSystem::GetSubDirectories(FPath path, bool retAbsPath)
+	{
+		List<String> subDir;
+		path.ConvertToDirectory();
+		String pathName = path.ToString();
+#if defined(_WIN32)
+		std::filesystem::path p(pathName);
+		for (auto& v : std::filesystem::directory_iterator(p))
+		{
+			if(retAbsPath)
+				subDir.push_back(v.path().string());
+			else
+				subDir.push_back(v.path().filename().string());
+		}
+#endif
+		return subDir;
+	}
+
 	FileHandle FileSystem::LoadFile(String resource)
 	{
 		auto fileHandleItr = mFilesCache_.find(resource);
@@ -26,20 +44,25 @@ namespace Eggy
 			return fileHandleItr->second;
 		}
 
-		size_t index = resource.rfind('.');
+		FPath path = resource;
+		HYBRID_CHECK(path.IsFile());
+		String postFix = (path.getPostFix());
 		FileHandle file;
-		if (index == std::string::npos)
+		if (postFix.empty())
 		{
 			file = std::make_shared<File>(resource);
 		}
 		else
 		{
-			String postFix = resource.substr(index, std::string::npos);
-			if (postFix == ".obj")
+			if (postFix == "xml")
+			{
+				file = std::make_shared<XMLFile>(resource);
+			}
+			else if (postFix == "obj")
 			{
 				file = std::make_shared<ObjFile>(resource);
 			}
-			else if (postFix == ".fbx")
+			else if (postFix == "fbx")
 			{
 				file = std::make_shared<FbxFile>(resource);
 			}
