@@ -174,12 +174,13 @@ namespace Eggy
 						auto parentNode = edge->mSrcNode;
 						size_t parentIndex = GetNodeIndex(parentNode);
 						// exist loop
-						if (std::find(searchStack.begin(), searchStack.end(), parentIndex) == searchStack.end())
+						if (std::find(searchStack.begin(), searchStack.end(), parentIndex) != searchStack.end())
 							return false;
-						if (!RecursiveFindParent(outNodes, tags, searchStack, index))
+						if (!RecursiveFindParent(outNodes, tags, searchStack, parentIndex))
 							return false;
 					}
 					searchStack.pop_back();
+					outNodes.push_back(mNodes[index]);
 				}
 			}
 			tags[index] = 1;
