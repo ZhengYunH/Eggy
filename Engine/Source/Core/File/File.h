@@ -6,6 +6,7 @@
 
 #include "Graphics/Renderer/VertexFactory.h"
 #include <tiny_obj_loader.h>
+#include "XMLArchive.h"
 
 
 namespace Eggy
@@ -185,7 +186,7 @@ namespace Eggy
 		virtual ~IFile() {}
 
 		bool IsOpen() { return mState_ == EFileState::OPEN; }
-		virtual void Read(void* buffer, size_t& inOutDataSize) = 0;
+		virtual void Read(void* buffer, size_t& inOutDataSize) {};
 		size_t GetSize() { return mDataSize_; }
 		const EFileType GetType() { return mFileType_; }
 
@@ -239,6 +240,20 @@ namespace Eggy
 		std::ifstream mStream_;
 	};
 
+	class XMLFile : public IFile
+	{
+	public:
+		XMLFile(const String& filePath) : IFile(filePath) 
+		{
+			mAr_ = new XmlParser(filePath, ARCHIVE_USAGE::LOAD);
+			mAr_->Load();
+		}
+
+		pt::ptree& GetRootNode() { return mAr_->GetPTree(); }
+
+	protected:
+		XmlParser* mAr_{ nullptr };
+	};
 
 	class ObjFile : public IFile
 	{
