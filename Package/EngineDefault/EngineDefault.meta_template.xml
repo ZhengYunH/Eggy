@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Repository>
+<Items>
+<Item>
+	<Type>Model</Type>
+	<GUID>18e41edb-3362-4bf4-b9aa-28e604b87ab0<GUID>
+	<Path>EngineDefault/Box/Model</Path>
+	<Deps>
+		<Dep>9aeb42d1-2120-49cc-bcd8-05989f73a08f</Dep>
+		<Dep>2f3c578c-916e-42a1-beb9-f5c14946f3b8</Dep>
+	</Deps>
+</Items>
+
+<Item>
+	<Type>Material</Type>
+	<GUID>9aeb42d1-2120-49cc-bcd8-05989f73a08f<GUID>
+	<Path>EngineDefault/Box/Material</Path>
+	</Deps>
+</Items>
+
+
+<Item>
+	<Type>Texture</Type>
+	<GUID>2f3c578c-916e-42a1-beb9-f5c14946f3b8<GUID>
+	<Path>EngineDefault/Box/Texture</Path>
+	</Deps>
+</Items>
+
+<Item>
+	<Type>Mesh</Type>
+	<GUID>f85a1d2f-c43a-4be6-9400-07a88bc7963d<GUID>
+	<Path>EngineDefault/Box/Mesh</Path>
+	</Deps>
+</Item>
+
+</Repository>
