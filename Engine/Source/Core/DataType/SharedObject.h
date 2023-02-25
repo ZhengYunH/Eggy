@@ -21,14 +21,12 @@ namespace Eggy
 		}
 	}
 
-	template<typename _Type>
-	class TRefObject
+	class IRefObject
 	{
 	public:
-		explicit TRefObject(_Type* ptr)
-			: mRef_(0), mPtr_(ptr)
-		{
-		}
+		IRefObject(){}
+		
+		virtual ~IRefObject() {}
 
 		void Acquire()
 		{
@@ -39,7 +37,6 @@ namespace Eggy
 		{
 			if (mRef_.fetch_sub(1, std::memory_order_acq_rel) == 1)
 			{
-				delete mPtr_;
 				delete this;
 			}
 		}
@@ -47,6 +44,25 @@ namespace Eggy
 		int GetRefCount()
 		{
 			return mRef_.load(std::memory_order_acquire);
+		}
+
+	protected:
+		std::atomic<int> mRef_{ 0 };
+	};
+
+	template<typename _Type>
+	class TRefObject : public IRefObject
+	{
+	public:
+		explicit TRefObject(_Type* ptr)
+			: IRefObject()
+			, mPtr_(ptr)
+		{
+		}
+
+		~TRefObject()
+		{
+			delete mPtr_;
 		}
 
 		_Type* operator->()
@@ -58,22 +74,35 @@ namespace Eggy
 		{
 			return *mPtr_;
 		}
+		_Type* Get()
+		{
+			return mPtr_;
+		}
 
-	private:
-		std::atomic<int> mRef_{ 0 };
 		_Type* mPtr_{ nullptr };
 	};
+
+#define ENABLE_UNSHARED 0
 
 	template<typename _Type>
 	class TSharedPtr
 	{
+		template<class _Other>
+		friend class TSharedPtr;
+		
+#if ENABLE_UNSHARED
+		// for unshared source object, can't cast up/down directly
 		using RefType = std::conditional_t<cEnableShared<_Type>, _Type, TRefObject<_Type>>;
+#else
+		using RefType = _Type;
+#endif
 	public:
 		// ctor && dtor
 		TSharedPtr(){}
 
 		TSharedPtr(std::nullptr_t){}
 
+#if ENABLE_UNSHARED
 		TSharedPtr(_Type* ref) requires cEnableShared<_Type> : mPtr_(ref)
 		{
 			IncRef();
@@ -83,6 +112,12 @@ namespace Eggy
 		{
 			IncRef();
 		}
+#else
+		TSharedPtr(_Type* ref) : mPtr_(ref)
+		{
+			IncRef();
+		}
+#endif
 
 		TSharedPtr(const TSharedPtr<_Type>& rhs) noexcept
 		{
@@ -161,9 +196,9 @@ namespace Eggy
 			return *this;
 		}
 
-		RefType& operator->()
+		RefType* operator->()
 		{
-			return *mPtr_;
+			return mPtr_;
 		}
 
 		RefType& operator*()
@@ -176,10 +211,17 @@ namespace Eggy
 			return mPtr_->GetRefCount();
 		}
 
+		RefType* Get()
+		{
+			return mPtr_;
+		}
+
+
 	private:
+#if ENABLE_UNSHARED
 		template<typename _Other>
 		void _Attach(const TSharedPtr<_Other>& src)  
-			requires cEnableShared<_Other>
+			requires cEnableShared<_Type>
 		{
 			HYBRID_CHECK(!mPtr_);
 			mPtr_ = compatible_cast<_Type*>(src.mPtr_);
@@ -189,16 +231,27 @@ namespace Eggy
 			}
 		}
 
-		template<typename _Other>
-		void _Attach(const TSharedPtr<_Other>& src)
+		void _Attach(const TSharedPtr<_Type>& src)
 		{
 			HYBRID_CHECK(!mPtr_);
-			mPtr_ = compatible_cast<TRefObject<_Type>*>(src.mPtr_);
+			mPtr_ = src.mPtr_;
 			if (mPtr_)
 			{
 				IncRef();
 			}
 		}
+#else
+		template<typename _Other>
+		void _Attach(const TSharedPtr<_Other>& src)
+		{
+			HYBRID_CHECK(!mPtr_);
+			mPtr_ = compatible_cast<_Type*>(src.mPtr_);
+			if (mPtr_)
+			{
+				IncRef();
+			}
+		}
+#endif
 
 		void _Detach()
 		{

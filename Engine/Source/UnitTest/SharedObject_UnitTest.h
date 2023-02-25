@@ -57,6 +57,7 @@ namespace Eggy::UnitTest
 
 			static void TestDisenableShared()
 			{
+#if ENABLE_UNSHARED
 				auto ptr = new NotSharedClass();
 				{
 					TSharedPtr<NotSharedClass> ptr1(ptr);
@@ -69,6 +70,7 @@ namespace Eggy::UnitTest
 					UT_ASSERT(ptr3.GetRefCount() == 3);
 				}
 				UT_ASSERT(NotSharedClassIsExpired); // now ptr is invalid
+#endif
 			}
 		}
 		
