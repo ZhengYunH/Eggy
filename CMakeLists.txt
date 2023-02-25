@@ -12,6 +12,11 @@ set(SOURCE_CODE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Source)
 set(EXTERNAL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Engine/External)
 set(LIBRARY_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Library)
 
+# preset layer in source core
+set(RESOURCE_LAYER_ROOT ${SOURCE_CODE_ROOT}/Resource)
+set(CORE_LAYER_ROOT ${SOURCE_CODE_ROOT}/Core)
+set(PLATFORM_LAYER_ROOT ${SOURCE_CODE_ROOT}/Drivers)
+
 
 # get all header / source files
 file (GLOB_RECURSE HEADER_LIST "${SOURCE_CODE_ROOT}/*.h")
@@ -29,6 +34,9 @@ source_group(TREE ${SOURCE_CODE_ROOT} PREFIX "Header Files" FILES ${HEADER_LIST}
 set(
     ADDITIONAL_INCLUDE_DIR
     ${SOURCE_CODE_ROOT}
+    ${CORE_LAYER_ROOT}
+    ${RESOURCE_LAYER_ROOT}
+    ${PLATFORM_LAYER_ROOT}
     ${EXTERNAL_ROOT}/SPIRV-Reflect
     ${EXTERNAL_ROOT}/FBX/Include
     ${EXTERNAL_ROOT}/tinyobjloader
