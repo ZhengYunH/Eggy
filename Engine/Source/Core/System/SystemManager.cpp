@@ -4,6 +4,7 @@
 #include "ConfigSystem.h"
 #include "FileSystem.h"
 #include "RenderSystem.h"
+#include "TextureSystem.h"
 
 
 namespace Eggy
@@ -29,6 +30,7 @@ namespace Eggy
 		AddSystem(ConfigSystem);
 		AddSystem(FileSystem);
 		AddSystem(RenderSystem);
+		AddSystem(TextureSystem);
 
 #undef AddSystem
 	}
@@ -48,7 +50,7 @@ namespace Eggy
 			auto node = nodes.at(pair.first);
 			for (auto dep : pair.second)
 			{
-				node->Link(nodes.at(dep));
+				nodes.at(dep)->Link(node);
 			}
 		}
 
