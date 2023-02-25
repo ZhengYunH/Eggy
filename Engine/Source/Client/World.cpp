@@ -3,6 +3,7 @@
 #include "RenderScene.h"
 #include "Camera.h"
 #include "Core/Object/IEntity.h"
+#include "Resource/ResourceModule.h"
 
 
 namespace Eggy
@@ -30,6 +31,7 @@ namespace Eggy
 
 	void World::StartLogicFrame()
 	{
+		ResourceModule::Instance().Tick_rst();
 	}
 
 	void World::EndLogicFrame()

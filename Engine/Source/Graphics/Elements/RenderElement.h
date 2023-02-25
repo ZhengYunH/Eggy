@@ -90,12 +90,11 @@ namespace Eggy
 			VertexType::GetDesc(Descs);
 		}
 		
-		void Initialize(class Material* material) override
+		void Initialize() override
 		{
 			GetVertexData(Geometry->VertexBuffer.Data, Geometry->VertexBuffer.Count, Geometry->VertexBuffer.ByteWidth);
 			GetIndexData(Geometry->IndexBuffer.Data, Geometry->IndexBuffer.Count, Geometry->IndexBuffer.ByteWidth);
 			GetVertexDesc(Geometry->Layout.Descs);
-			ShadingState->Initialize(TWeakPtr(material));
 		}
 
 		void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) override

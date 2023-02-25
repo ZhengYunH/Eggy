@@ -1,6 +1,5 @@
 #include "IRenderPipeline.h"
 #include "IRenderPass.h"
-#include "Core/Engine/Resource/Texture.h"
 
 
 namespace Eggy
@@ -59,6 +58,7 @@ namespace Eggy
 		dp->Item_ = item;
 		RenderItemInfo* info = item->Info;
 		RenderObject* object = info->Object;
+		info->ShadingState_->Initialize(info->Material_);
 
 		// ShaderCollection
 		{

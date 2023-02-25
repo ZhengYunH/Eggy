@@ -161,7 +161,7 @@ namespace Eggy
 		);
 	}
 
-	void D3D11ResourceFactory::CreateTexture(ITexture* texture)
+	void D3D11ResourceFactory::CreateTexture(ITextureBuffer* texture)
 	{
 		switch (texture->TextureType)
 		{
@@ -298,7 +298,7 @@ namespace Eggy
 		HR(mD3D11Device_->mDevice_->CreateRenderTargetView((ID3D11Texture2D*)backBufferImage, nullptr, deviceRT->ppRTV.GetAddressOf()));
 	}
 
-	void D3D11ResourceFactory::CreateTexture2D(ITexture* texture)
+	void D3D11ResourceFactory::CreateTexture2D(ITextureBuffer* texture)
 	{
 		SafeDestroy(texture->DeviceResource);
 		D3D11Texture2D* deviceTexture = new D3D11Texture2D(texture);
@@ -324,7 +324,7 @@ namespace Eggy
 		HR(mD3D11Device_->mDevice_->CreateShaderResourceView(deviceTexture->ppTex.Get(), &SRVDesc, deviceTexture->ppSRV.GetAddressOf()));
 	}
 
-	void D3D11ResourceFactory::CreateTextureCube(ITexture* deviceShader)
+	void D3D11ResourceFactory::CreateTextureCube(ITextureBuffer* deviceShader)
 	{
 		Unimplement(0);
 	}

@@ -1,54 +1,33 @@
 #pragma once
 #include "Core/Config.h"
 #include "Core/Object/IObject.h"
-#include "Core/Engine/Resource/Material.h"
-#include "Core/Engine/Resource/Texture.h"
+#include "Resource/MaterialResource.h"
+#include "Resource/TextureResource.h"
 
 
 namespace Eggy
 {
+	class Shader;
+	class Texture;
 	class Material : public IObject
 	{
 	public:
-		void SetResource(MaterialResource* Resource)
+		Material() = default;
+		Material(Shader* shader) 
+			: mShader_(shader)
 		{
-			mResource_ = Resource;
-			for (size_t i = 0; i < Resource->mTexturePaths_.size(); ++i)
-			{
-				String key = std::to_string(i);
-				TextureResource* res = new TextureResource(Resource->mTexturePaths_[i]);
-				res->Deserialize(nullptr);
-				mTextures_[key] = new Texture();
-				mTextures_[key]->SetResource(res);
-			}
 		}
 
-		String GetShaderPath(EShaderType shaderType)
-		{
-			switch (shaderType)
-			{
-			case EShaderType::UNDEFINE:
-				Unimplement();
-				break;
-			case EShaderType::VS:
-				return mResource_->mShader_ + "_VS.hlsl";
-				break;
-			case EShaderType::PS:
-				return mResource_->mShader_ + "_PS.hlsl";
-				break;
-			default:
-				break;
-			}
-			return "";
-		}
+		Material(TSharedPtr<MaterialResource> resource);
+		~Material();
 
-		Map<String, Texture*>& GetTextures()
-		{
-			return mTextures_;
-		}
+		Map<String, ITexture*>& GetTextures() { return mTextures_; }
+		String GetShaderPath(EShaderType shaderType);
 
 	protected:
-		MaterialResource* mResource_;
-		Map<String, Texture*> mTextures_;
+		TSharedPtr<MaterialResource> mResource_;
+
+		Shader* mShader_{ nullptr };
+		Map<String, ITexture*> mTextures_;
 	};
 }

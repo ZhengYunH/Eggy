@@ -68,7 +68,7 @@ namespace Eggy
 		void SetDepthStencil(RenderGraphBuilder* builder, size_t targetOuput);
 
 		void Sample(RenderGraphBuilder* builder, size_t rtIndex);
-		void Sample(RenderGraphBuilder* builder, ITexture* texture);
+		void Sample(RenderGraphBuilder* builder, ITextureBuffer* texture);
 
 		void AddDrawCall(DrawCall* drawCall);
 		void Clear(RenderContext* context);

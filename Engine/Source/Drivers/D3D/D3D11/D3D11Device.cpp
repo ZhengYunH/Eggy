@@ -229,7 +229,7 @@ namespace Eggy
 			texViews.reserve(resourceBinding->Textures);
 			for (uint16 i = 0; i < resourceBinding->Textures; ++i)
 			{
-				ITexture* tex = (ITexture*)resourceBinding->GetTexture(i);
+				ITextureBuffer* tex = (ITextureBuffer*)resourceBinding->GetTexture(i);
 				HYBRID_CHECK(tex->BindType & EBufferTypes(EBufferType::ShaderResource));
 				if (tex)
 				{

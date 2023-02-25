@@ -48,7 +48,7 @@ namespace Eggy
 			{
 				if (!Data[i])
 					continue;
-				ITexture* texture = (ITexture*)Data[i];
+				ITextureBuffer* texture = (ITextureBuffer*)Data[i];
 				HYBRID_CHECK(texture);
 				texture->CreateDeviceResource(factory);
 			}
@@ -63,13 +63,13 @@ namespace Eggy
 			return (IConstantBuffer*)Data[i];
 		}
 
-		void SetTexture(uint16 i, ITexture* tex)
+		void SetTexture(uint16 i, ITextureBuffer* tex)
 		{
 			Data[Buffers + i] = tex;
 		}
-		ITexture* GetTexture(uint16 i)
+		ITextureBuffer* GetTexture(uint16 i)
 		{
-			return (ITexture*)Data[Buffers + i];
+			return (ITextureBuffer*)Data[Buffers + i];
 		}
 
 		void SetView(uint16 i, IRenderTarget* view)

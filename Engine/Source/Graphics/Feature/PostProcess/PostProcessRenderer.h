@@ -1,6 +1,8 @@
 #include "Graphics/RHI/IRenderPass.h"
 #include "Graphics/Elements/RenderElement.h"
-#include "Core/Engine/Resource/Mesh.h"
+#include "Resource/MeshResource.h"
+#include "Object/Material.h"
+#include "Object/Shader.h"
 
 
 namespace Eggy
@@ -23,10 +25,9 @@ namespace Eggy
 	public:
 		Postprocess(String shaderPath) : RenderPass()
 		{
-			mMaterialResource_.mShader_ = shaderPath;
-			mMaterial_.SetResource(&mMaterialResource_);
-			mRenderElement.Initialize(&mMaterial_);
+			mRenderElement.Initialize();
 			mInfo_.Object = new RenderObject();
+			mInfo_.Material_ = new Material(new Shader(shaderPath));
 			mInfo_.Object->ObjectConstantData_.ModelTransform.SetIdentity();
 		}
 		virtual void Consolidate() override;
@@ -35,8 +36,6 @@ namespace Eggy
 	protected:
 		PostprocessElement mRenderElement;
 		RenderItemInfo mInfo_;
-		Material mMaterial_;
-		MaterialResource mMaterialResource_;
 	};
 
 	class BlurPostprocess : public Postprocess

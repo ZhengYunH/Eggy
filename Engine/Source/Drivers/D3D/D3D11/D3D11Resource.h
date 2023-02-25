@@ -40,10 +40,10 @@ namespace Eggy
 
 	struct D3D11Texture : public D3D11Resource
 	{
-		D3D11Texture(ITexture* texture) : Texture(texture)
+		D3D11Texture(ITextureBuffer* texture) : Texture(texture)
 		{}
 
-		ITexture* Texture;
+		ITextureBuffer* Texture;
 		ETextureType TextureType;
 
 		TComPtr<ID3D11ShaderResourceView> ppSRV;
@@ -51,7 +51,7 @@ namespace Eggy
 
 	struct D3D11Texture2D : public D3D11Texture
 	{
-		D3D11Texture2D(ITexture* texture) : D3D11Texture(texture)
+		D3D11Texture2D(ITextureBuffer* texture) : D3D11Texture(texture)
 		{
 			TextureType = ETextureType::Texture2D;
 		}
@@ -104,7 +104,7 @@ namespace Eggy
 		void CreateInputLayout(struct IInputLayout* inputLayout, struct IShaderCollection* shaderCollection) override;
 		void CreateShader(struct IShader* shader) override;
 		void CreateBuffer(struct IBuffer* buffer) override;
-		void CreateTexture(struct ITexture* texture) override;
+		void CreateTexture(struct ITextureBuffer* texture) override;
 		void CreateSamplerState(struct SamplerState* samplerState) override;
 		void CreatePipelineState(struct PipelineState* pipelineState) override;
 		void CreateRenderTarget(struct IRenderTarget* renderTarget) override;
@@ -115,8 +115,8 @@ namespace Eggy
 		void CreateShaderFromFile(D3D11Shader* deviceShader);
 		void CreateVertexShader(D3D11Shader* deviceShader);
 		void CreatePixelShader(D3D11Shader* deviceShader);
-		void CreateTexture2D(ITexture* texture);
-		void CreateTextureCube(ITexture* texture);
+		void CreateTexture2D(ITextureBuffer* texture);
+		void CreateTextureCube(ITextureBuffer* texture);
 
 	protected:
 		class D3D11Device* mD3D11Device_;

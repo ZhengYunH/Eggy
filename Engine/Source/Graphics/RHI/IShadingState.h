@@ -2,6 +2,7 @@
 #include "IRenderResource.h"
 #include "Core/Object/Material.h"
 #include "Core/DataType/WeakPtr.h"
+#include "System/TextureSystem.h"
 
 
 namespace Eggy
@@ -17,7 +18,7 @@ namespace Eggy
 			ShaderCollection = new IShaderCollection();
 		}
 
-		IShadingState(TWeakPtr<Material> material)
+		IShadingState(Material* material)
 		{
 			ShaderCollection = new IShaderCollection();
 			Initialize(material);
@@ -29,8 +30,11 @@ namespace Eggy
 		}
 
 	public:
-		void Initialize(TWeakPtr<Material> material)
+		void Initialize(Material* material)
 		{
+			if (mMaterial && mMaterial == material)
+				return;
+
 			ShaderCollection->SetShaderPath(EShaderType::VS, material->GetShaderPath(EShaderType::VS));
 			ShaderCollection->SetShaderPath(EShaderType::PS, material->GetShaderPath(EShaderType::PS));
 			mMaterial = material;
@@ -44,12 +48,12 @@ namespace Eggy
 		}
 
 	public:
-		List<ITexture*> BindingTextures;
+		List<ITextureBuffer*> BindingTextures;
 		List<IConstantBuffer*> BindingConstants;
 		IShaderCollection* ShaderCollection;
 
 	protected:
-		TWeakPtr<Material> mMaterial;
+		Material* mMaterial{ nullptr };
 
 	protected:
 		void DoConstantBinding()
@@ -74,17 +78,21 @@ namespace Eggy
 				uint8 slot = ShaderCollection->GetTextureSlot(pair.first);
 				if (slot != IShaderCollection::INVALID_SLOT)
 				{
-					BindingTextures[slot] = new ITexture();
-					ITexture* bindingTex = BindingTextures[slot];
+					BindingTextures[slot] = new ITextureBuffer();
+					ITextureBuffer* bindingTex = BindingTextures[slot];
 
-					auto& resource = pair.second->GetResource();
-					bindingTex->Data = resource.GetData();
-					bindingTex->Width = resource.Size.x;
-					bindingTex->Height = resource.Size.y;
-					bindingTex->Mips = resource.Mips;
-					bindingTex->Format = resource.Format;
-					bindingTex->ByteWidth = resource.ByteWidth;
-					bindingTex->TextureType = resource.TextureType;
+					ITexture* texture = pair.second;
+					if (texture)
+					{
+						auto& info = texture->GetInfo();
+						bindingTex->Data = texture->GetData();
+						bindingTex->Width = info.Size.x;
+						bindingTex->Height = info.Size.y;
+						bindingTex->Mips = info.Mips;
+						bindingTex->Format = info.Format;
+						bindingTex->ByteWidth = info.ByteWidth;
+						bindingTex->TextureType = info.TextureType;
+					}
 				}
 			}
 		}

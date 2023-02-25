@@ -10,7 +10,7 @@ namespace Eggy
 		virtual void CreateInputLayout(struct IInputLayout* inputLayout, struct IShaderCollection* shaderCollection) = 0;
 		virtual void CreateShader(struct IShader* shader) = 0;
 		virtual void CreateBuffer(struct IBuffer* buffer) = 0;
-		virtual void CreateTexture(struct ITexture* texture) = 0;
+		virtual void CreateTexture(struct ITextureBuffer* texture) = 0;
 		virtual void CreateSamplerState(struct SamplerState* samplerState) = 0;
 		virtual void CreatePipelineState(struct PipelineState* pipelineState) = 0;
 		virtual void CreateRenderTarget(struct IRenderTarget* renderTarget) = 0;

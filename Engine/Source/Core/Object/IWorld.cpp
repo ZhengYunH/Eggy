@@ -33,18 +33,23 @@ namespace Eggy
 	void IWorld::Deserialize(const String& s)
 	{
 		IEntity* entity1 = new IEntity();
-		entity1->AddComponent(new PrimitiveComponent());
+		PrimitiveComponent* prim1 = new PrimitiveComponent();
+		prim1->LoadResource("EngineDefault/Box/Model");
+		entity1->AddComponent(prim1);
 		entity1->EnterWorld(this);
+		Matrix4x3 transf1;
+		transf1.SetScale(Vector3(0.5f, 0.5f, 0.5f));
+		entity1->SetTransform(transf1);
 		mEntities_.push_back(entity1);
 
 		IEntity* entity2 = new IEntity();
-		PrimitiveComponent* prim = new PrimitiveComponent();
-		prim->LoadResource("Package/EngineDefault/Mesh/CameraModel.fbx");
-		entity2->AddComponent(prim);
+		PrimitiveComponent* prim2 = new PrimitiveComponent();
+		prim2->LoadResource("EngineDefault/Box/Model");
+		entity2->AddComponent(prim2);
 		entity2->EnterWorld(this);
-		Matrix4x3 transf;
-		transf.SetTranslation(Vector3(1.f, 0, -0.5f));
-		entity2->SetTransform(transf);
+		Matrix4x3 transf2;
+		transf2.SetTranslation(Vector3(1.f, 0, -0.5f));
+		entity2->SetTransform(transf2);
 		mEntities_.push_back(entity2);
 	}
 

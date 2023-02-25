@@ -1,5 +1,5 @@
 #include "RenderMesh.h"
-#include "Core/Engine/Resource/Mesh.h"
+#include "Resource/MeshResource.h"
 
 
 namespace Eggy
@@ -19,16 +19,18 @@ namespace Eggy
 	{
 		for(IMeshData* meshData : Resource->GetGeometrys())
 		{
-			mRenderElements_.push_back(new RenderMeshElement());
-			RenderMeshElement* ele = *(mRenderElements_.cbegin());
+			RenderMeshElement* element = new RenderMeshElement();
+			{
+				auto& vertexInfo = element->vertexInfo;
+				vertexInfo.Count = meshData->GetVertexData(vertexInfo.Data);
+				vertexInfo.Stride = meshData->GetVertexStride();
 
-			auto& vertexInfo = ele->vertexInfo;
-			vertexInfo.Count = meshData->GetVertexData(vertexInfo.Data);
-			vertexInfo.Stride = meshData->GetVertexStride();
-
-			auto& indexInfo = ele->indexInfo;
-			indexInfo.Count = meshData->GetIndexData(indexInfo.Data);
-			indexInfo.Stride = meshData->GetIndexStride();
+				auto& indexInfo = element->indexInfo;
+				indexInfo.Count = meshData->GetIndexData(indexInfo.Data);
+				indexInfo.Stride = meshData->GetIndexStride();
+			}
+			element->Initialize();
+			mRenderElements_.push_back(element);
 		}
 	}
 

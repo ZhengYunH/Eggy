@@ -7,7 +7,7 @@
 
 namespace Eggy
 {
-	enum EShaderConstant
+	enum class EShaderConstant
 	{
 		Batch = 0,
 		Shader,
@@ -127,11 +127,11 @@ namespace Eggy
 		{
 			switch (esc)
 			{
-			case Eggy::Batch:
+			case EShaderConstant::Batch:
 				return GetConstantSize() > 0 ? 0 : INVALID_SLOT;
-			case Eggy::Shader:
+			case EShaderConstant::Shader:
 				return GetConstantSize() > 1 ? 1 : INVALID_SLOT;
-			case Eggy::Global:
+			case EShaderConstant::Global:
 				return GetConstantSize() > 2 ? 2 : INVALID_SLOT;
 			default:
 				Unimplement(0);

@@ -63,9 +63,9 @@ namespace Eggy
 		}
 	};
 
-	struct ITexture : public IBuffer
+	struct ITextureBuffer : public IBuffer
 	{
-		ITexture() : IBuffer()
+		ITextureBuffer() : IBuffer()
 		{
 			Usage = EBufferUsage::Immutable;
 			BindType = EBufferTypes(EBufferType::ShaderResource);
@@ -87,9 +87,9 @@ namespace Eggy
 		EFormat Format{ EFormat::UNDEFINED };
 	};
 
-	struct IRenderTarget : public ITexture
+	struct IRenderTarget : public ITextureBuffer
 	{
-		IRenderTarget() : ITexture()
+		IRenderTarget() : ITextureBuffer()
 		{
 			Usage = EBufferUsage::Default;
 			CPUAcesssFlags = 0;
@@ -121,9 +121,9 @@ namespace Eggy
 		ESamplerQuality Quality{ ESamplerQuality::DEFAULT };
 	};
 
-	struct IDepthStencil : public ITexture
+	struct IDepthStencil : public ITextureBuffer
 	{
-		IDepthStencil() : ITexture()
+		IDepthStencil() : ITextureBuffer()
 		{
 			Usage = EBufferUsage::Default;
 			CPUAcesssFlags = 0;

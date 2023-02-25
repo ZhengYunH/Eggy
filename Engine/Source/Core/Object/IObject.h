@@ -6,6 +6,7 @@
 
 namespace Eggy
 {
+	class Ghost;
 	class IObject
 	{
 	public:
@@ -19,15 +20,18 @@ namespace Eggy
 			return Reflection::GRegistrationDict.find(name)->second;
 		}
 
+		Ghost* GetGhost() const { return mGhost_; }
 	public:
 		virtual String Serialize() const;
 		virtual void Deserialize(const String& s);
+		virtual void Initialize() noexcept {}
+		virtual void Finilize() noexcept {}
 		void Acquire();
 		void Release();
 
 	private:
 		std::atomic<uint32> mRef_{ 0 };
-		class Ghost* mGhost_;
+		Ghost* mGhost_;
 	};
 
 	class Ghost : TWeakPtr<IObject>

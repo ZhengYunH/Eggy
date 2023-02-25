@@ -35,6 +35,7 @@ namespace Eggy
 		RenderObject* Object{ nullptr };
 		GeometryBinding* GeometryBinding_{ nullptr };
 		IShadingState* ShadingState_{ nullptr };
+		Material* Material_{ nullptr };
 	};
 
 	class RenderItem

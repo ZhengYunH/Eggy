@@ -214,8 +214,10 @@ namespace Eggy
 
 	class MeshResource : public ResourceObject
 	{
+		DeclareResource(MeshResource, EResourceType::Mesh);
 	public:
-		void Deserialize(IFile* file) noexcept override;
+		bool LoadObject() noexcept override;
+		bool SaveObject() noexcept override;
 		List<IMeshData*>& GetGeometrys() { return mGeometrys_; }
 		void SetGeometrys(List<IMeshData*>&& mesh) { mGeometrys_.swap(mesh); }
 		void SetGeometry(IMeshData*&& mesh) { mGeometrys_.push_back(mesh); }

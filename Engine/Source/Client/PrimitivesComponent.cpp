@@ -1,38 +1,23 @@
 #include "PrimitivesComponent.h"
 #include "Graphics/Elements/RenderElement.h"
 #include "Client/Camera.h"
+#include "ResourceModule.h"
+#include "ResourceItem.h"
+#include "Object/Mesh.h"
 
 
 namespace Eggy
 {
 
+	void PrimitiveComponent::LoadResource(String resource)
+	{
+		ResourceItem* item = ResourceModule::Instance().GetItem(resource);
+		if (item)
+			mModel_.SetResourceID(item->GetResourceID());
+	}
+
 	void PrimitiveComponent::PreInitialize()
 	{
-		{
-			mMesh_ = new Mesh();
-			MeshResource* meshResource = new MeshResource();
-			if (mResource_.empty())
-				meshResource->SetGeometry(new CubeMesh<EVF_P3F_C4B_T2F>());
-			else
-				meshResource->Deserialize(FileSystem::Get()->LoadFile(mResource_).get());
-			mMesh_->SetResource(meshResource);
-		}
-		
-		{
-			mMaterial_ = new Material();
-			MaterialResource* matRes = new MaterialResource();
-			matRes->Deserialize(nullptr);
-			mMaterial_->SetResource(matRes);
-		}
-
-		IRenderMesh* renderMesh = mMesh_->GetRenderMesh();
-		for (size_t i = 0; i < renderMesh->GetElementsSize(); ++i)
-		{
-			IRenderElement* element = renderMesh->GetRenderElement(i);
-			element->Initialize(mMaterial_);
-		}
-
-		mRenderObject_ = new RenderObject();
 	}
 
 	void PrimitiveComponent::PostInitialize()
@@ -41,24 +26,23 @@ namespace Eggy
 
 	void PrimitiveComponent::Destroy()
 	{
-		SafeDestroy(mMaterial_);
-		SafeDestroy(mMesh_);
 	}
 
 	void PrimitiveComponent::CollectPrimitives(RenderContext* context)
 	{
-		if (!mMesh_ || !mMaterial_)
+		if (!mModel_.IsReady())
 			return;
 
 		IEntity* entity = GetParent();
+		mRenderObject_.ObjectConstantData_.ModelTransform = entity->GetTransform();
 
-		mRenderObject_->ObjectConstantData_.ModelTransform = entity->GetTransform();
-
-		IRenderMesh* renderMesh = mMesh_->GetRenderMesh();
+		IRenderMesh* renderMesh = mModel_.GetMesh()->GetRenderMesh();
+		Material* material = mModel_.GetMaterial();
 		for (size_t i = 0; i < renderMesh->GetElementsSize(); ++i)
 		{
 			IRenderElement* element = renderMesh->GetRenderElement(i);
-			RenderItemInfo* info = context->AddRenderSceneInfo(mRenderObject_);
+			RenderItemInfo* info = context->AddRenderSceneInfo(&mRenderObject_);
+			info->Material_ = material;
 			element->PrepareRenderItemInfo(context, info);
 			RenderItem* item = context->GenerateRenderItem(info);
 			context->SubmitRenderItem(ERenderSet::Main, item);
