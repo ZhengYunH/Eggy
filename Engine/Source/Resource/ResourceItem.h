@@ -4,14 +4,21 @@
 
 namespace Eggy
 {
+	class ResourceObject;
 	class ResourceItem
 	{
 		friend class ResourceModule;
 	public:
-		ResourceItem(Guid id, ResourceObject* object, const String& path)
+		ResourceItem(Guid id, EResourceType type, const String& path)
 			: mResourceID_(id)
-			, mResourceObject_(object)
+			, mType_(type)
 			, mPath_(path)
+		{
+
+		}
+
+		ResourceItem(Guid id, String type, const String& path)
+			: ResourceItem(id, s_ResourceTypeMap[type], path)
 		{
 		}
 
@@ -28,7 +35,7 @@ namespace Eggy
 		String GetPath() const { return mPath_; }
 
 	protected:
-		EResourceType mType_;
+		EResourceType mType_{ EResourceType::None };
 		Guid mResourceID_;
 		TSharedPtr<ResourceObject> mResourceObject_{ nullptr };
 		List<Guid> mDeps_;
