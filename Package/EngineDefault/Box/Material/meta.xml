@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Material>
-	<Shader>Basic</Shader>
+	<Shader>f85a1d1f-34124be6-940007a8-875a5b57</Shader>
 	<Parameters>
 		<Parameter>
 			<Key>BaseMap</Key>
-			<Value>2f3c578c-916e-42a1-beb9-f5c14946f3b8</Value>
+			<Value>2f3c578c-916e42a1-beb9f5c1-4946f3b8</Value>
 		</Parameter>
 	</Parameters>
 </Material>

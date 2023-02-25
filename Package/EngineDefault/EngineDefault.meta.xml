@@ -1,36 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Repository>
-<Items>
-<Item>
-	<Type>Model</Type>
-	<GUID>18e41edb-3362-4bf4-b9aa-28e604b87ab0<GUID>
-	<Path>EngineDefault/Box/Model</Path>
-	<Deps>
-		<Dep>9aeb42d1-2120-49cc-bcd8-05989f73a08f</Dep>
-		<Dep>2f3c578c-916e-42a1-beb9-f5c14946f3b8</Dep>
-	</Deps>
-</Items>
+	<Items>
+		<Item>
+			<Type>Model</Type>
+			<GUID>18e41edb-33624bf4-b9aa28e6-04b87ab0</GUID>
+			<Path>EngineDefault/Box/Model</Path>
+			<Deps>
+				<Dep>9aeb42d1-212049cc-bcd80598-9f73a08f</Dep>
+				<Dep>f85a1d2f-c43a4be6-940007a8-8bc7963d</Dep>
+			</Deps>
+		</Item>
 
-<Item>
-	<Type>Material</Type>
-	<GUID>9aeb42d1-2120-49cc-bcd8-05989f73a08f<GUID>
-	<Path>EngineDefault/Box/Material</Path>
-	</Deps>
-</Items>
+		<Item>
+			<Type>Material</Type>
+			<GUID>9aeb42d1-212049cc-bcd80598-9f73a08f</GUID>
+			<Path>EngineDefault/Box/Material</Path>
+			<Deps>
+				<Dep>2f3c578c-916e42a1-beb9f5c1-4946f3b8</Dep>
+				<Dep>f85a1d1f-34124be6-940007a8-875a5b57</Dep>
+			</Deps>
+		</Item>
 
+		<Item>
+			<Type>Texture</Type>
+			<GUID>2f3c578c-916e42a1-beb9f5c1-4946f3b8</GUID>
+			<Path>EngineDefault/Box/Texture</Path>
+			<Deps/>
+		</Item>
 
-<Item>
-	<Type>Texture</Type>
-	<GUID>2f3c578c-916e-42a1-beb9-f5c14946f3b8<GUID>
-	<Path>EngineDefault/Box/Texture</Path>
-	</Deps>
-</Items>
+		<Item>
+			<Type>Mesh</Type>
+			<GUID>f85a1d2f-c43a4be6-940007a8-8bc7963d</GUID>
+			<Path>EngineDefault/Box/Mesh</Path>
+			<Deps/>
+		</Item>
 
-<Item>
-	<Type>Mesh</Type>
-	<GUID>f85a1d2f-c43a-4be6-9400-07a88bc7963d<GUID>
-	<Path>EngineDefault/Box/Mesh</Path>
-	</Deps>
-</Item>
-
+		<Item>
+			<Type>Shader</Type>
+			<GUID>f85a1d1f-34124be6-940007a8-875a5b57</GUID>
+			<Path>EngineDefault/Box/Shader</Path>
+			<Deps/>
+		</Item>
+	</Items>
 </Repository>
