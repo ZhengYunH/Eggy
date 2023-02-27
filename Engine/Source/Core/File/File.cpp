@@ -135,9 +135,11 @@ namespace Eggy
 			const FbxMesh* pMesh = static_cast<const FbxMesh*>(lScene->GetGeometry(meshIndex));
 			if (pMesh)
 			{
-				const char* nodeName = pMesh->GetName();
+				FbxStringList lUVSetNameList;
+				pMesh->GetUVSetNames(lUVSetNameList);
+				bool existUV = lUVSetNameList.GetCount() > 0;
 
-				auto ttt = pMesh->GetPolygonCount();
+				const char* nodeName = pMesh->GetName();
 				for (int polygonCount = 0; polygonCount < pMesh->GetPolygonCount(); ++polygonCount)
 				{
 					int polygonTotal = pMesh->GetPolygonSize(polygonCount);
@@ -147,11 +149,25 @@ namespace Eggy
 					for (int vertIndex = 0; vertIndex < polygonTotal; ++vertIndex)
 					{
 						VertexType vertex{};
-						int vertexIndex = pMesh->GetPolygonVertices()[polygonStart + vertIndex];
-						const auto& vertPos = pMesh->GetControlPointAt(vertexIndex);
+						int controlIndex = pMesh->GetPolygonVertices()[polygonStart + vertIndex];
+						const auto& vertPos = pMesh->GetControlPointAt(controlIndex);
 						vertex.Position = { (float)vertPos[0], (float)vertPos[1], (float)vertPos[2] };
-						vertex.Color = Color4B_WRITE;
+						
+						// normal
+						FbxVector4 normal;
+						pMesh->GetPolygonVertexNormal(polygonCount, vertIndex, normal);
+						vertex.Normal = { (float)normal[0], (float)normal[1], (float)normal[2] };
 
+						// uv0
+						if (existUV)
+						{
+							FbxVector2 uv;
+							bool pUnmapped = true;
+							pMesh->GetPolygonVertexUV(polygonCount, vertIndex, lUVSetNameList[0], uv, pUnmapped);
+							if (!pUnmapped)
+								vertex.ST = { (float)uv[0], (float)uv[1] };
+						}
+						
 						if (uniqueVertices.count(vertex) == 0) {
 							uniqueVertices[vertex] = static_cast<uint32_t>(outVertexs.size());
 							outVertexs.push_back(vertex);
@@ -165,10 +181,6 @@ namespace Eggy
 						outIndexs.push_back(indiceArray[polygonCount]);
 						outIndexs.push_back(indiceArray[polygonCount + 1]);
 						outIndexs.push_back(indiceArray[polygonCount + 2]);
-
-						/*outIndices.push_back(indiceArray[polygonCount]);
-						outIndices.push_back(indiceArray[polygonCount + polygonCount % 2 + 1]);
-						outIndices.push_back(indiceArray[polygonCount + 2 - polygonCount % 2]);*/
 					}
 				}
 			}

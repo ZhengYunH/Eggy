@@ -168,14 +168,14 @@ namespace Eggy
 	class SelectVertexType<OBJ>
 	{
 	public:
-		using type = TVertexType<EVF_P3F_N4B_T2F>;
+		using type = TVertexType<EVF_P3F_N3F_T2F>;
 	};
 
 	template<>
 	class SelectVertexType<FBX>
 	{
 	public:
-		using type = TVertexType<EVF_P3F_C4B>;
+		using type = TVertexType<EVF_P3F_N3F_T2F>;
 	};
 
 

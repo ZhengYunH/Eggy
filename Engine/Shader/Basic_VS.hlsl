@@ -6,7 +6,8 @@ VertexOut VS(VertexIn vIn)
     vOut.posH = mul(float4(vIn.pos, 1.0f), cWorld);
     vOut.posH = mul(vOut.posH, cView);
     vOut.posH = mul(vOut.posH, cProj);
-    vOut.color = vIn.color * DebugColor;
-    vOut.st = vIn.st;
+    vOut.color = DebugColor;
+    vOut.normal = vIn.normal;
+    vOut.st = 1 - vIn.st;
     return vOut;
 }

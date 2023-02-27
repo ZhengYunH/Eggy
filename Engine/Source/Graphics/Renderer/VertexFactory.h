@@ -82,7 +82,7 @@ namespace Eggy
 		EVF_P3F = 1,					// Position(3F)
 		EVF_P3F_C4B = 2,				// Position(3F), Color(4B)
 		EVF_P3F_C4B_T2F = 3,			// Position(3F), Color(4B), TexCoord(2F)
-		EVF_P3F_N4B_T2F = 4				// Position(3F), Normal(4B), TexCoord(2F)
+		EVF_P3F_N3F_T2F = 4				// Position(3F), Normal(3F), TexCoord(2F)
 	};
 
 	template<int _VertexFormat> class TVertexType {};
@@ -113,8 +113,8 @@ namespace Eggy
 		static void GetDesc(List<IInputLayout::InputElementDesc>& Descs)
 		{
 			Descs = {
-				{"POSITION",  0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
-				{"COLOR",  0, EFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
+				{"POSITION", 0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
+				{"COLOR", 0, EFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
 			};
 		}
 
@@ -122,31 +122,40 @@ namespace Eggy
 	};
 
 	template<>
-	class TVertexType<EVF_P3F_N4B_T2F>
+	class TVertexType<EVF_P3F_N3F_T2F>
 	{
 	public:
 		Vector3	Position;
-		Color4B	Normal;
+		Vector3	Normal;
 		Vector2 ST;
 
 		TVertexType() = default;
 
 
-		TVertexType(const Vector3& position, const Color4B& normal, const Vector2 st)
+		TVertexType(const Vector3& position, const Vector3& normal, const Vector2 st)
 			: Position(position), Normal(normal), ST(st)
 		{}
 
-		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F_N4B_T2F>& rhs) const noexcept
+		constexpr FORCEINLINE bool operator ==(const TVertexType<EVF_P3F_N3F_T2F>& rhs) const noexcept
 		{
 			return this->Position == rhs.Position && this->Normal == rhs.Normal && this->ST == rhs.ST;
 		}
 
 		constexpr static const size_t GetSize()
 		{
-			return sizeof(Vector3) + sizeof(Color4B) + sizeof(Vector2);
+			return sizeof(Vector3) + sizeof(Vector3) + sizeof(Vector2);
+		}
+		
+		static void GetDesc(List<IInputLayout::InputElementDesc>& Descs)
+		{
+			Descs = {
+				{"POSITION", 0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
+				{"NORMAL", 0, EFormat::R32G32B32, 0, sizeof(Vector3), EInputClassification::PerVertex },
+				{"TEXCOORD", 0, EFormat::R32G32F, 0, sizeof(Vector3) + sizeof(Vector3), EInputClassification::PerVertex },
+			};
 		}
 
-		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_N4B_T2F;
+		static constexpr EVertexFormat FORMAT = EVertexFormat::EVF_P3F_N3F_T2F;
 	};
 
 	template<>
@@ -177,9 +186,9 @@ namespace Eggy
 		static void GetDesc(List<IInputLayout::InputElementDesc>& Descs)
 		{
 			Descs = {
-				{"POSITION",  0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
-				{"COLOR",  0, EFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
-				{"TEXCOORD",  0, EFormat::R32G32F, 0, sizeof(Vector3) + sizeof(Color4B), EInputClassification::PerVertex },
+				{"POSITION", 0, EFormat::R32G32B32, 0, 0, EInputClassification::PerVertex },
+				{"COLOR", 0, EFormat::R8G8B8A8, 0, sizeof(Vector3), EInputClassification::PerVertex },
+				{"TEXCOORD", 0, EFormat::R32G32F, 0, sizeof(Vector3) + sizeof(Color4B), EInputClassification::PerVertex },
 			};
 		}
 
@@ -194,7 +203,7 @@ namespace Eggy
 #define ADD_VERTEX_INFO(Format) { Format, { TVertexType<Format>::GetSize() } }
 	static Map<EVertexFormat, VertexInfo> GVertexInfoMap{
 		ADD_VERTEX_INFO(EVF_P3F_C4B),
-		ADD_VERTEX_INFO(EVF_P3F_N4B_T2F),
+		ADD_VERTEX_INFO(EVF_P3F_N3F_T2F),
 	};
 #undef ADD_VERTEX_INFO
 
@@ -254,12 +263,12 @@ namespace std
 		}
 	};
 
-	template<> struct hash<TVertexType<EVF_P3F_N4B_T2F>>
+	template<> struct hash<TVertexType<EVF_P3F_N3F_T2F>>
 	{
-		size_t operator()(TVertexType<EVF_P3F_N4B_T2F> const& vertexType) const noexcept
+		size_t operator()(TVertexType<EVF_P3F_N3F_T2F> const& vertexType) const noexcept
 		{
 			size_t v = boost::hash_value(hash<Vector3>()(vertexType.Position));
-			boost::hash_combine(v, hash<Color4B>()(vertexType.Normal));
+			boost::hash_combine(v, hash<Vector3>()(vertexType.Normal));
 			boost::hash_combine(v, hash<Vector2>()(vertexType.ST));
 			return v;
 		}

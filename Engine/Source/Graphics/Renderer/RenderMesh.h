@@ -6,7 +6,7 @@
 
 namespace Eggy
 {
-	class RenderMeshElement : public RenderElement<EVF_P3F_C4B_T2F, uint32>
+	class RenderMeshElement : public RenderElement<EVF_P3F_N3F_T2F, uint32>
 	{
 	public:
 		RenderMeshElement() 
