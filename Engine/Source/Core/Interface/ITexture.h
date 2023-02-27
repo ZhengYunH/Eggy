@@ -16,10 +16,12 @@ namespace Eggy
 		ETextureType TextureType;
 	};
 
+	struct ITextureBuffer;
 	class ITexture
 	{
 	public:
 		virtual byte* GetData() = 0;
 		virtual const TextureInfo& GetInfo() = 0;
+		virtual ITextureBuffer* GetRenderTexture() = 0;
 	};
 }

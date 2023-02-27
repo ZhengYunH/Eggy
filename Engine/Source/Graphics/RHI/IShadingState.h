@@ -78,21 +78,7 @@ namespace Eggy
 				uint8 slot = ShaderCollection->GetTextureSlot(pair.first);
 				if (slot != IShaderCollection::INVALID_SLOT)
 				{
-					BindingTextures[slot] = new ITextureBuffer();
-					ITextureBuffer* bindingTex = BindingTextures[slot];
-
-					ITexture* texture = pair.second;
-					if (texture)
-					{
-						auto& info = texture->GetInfo();
-						bindingTex->Data = texture->GetData();
-						bindingTex->Width = info.Size.x;
-						bindingTex->Height = info.Size.y;
-						bindingTex->Mips = info.Mips;
-						bindingTex->Format = info.Format;
-						bindingTex->ByteWidth = info.ByteWidth;
-						bindingTex->TextureType = info.TextureType;
-					}
+					BindingTextures[slot] = pair.second->GetRenderTexture();
 				}
 			}
 		}

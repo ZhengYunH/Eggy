@@ -16,8 +16,7 @@ namespace Eggy
 
 		~TextureResource()
 		{
-			delete[] RawData;
-			RawData = nullptr;
+			SafeDestroyArray(RawData)
 		}
 
 		byte* GetData() const

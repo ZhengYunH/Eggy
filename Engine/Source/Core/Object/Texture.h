@@ -1,22 +1,35 @@
 #pragma once
 #include "Config.h"
 #include "Object/IObject.h"
+#include "Core/Interface/ITexture.h"
 #include "Resource/TextureResource.h"
 
 
 namespace Eggy
 {
+	struct ITextureBuffer;
 	class Texture : public IObject, public ITexture
 	{
 	public:
 		Texture() = default;
+		
 		Texture(TSharedPtr<TextureResource> resource);
-		byte* GetData() override;
-		const TextureInfo& GetInfo() override;
+		
+		virtual ~Texture();
+
+	public:
+		byte* GetData() override { return mData_; }
+
+		const TextureInfo& GetInfo() override { return mInfo_; }
+
+		ITextureBuffer* GetRenderTexture() override { return mRenderTexture_; }
 
 	protected:
-		TSharedPtr<TextureResource> mResource_;
-		TextureInfo mInfo_;
+		virtual void PrepareRenderResource();
 
+	protected:
+		TextureInfo mInfo_;
+		byte* mData_{ nullptr };
+		ITextureBuffer* mRenderTexture_{ nullptr };
 	};
 }
