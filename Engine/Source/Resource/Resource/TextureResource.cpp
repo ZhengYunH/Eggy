@@ -1,6 +1,7 @@
 #include "TextureResource.h"
 #include "ResourceItem.h"
 #include "System/FileSystem.h"
+#include "Core/File/TextureLoader.h"
 
 
 namespace Eggy
@@ -9,14 +10,7 @@ namespace Eggy
 
 	bool TextureResource::LoadObject() noexcept
 	{
-		// test, RGB
-		mInfo_.Size = Vector3U(256, 256, 1);
-		mInfo_.Mips = 1;
-		mInfo_.Format = EFormat::R8G8B8A8;
-		mInfo_.ByteWidth = GetFormatInfo(mInfo_.Format).DataSize * mInfo_.Size.x * mInfo_.Size.y;
-		RawData = new byte[mInfo_.ByteWidth];
-		mInfo_.TextureType = ETextureType::Texture2D;
-		memset(RawData, 255, mInfo_.ByteWidth);
+		
 
 		FPath root = FileSystem::Get()->GetPackageRoot() + GetItem()->GetPath();
 		FPath metaFilePath = root + "meta.xml";
@@ -25,6 +19,10 @@ namespace Eggy
 			return false;
 		auto _Texture = metaFile->GetRootNode().get_child("Texture");
 		String _TextureSource = _Texture.get<String>("Source");
+		TextureLoader textureLoader((root + _TextureSource).ToString(), EFormat::R8G8B8A8);
+		mInfo_ = textureLoader.GetInfo();
+		RawData = textureLoader.GetData();
+
 		SetLoaded();
 		return true;
 	}
