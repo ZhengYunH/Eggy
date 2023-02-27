@@ -10,8 +10,6 @@ namespace Eggy
 
 	bool TextureResource::LoadObject() noexcept
 	{
-		
-
 		FPath root = FileSystem::Get()->GetPackageRoot() + GetItem()->GetPath();
 		FPath metaFilePath = root + "meta.xml";
 		XMLFile* metaFile = dynamic_cast<XMLFile*>(FileSystem::Get()->LoadFile(metaFilePath.ToString()).get());

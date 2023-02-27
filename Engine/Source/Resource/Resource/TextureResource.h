@@ -30,6 +30,5 @@ namespace Eggy
 	protected:
 		byte* RawData{ nullptr };
 		TextureInfo mInfo_;
-		String Path;
 	};
 }
