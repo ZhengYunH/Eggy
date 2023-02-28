@@ -24,7 +24,7 @@ namespace Eggy
 	void ConfigSystem::Initialize()
 	{
 		InsertConfiguration(GLOBAL_CONFIG.data());
-		SetGlobalConfig("AppWidth", 300);
+		SetGlobalConfig("AppWidth", 800);
 		SetGlobalConfig("AppHeight", 600);
 		SetGlobalConfig("IsFullScreen", false);
 	}
