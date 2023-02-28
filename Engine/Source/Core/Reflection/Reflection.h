@@ -162,14 +162,16 @@ namespace Eggy
 		EType_Num
 	};
 	
-	using PConstuctor = std::function<void* ()>;
+	using PConstuctor = std::function<void*()>;
+	using PDestructor = std::function<void(void*)>;
 	class Type
 	{
 	public:
 		Type() {}
-		Type(String name, PConstuctor generator)
+		Type(String name, PConstuctor constuctor, PDestructor destructor=nullptr)
 			: mName(name)
-			, mGenerator(generator)
+			, mConstructor(constuctor)
+			, mDestructor(std::move(destructor))
 		{}
 
 		const String& GetName() const { return mName; }
@@ -183,11 +185,13 @@ namespace Eggy
 		}
 
 	public:
-		virtual void* Construct() const { return mGenerator(); }
+		virtual void* Construct() const { return mConstructor(); }
+		virtual void Destruct(void* data) const { mDestructor(data); }
 
 	protected:
 		String mName;
-		PConstuctor mGenerator;
+		PConstuctor mConstructor;
+		PDestructor mDestructor;
 	};
 
 	class Reflection
@@ -198,7 +202,7 @@ namespace Eggy
 		template<typename TPrimitive>
 		static void RegisterType(
 			String name,
-			PConstuctor generator,
+			PConstuctor ctor, PDestructor dtor,
 			FieldInfo* fields,
 			uint16 numFieldInfo,
 			FunctionInfo** functions,
@@ -226,11 +230,12 @@ namespace Eggy
 	public:
 		ClassType() = default;
 		ClassType(
-			String name, PConstuctor generator,
+			String name, 
+			PConstuctor ctor, PDestructor dtor,
 			FieldInfo* fields, uint16 numFieldInfo,
 			FunctionInfo** functions, uint16 numFunctionInfo
 		)
-			: Type(name, generator)
+			: Type(name, ctor, dtor)
 			, NumFields(numFieldInfo)
 			, NumFunctions(numFunctionInfo)
 		{
@@ -280,14 +285,14 @@ namespace Eggy
 	class IntrinsicType : public ClassType
 	{
 	public:
-		IntrinsicType(String name, PConstuctor generator) : ClassType(name, generator, nullptr, 0, nullptr, 0) {}
+		IntrinsicType(String name, PConstuctor ctor, PDestructor dtor) : ClassType(name, ctor, dtor, nullptr, 0, nullptr, 0) {}
 	};
 
 	
 	class IntrinsicType__Void : public IntrinsicType
 	{
 	public:
-		IntrinsicType__Void() : IntrinsicType("IntrinsicType__Void", [] { return nullptr; }) {}
+		IntrinsicType__Void() : IntrinsicType("IntrinsicType__Void", [] { return nullptr; }, [](void*) {}) {}
 		static IntrinsicType__Void* GetDefaultObject()
 		{
 			return nullptr;
@@ -310,7 +315,7 @@ namespace Eggy
 	class IntrinsicType__##TPrimitives : public IntrinsicType \
 	{ \
 	public: \
-		IntrinsicType__##TPrimitives() : IntrinsicType(#AliasName,  [] { return new TPrimitives(); }) {} \
+		IntrinsicType__##TPrimitives() : IntrinsicType(#AliasName,  [] { return new TPrimitives(); }, [](void* s){ delete (TPrimitives*)s; }) {} \
 		static IntrinsicType__##TPrimitives* GetDefaultObject() \
 		{ \
 			static IntrinsicType__##TPrimitives* __DefaultObject; \
@@ -338,9 +343,9 @@ namespace Eggy
 
 
 	template<typename TPrimitive>
-	void Reflection::RegisterType(String name, PConstuctor generator, FieldInfo* fields, uint16 numFieldInfo, FunctionInfo** functions, uint16 numFunctionInfo)
+	void Reflection::RegisterType(String name, PConstuctor ctor, PDestructor dtor, FieldInfo* fields, uint16 numFieldInfo, FunctionInfo** functions, uint16 numFunctionInfo)
 	{
-		ClassType* info = new ClassType(name, generator, fields, numFieldInfo, functions, numFunctionInfo);
+		ClassType* info = new ClassType(name, ctor, dtor, fields, numFieldInfo, functions, numFunctionInfo);
 		GetType_Template<TPrimitive>::value = info;
 		AddReflectionInfo(name, info);
 	}

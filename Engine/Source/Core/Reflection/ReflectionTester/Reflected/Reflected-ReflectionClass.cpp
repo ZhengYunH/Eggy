@@ -30,7 +30,7 @@ namespace Eggy
 
 			Reflection::RegisterType<ReflectionClassTester>(
 				"ReflectionClassTester",
-				[] {return new ReflectionClassTester(); },
+				[] {return new ReflectionClassTester(); }, [](void* s) {delete (ReflectionClassTester*)s; },
 				fieldInfos,
 				numFieldInfos,
 				funcInfos,
