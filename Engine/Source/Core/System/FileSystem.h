@@ -21,11 +21,15 @@ namespace Eggy
 	public:
 		FileHandle LoadFile(String resource);
 		bool FileExist(String path);
+		bool DirectoryExist(String path);
+		void CreateDirectory(String path);
 		String& GetCacheDirectory();
 
 		void Initialize() override;
 		void Finalize() override {}
 
+		FileHandle CreateFile(String filePath);
+	public:
 		FPath GetRoot()
 		{
 			return mRoot_;
@@ -44,6 +48,11 @@ namespace Eggy
 		FPath GetToolRoot()
 		{
 			return mRoot_ + "Tools/";
+		}
+
+		FPath GetLogRoot()
+		{
+			return mRoot_ + "Cache/Log/";
 		}
 
 		List<String> GetSubDirectories(FPath path, bool retAbsPath=false);

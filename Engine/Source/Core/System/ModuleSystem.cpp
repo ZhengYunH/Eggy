@@ -1,5 +1,6 @@
 #include "ModuleSystem.h"
 
+
 namespace Eggy
 {
 	DefineSystem(ModuleSystem);
@@ -21,8 +22,7 @@ namespace Eggy
 		ModuleHandle module = ::LoadLibraryA(realName.c_str());
 		if (!module)
 		{
-			// TODO: LOG(Eggy, Fatal) << "Load Module" << dllName << "Fail";
-			LOG(Main, "Load Module Fail"); 
+			LOG(Core, Fatal) << "Load Module <" << dllName << "> Fail";
 			return false;
 		}
 		mModules_[dllName] = module;

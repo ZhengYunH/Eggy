@@ -79,6 +79,32 @@ namespace Eggy
 			}
 		}
 
+		FPath GetParent()
+		{
+			FPath path = *this;
+			if (path.IsFile())
+				path.mFile_ = "";
+			else
+			{
+				if (!path.mDirectories_.empty())
+					path.mDirectories_.pop_back();
+			}
+			return path;
+		}
+
+		String GetLast()
+		{
+			if (IsFile())
+				return mFile_;
+			else
+			{
+				if (mDirectories_.empty())
+					return "";
+				else
+					return mDirectories_.back();
+			}
+		}
+
 		String getPostFix()
 		{
 			if (mFile_.empty())
@@ -141,6 +167,11 @@ namespace Eggy
 			return *this + String(str);
 		}
 
+		operator bool() const noexcept
+		{
+			return !mDirectories_.empty() || !mFile_.empty();
+		}
+
 	protected:
 		List<String> mDirectories_;
 		String mFile_;
@@ -152,6 +183,12 @@ namespace Eggy
 		FAIL_TO_OPEN,
 		OPEN,
 		CLOSE,
+	};
+
+	enum class EFileUsage
+	{
+		LOAD,
+		SAVE
 	};
 	
 	enum EFileType : uint16
@@ -204,18 +241,29 @@ namespace Eggy
 	class File : public IFile
 	{
 	public:
-		File(const String& filePath, int openMode = std::ios::ate | std::ios::binary) : IFile(filePath)
+		File(const String& filePath, EFileUsage usage = EFileUsage::LOAD, int openMode = std::fstream::binary)
+			: IFile(filePath)
+			, mUsage_(usage)
 		{
-			mStream_ = std::ifstream(filePath, openMode);
-			if (!mStream_.is_open())
-			{
+			if (usage == EFileUsage::LOAD)
+				openMode |= (std::fstream::ate | std::fstream::in);
+			else if (usage == EFileUsage::SAVE)
+				openMode |= (std::fstream::ate | std::fstream::out);
+
+			mStream_.exceptions(std::fstream::failbit | std::fstream::badbit);
+			try {
+				mStream_.open(filePath, openMode);
+			}
+			catch (const std::fstream::failure& e) {
+				// std::cout << strerror(errno);
+				String info = e.code().message();;
 				mState_ = EFileState::FAIL_TO_OPEN;
 				mStream_.close();
 			}
 			mDataSize_ = mStream_.tellg();
 			mState_ = EFileState::OPEN;
-			
 		}
+
 		virtual ~File()
 		{
 			mState_ = EFileState::CLOSE;
@@ -234,10 +282,16 @@ namespace Eggy
 			mStream_.seekg(0);
 			mStream_.read((char*)buffer, inOutDataSize);
 		}
-		
+
+		void Save(const char* str, size_t nStr)
+		{
+			HYBRID_CHECK(mUsage_ == EFileUsage::SAVE);
+			mStream_.write(str, nStr);
+		}
 
 	protected:
-		std::ifstream mStream_;
+		std::fstream mStream_;
+		EFileUsage mUsage_;
 	};
 
 	class XMLFile : public IFile

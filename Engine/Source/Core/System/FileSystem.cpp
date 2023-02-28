@@ -3,7 +3,9 @@
 
 #if defined(_WIN32)
 #	include <filesystem>
+#	include <windows.h>
 #endif
+
 
 namespace Eggy
 {
@@ -76,6 +78,28 @@ namespace Eggy
 		return file;
 	}
 
+	FileHandle FileSystem::CreateFile(String filePath)
+	{
+		FPath path = filePath;
+		HYBRID_CHECK(path.IsFile());
+		List<String> toCreateSubDir;
+		path = path.GetParent();
+		while (path && !DirectoryExist(path.ToString()))
+		{
+			toCreateSubDir.push_back(path.GetLast());
+			path = path.GetParent();
+		}
+		HYBRID_CHECK(path);
+#if defined(_WIN32)
+		for (auto itr = toCreateSubDir.rbegin(); itr != toCreateSubDir.rend(); ++itr)
+		{
+			path = path + *itr;
+			CreateDirectory(path.ToString());
+#endif
+		}
+		return std::make_shared<File>(filePath, EFileUsage::SAVE, 0);
+	}
+
 	bool FileSystem::FileExist(String path)
 	{
 		std::ifstream ifile;
@@ -89,6 +113,24 @@ namespace Eggy
 		{
 			return false;
 		}
+	}
+
+	bool FileSystem::DirectoryExist(String path)
+	{
+#if defined(_WIN32)
+		DWORD ftyp = GetFileAttributesA(path.c_str());
+		if (ftyp == INVALID_FILE_ATTRIBUTES)
+			return false;
+		return ftyp & FILE_ATTRIBUTE_DIRECTORY;
+#endif
+		return false;
+	}
+
+	void FileSystem::CreateDirectory(String path)
+	{
+#if defined(_WIN32)
+		CreateDirectoryA(path.c_str(), NULL);
+#endif
 	}
 
 	String& FileSystem::GetCacheDirectory()

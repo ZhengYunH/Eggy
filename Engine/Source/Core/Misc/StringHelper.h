@@ -31,10 +31,9 @@ namespace Eggy
 #endif
 		}
 
-		template<typename... _Args>
-		static String Format(const char* str, _Args... args)
+		static void Replace(String& s, char src, char dst)
 		{
-			std::format(str, std::forward<_Args>(args)...);
+			std::replace(s.begin(), s.end(), src, dst);
 		}
 	};
 }

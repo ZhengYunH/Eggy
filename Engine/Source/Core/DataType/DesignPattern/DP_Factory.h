@@ -77,7 +77,10 @@ namespace Eggy
 			{
 				return itr->second->Create();
 			}
-			LOG("Create Product Fail For: ", key);
+			if constexpr (std::convertible_to<_Key, String>)
+				LOG(Core, Fatal) << Format("Create Product Fail For: {}", key);
+			else
+				LOG(Core, Fatal) << "Create Product Fail";
 			return nullptr;
 		}
 

@@ -5,6 +5,7 @@
 #include "FileSystem.h"
 #include "RenderSystem.h"
 #include "TextureSystem.h"
+#include "LoggerSystem.h"
 
 
 namespace Eggy
@@ -31,6 +32,7 @@ namespace Eggy
 		AddSystem(FileSystem);
 		AddSystem(RenderSystem);
 		AddSystem(TextureSystem);
+		AddSystem(LoggerSystem);
 
 #undef AddSystem
 	}
