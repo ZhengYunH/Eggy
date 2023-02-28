@@ -14,7 +14,7 @@ namespace Eggy
 		{
 			String _Entry;
 			ShaderReflection* _Reflection;
-			Map<EShaderConstant, ShadingBatch> _BatchMap;
+			Map<EShaderConstant, ShadingBatch*> _BatchMap;
 			SamplerState _SamplerState;
 		};
 
@@ -22,6 +22,7 @@ namespace Eggy
 	public:
 		ShaderTechnique() = default;
 		ShaderTechnique(ETechnique techniquem, const String& shaderPath);
+		virtual ~ShaderTechnique();
 
 	protected:
 		virtual void ParseReflectionImpl(const String& shaderPath);
@@ -36,21 +37,23 @@ namespace Eggy
 	public:
 		ShaderCollection() = default;
 		ShaderCollection(const String& shaderPath);
+		~ShaderCollection();
 		bool IsTechniqueExist(ETechnique technique);
-		const ShaderTechnique& GetShaderTechnique(ETechnique technique);
+		const ShaderTechnique* GetShaderTechnique(ETechnique technique);
 
 	protected:
-		Map<ETechnique, ShaderTechnique> mTechnique_;
+		Map<ETechnique, ShaderTechnique*> mTechnique_;
 	};
 
 	class ShaderCollectionFactory : public TSingleton<ShaderCollectionFactory>
 	{
 		typedef TSimpleFactory<ShaderCollection> Factory;
 	public:
-		const ShaderCollection& GetCollection(const String& shaderPath);
+		~ShaderCollectionFactory();
+		const ShaderCollection* GetCollection(const String& shaderPath);
 
 	protected:
-		Map<String, ShaderCollection> mCollections_;
+		Map<String, ShaderCollection*> mCollections_;
 	};
 }
 

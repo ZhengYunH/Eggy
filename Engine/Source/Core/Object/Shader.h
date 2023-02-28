@@ -26,6 +26,6 @@ namespace Eggy
 
 	protected:
 		String mShaderPath_;
-		const ShaderCollection& mShaderCollection_;
+		const ShaderCollection* mShaderCollection_;
 	};
 }

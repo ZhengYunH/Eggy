@@ -28,7 +28,13 @@ namespace Eggy
 			param = new ShaderParameterBoolean(mParameterOffset_, arrayCount);
 			break;
 		case EShaderParameterType::Texture:
-			param = new ShaderParameterTexture(mParameterOffset_, arrayCount);
+			param = new ShaderParameterTexture(mParameterOffset_);
+			break;
+		case EShaderParameterType::Matrix4x3:
+			param = new ShaderParameterMatrix4x3(mParameterOffset_);
+			break;
+		case EShaderParameterType::Matrix4x4:
+			param = new ShaderParameterMatrix4x4(mParameterOffset_);
 			break;
 		default:
 			Unimplement(0);
@@ -51,23 +57,24 @@ namespace Eggy
 		mParameterOffset_ = 0;
 	}
 
-	ShadingBatch::ShadingBatch(int predictSize)
+	ShadingBatch::ShadingBatch(int predictSize) noexcept
 	{
 		if (predictSize < 0)
 			mBlockAllocationSize_ = BLOCK_SIZE;
 		else
-			mBlockAllocationSize_ = mBlockTotalSize_;
+			mBlockAllocationSize_ = predictSize;
 		mBlockTotalSize_ = mBlockAllocationSize_;
 		mParameterBlock_ = new byte[mBlockTotalSize_];
+		memset(mParameterBlock_, 0, mBlockTotalSize_);
 	}
 
 	ShadingBatch::~ShadingBatch()
 	{
 		Clear();
-		delete[] mParameterBlock_;
+		SafeDestroy(mParameterBlock_);
 	}
 
-	void ShadingBatch::ExpandBlock()
+	void ShadingBatch::ExpandBlock() noexcept
 	{
 		byte* _alloc = new byte[mBlockTotalSize_ + mBlockAllocationSize_];
 		memcpy(_alloc, mParameterBlock_, mBlockTotalSize_);
@@ -166,8 +173,8 @@ namespace Eggy
 		return true;
 	}
 
-	ShaderParameterTexture::ShaderParameterTexture(uint16 blockOffset, uint16 arrayCount)
-		: IShaderParamter(blockOffset, arrayCount)
+	ShaderParameterTexture::ShaderParameterTexture(uint16 blockOffset)
+		: IShaderParamter(blockOffset, 1)
 	{
 		mType = EShaderParameterType::Texture;
 		mSize = sizeof(Guid);
@@ -184,5 +191,44 @@ namespace Eggy
 		memcpy(block + mBlockOffset, &texture, mSize);
 		return true;
 	}
+
+	ShaderParameterMatrix4x3::ShaderParameterMatrix4x3(uint16 blockOffset)
+		: IShaderParamter(blockOffset, 1)
+	{
+		mType = EShaderParameterType::Matrix4x3;
+		mSize = sizeof(Matrix4x3);
+	}
+
+	bool ShaderParameterMatrix4x3::GetMatrix4x3(const byte* block, Matrix4x3& matrix) noexcept
+	{
+		memcpy(&matrix, block, sizeof(Matrix4x3));
+		return true;
+	}
+
+	bool ShaderParameterMatrix4x3::SetMatrix4x3(byte* block, const Matrix4x3& matrix) noexcept
+	{
+		memcpy(block, &matrix, sizeof(Matrix4x3));
+		return true;
+	}
+
+	ShaderParameterMatrix4x4::ShaderParameterMatrix4x4(uint16 blockOffset)
+		: IShaderParamter(blockOffset, 1)
+	{
+		mType = EShaderParameterType::Matrix4x4;
+		mSize = sizeof(Matrix4x4);
+	}
+
+	bool ShaderParameterMatrix4x4::GetMatrix4x4(const byte* block, Matrix4x4& matrix) noexcept
+	{
+		memcpy(&matrix, block, sizeof(Matrix4x4));
+		return true;
+	}
+
+	bool ShaderParameterMatrix4x4::SetMatrix4x4(byte* block, const Matrix4x4& matrix) noexcept
+	{
+		memcpy(block, &matrix, sizeof(Matrix4x4));
+		return true;
+	}
+
 }
 

@@ -3,6 +3,23 @@
 
 namespace Eggy
 {
+	static String GetShaderPath(const String& shaderPath, EShaderType shaderType)
+	{
+		switch (shaderType)
+		{
+		case EShaderType::VS:
+			return shaderPath + "_VS.hlsl";
+			break;
+		case EShaderType::PS:
+			return shaderPath + "_PS.hlsl";
+			break;
+		default:
+			Unimplement();
+			break;
+		}
+		return "";
+	}
+
 	ShaderTechnique::ShaderTechnique(ETechnique technique, const String& shaderPath)
 	{
 		using enum EShaderType;
@@ -14,13 +31,22 @@ namespace Eggy
 		ParseReflectionImpl(shaderPath);
 	}
 
-	void ShaderTechnique::ParseReflectionImpl(const String& shaderPath)
+	ShaderTechnique::~ShaderTechnique()
 	{
-		return;
 		for (auto& pair : mEntrys_)
 		{
 			StageData& data = pair.second;
-			data._Reflection = ShaderReflectionFactory::Instance().GetReflection(shaderPath, data._Entry, pair.first);
+			for (auto& batchPair : data._BatchMap)
+				SafeDestroy(batchPair.second);
+		}
+	}
+
+	void ShaderTechnique::ParseReflectionImpl(const String& shaderPath)
+	{
+		for (auto& pair : mEntrys_)
+		{
+			StageData& data = pair.second;
+			data._Reflection = ShaderReflectionFactory::Instance().GetReflection(GetShaderPath(shaderPath, pair.first), data._Entry, pair.first);
 			_ParseDescriptorInternel(shaderPath, data, *data._Reflection);
 		}
 	}
@@ -52,7 +78,7 @@ namespace Eggy
 
 					if(esc == EShaderConstant::END)
 						continue;
-					stageData._BatchMap[esc] = ShadingBatch(bindingData.Uniform.Size);
+					stageData._BatchMap[esc] = new ShadingBatch(bindingData.Uniform.Size);
 					for (uint32 i = 0; i < bindingData.Uniform.MemberCount; ++i)
 					{
 						auto& member = bindingData.Uniform.Members[i];
@@ -60,15 +86,15 @@ namespace Eggy
 						{
 						case SShaderInputNumericType::MATRIX:
 							if (member.Numeric.Block.Matrix.column_count == 3 || member.Numeric.Block.Matrix.row_count == 3)
-								stageData._BatchMap[esc].AddParameter(member.Name, EShaderParameterType::Matrix4x3);
+								stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x3);
 							else
-								stageData._BatchMap[esc].AddParameter(member.Name, EShaderParameterType::Matrix4x4);
+								stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x4);
 							break;
 						case SShaderInputNumericType::VECTOR:
-							stageData._BatchMap[esc].AddParameter(member.Name, EShaderParameterType::Float, member.Numeric.Block.Vector.component_count);
+							stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, member.Numeric.Block.Vector.component_count);
 							break;
 						case SShaderInputNumericType::SCALER:
-							stageData._BatchMap[esc].AddParameter(member.Name, EShaderParameterType::Float, 1);
+							stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, 1);
 							break;
 						default:
 							break;
@@ -92,7 +118,13 @@ namespace Eggy
 	{
 		using enum EShaderType;
 		using enum ETechnique;
-		mTechnique_[Shading] = ShaderTechnique(Shading, shaderPath);
+		mTechnique_[Shading] = new ShaderTechnique(Shading, shaderPath);
+	}
+
+	ShaderCollection::~ShaderCollection()
+	{
+		for (auto& pair : mTechnique_)
+			SafeDestroy(pair.second);
 	}
 
 	bool ShaderCollection::IsTechniqueExist(ETechnique technique)
@@ -100,19 +132,22 @@ namespace Eggy
 		return mTechnique_.contains(technique);
 	}
 
-	const ShaderTechnique& ShaderCollection::GetShaderTechnique(ETechnique technique)
+	const ShaderTechnique* ShaderCollection::GetShaderTechnique(ETechnique technique)
 	{
 		HYBRID_CHECK(IsTechniqueExist(technique));
 		return mTechnique_.at(technique);
 	}
 
-	const ShaderCollection& ShaderCollectionFactory::GetCollection(const String& shaderPath)
+	ShaderCollectionFactory::~ShaderCollectionFactory()
+	{
+		for (auto& pair : mCollections_)
+			SafeDestroy(pair.second);
+	}
+
+	const ShaderCollection* ShaderCollectionFactory::GetCollection(const String& shaderPath)
 	{
 		if (!mCollections_.contains(shaderPath))
-		{
-			ShaderCollection* pSC = Factory::Instance().Create(shaderPath);
-			mCollections_[shaderPath] = *pSC;
-		}
+			mCollections_[shaderPath] = Factory::Instance().Create(shaderPath);
 		return mCollections_.at(shaderPath);
 	}
 }

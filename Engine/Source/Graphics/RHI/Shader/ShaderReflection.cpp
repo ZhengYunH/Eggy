@@ -23,6 +23,7 @@ namespace Eggy
 			Block.Vector.component_count = spvNumberTrait.vector.component_count;
 			break;
 		case SpvOpTypeMatrix:
+			Type = SShaderInputNumericType::MATRIX;
 			Block.Matrix.row_count = spvNumberTrait.matrix.row_count;
 			Block.Matrix.column_count = spvNumberTrait.matrix.column_count;
 			Block.Matrix.stride = spvNumberTrait.matrix.stride;
