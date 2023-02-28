@@ -30,5 +30,11 @@ namespace Eggy
 			return strTo;
 #endif
 		}
+
+		template<typename... _Args>
+		static String Format(const char* str, _Args... args)
+		{
+			std::format(str, std::forward<_Args>(args)...);
+		}
 	};
 }
