@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Config.h"
 #include "Core/Misc/Guid.h"
+#include "Core/Math/Matrix4x3.h"
+#include "Core/Math/Matrix4x4.h"
 #include "Graphics/RHI/IRenderResource.h"
 
 
@@ -37,6 +39,12 @@ namespace Eggy
 
 		virtual bool GetTexture(const byte* block, Guid& texture) noexcept { return false; }
 		virtual bool SetTexture(byte* block, const Guid& texture) noexcept { return false; }
+
+		virtual bool GetMatrix4x3(const byte* block, Matrix4x3& matrix) noexcept { return false; }
+		virtual bool SetMatrix4x3(byte* block, const Matrix4x3& matrix) noexcept { return false; }
+
+		virtual bool GetMatrix4x4(const byte* block, Matrix4x4& matrix) noexcept { return false; }
+		virtual bool SetMatrix4x4(byte* block, const Matrix4x4& matrix) noexcept { return false; }
 
 	protected:
 		// TODO: add allocator
@@ -77,17 +85,36 @@ namespace Eggy
 	class ShaderParameterTexture : public IShaderParamter
 	{
 	public:
-		ShaderParameterTexture(uint16 blockOffset, uint16 arrayCount);
+		ShaderParameterTexture(uint16 blockOffset);
 
 		bool GetTexture(const byte* block, Guid& texture) noexcept override;
 		bool SetTexture(byte* block, const Guid& texture) noexcept override;
 	};
 
+	class ShaderParameterMatrix4x3 : public IShaderParamter
+	{
+	public:
+		ShaderParameterMatrix4x3(uint16 blockOffset);
+
+		bool GetMatrix4x3(const byte* block, Matrix4x3& matrix) noexcept override;
+		bool SetMatrix4x3(byte* block, const Matrix4x3& matrix) noexcept override;
+	};
+
+	class ShaderParameterMatrix4x4 : public IShaderParamter
+	{
+	public:
+		ShaderParameterMatrix4x4(uint16 blockOffset);
+
+		bool GetMatrix4x4(const byte* block, Matrix4x4& matrix) noexcept override;
+		bool SetMatrix4x4(byte* block, const Matrix4x4& matrix) noexcept override;
+	};
+
+
 	class ShadingBatch
 	{
 		constexpr static uint16 BLOCK_SIZE = 4096;
 	public:
-		ShadingBatch(int predictSize=-1);
+		ShadingBatch(int predictSize=-1) noexcept;
 		~ShadingBatch();
 
 		bool SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept;
@@ -100,7 +127,7 @@ namespace Eggy
 
 	private:
 		IShaderParamter* GetParameter(const String& name);
-		void ExpandBlock();
+		void ExpandBlock() noexcept;
 
 	private:
 		byte* mParameterBlock_{ nullptr };
