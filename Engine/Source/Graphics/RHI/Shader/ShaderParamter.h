@@ -11,7 +11,9 @@ namespace Eggy
 		Integer,
 		Float,
 		Boolean,
-		Texture,
+		Matrix4x3,
+		Matrix4x4,
+		Texture
 	};
 
 	class IShaderParamter
@@ -85,7 +87,7 @@ namespace Eggy
 	{
 		constexpr static uint16 BLOCK_SIZE = 4096;
 	public:
-		ShadingBatch();
+		ShadingBatch(int predictSize=-1);
 		~ShadingBatch();
 
 		bool SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept;
@@ -104,6 +106,7 @@ namespace Eggy
 		byte* mParameterBlock_{ nullptr };
 		uint16 mParameterOffset_{ 0 };
 		uint16 mBlockTotalSize_{ 0 };
+		uint16 mBlockAllocationSize_{ 0 };
 		Map<String, IShaderParamter*> mParams_;
 		bool mIsPropertyModified_{ true };
 	};

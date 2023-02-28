@@ -7,14 +7,6 @@
 
 namespace Eggy
 {
-	enum class EShaderConstant
-	{
-		Batch = 0,
-		Shader,
-		Global,
-		END
-	};
-
 	struct ShaderMacroDefine
 	{
 		String Name;

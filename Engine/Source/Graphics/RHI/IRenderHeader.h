@@ -91,6 +91,22 @@ namespace Eggy
 		"ps"
 	};
 
+
+	enum class ETechnique
+	{
+		Shading = 0,
+	};
+
+	enum class EShaderConstant
+	{
+		Global = 0,
+		Shader = 1,
+		Batch = 2,
+		Skeleton = 3,
+		Light = 4,
+		END
+	};
+
 	enum class EBufferUsage
 	{
 		Default = 0, // GPU(r&w)

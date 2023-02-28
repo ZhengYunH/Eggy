@@ -18,31 +18,35 @@ namespace Eggy
 
 	struct SShaderNumericTraits
 	{
+		void FillIn(SpvOp opType, SpvReflectNumericTraits& spvNumberTrait);
+
 		struct Scalar {
-			uint32_t                        width;
-			uint32_t                        signedness;
+			uint32                        width;
+			uint32                        signedness;
 		} Scalar;
 
 		union
 		{
 			struct Vector {
-				uint32_t                        component_count;
+				uint32                        component_count;
 			} Vector;
 
 			struct Matrix {
-				uint32_t                        column_count;
-				uint32_t                        row_count;
-				uint32_t                        stride; // Measured in bytes
+				uint32                        column_count;
+				uint32                        row_count;
+				uint32                        stride; // Measured in bytes
 			} Matrix;
 		} Block;
 
 		SShaderInputNumericType Type;
 	};
 
+	
+
 	struct SShaderInputVariableData
 	{
 		std::string Name;
-		uint32_t Location;
+		uint32 Location;
 		std::string Semantic;
 		SShaderNumericTraits Numeric;
 	};
@@ -56,24 +60,37 @@ namespace Eggy
 
 	};
 
+	struct SBlockVariableTrait
+	{
+		void FillIn(SpvReflectBlockVariable* spvBlockVariable);
+		String Name;
+		uint32 Offset;
+		uint32 Size;
+		uint32 PaddingSize;
+		SShaderNumericTraits Numeric;
+	};
+
 	struct SShaderUniformTrait
 	{
-		uint32_t Size;
+		uint32 Size;
+		uint32 MemberCount;
+		SBlockVariableTrait* Members;
 	};
 
 	struct SShaderSamplerTrait
 	{
-
 	};
 
 	struct SSampledImageTrait
 	{
+		void FindIn(SpvReflectImageTraits* spvImageTraits);
 		EFormat Format;
+		ETextureType Type;
 	};
 
 	struct SShaderDescriptorData
 	{
-		std::string Name;
+		String Name;
 		EDescriptorType Type;
 		union
 		{
@@ -105,7 +122,7 @@ namespace Eggy
 			return mInputVariable_;
 		}
 
-		const std::unordered_map<uint32_t, std::unordered_map<uint32_t, SShaderDescriptorData>>& GetDescriptor()
+		const std::unordered_map<uint32, std::unordered_map<uint32, SShaderDescriptorData>>& GetDescriptor()
 		{
 			return mDescriptor_;
 		}
@@ -126,7 +143,7 @@ namespace Eggy
 		EShaderType mShaderType_;
 
 		std::vector<SShaderInputVariableData> mInputVariable_;
-		std::unordered_map<uint32_t/*set*/, std::unordered_map<uint32_t/* binding*/, SShaderDescriptorData>> mDescriptor_;
+		std::unordered_map<uint32/*set*/, std::unordered_map<uint32/* binding*/, SShaderDescriptorData>> mDescriptor_;
 		SpvReflectShaderModule mModule_;
 		std::atomic<bool> mIsResourceReady_{ false };
 	};

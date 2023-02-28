@@ -6,6 +6,84 @@
 // can refer to SPIRV-Reflect/examples/main_descriptors.cpp
 namespace Eggy
 {
+	void SShaderNumericTraits::FillIn(SpvOp opType, SpvReflectNumericTraits& spvNumberTrait)
+	{
+		Scalar.width = spvNumberTrait.scalar.width;
+		Scalar.signedness = spvNumberTrait.scalar.signedness;
+
+		switch (opType)
+		{
+		case SpvOpTypeBool:
+		case SpvOpTypeInt:
+		case SpvOpTypeFloat:
+			Type = SShaderInputNumericType::SCALER;
+			break;
+		case SpvOpTypeVector:
+			Type = SShaderInputNumericType::VECTOR;
+			Block.Vector.component_count = spvNumberTrait.vector.component_count;
+			break;
+		case SpvOpTypeMatrix:
+			Block.Matrix.row_count = spvNumberTrait.matrix.row_count;
+			Block.Matrix.column_count = spvNumberTrait.matrix.column_count;
+			Block.Matrix.stride = spvNumberTrait.matrix.stride;
+			break;
+		default:
+			Unimplement(0);
+			break;
+		}
+	}
+
+	void SBlockVariableTrait::FillIn(SpvReflectBlockVariable* spvBlockVariable)
+	{
+		Name = spvBlockVariable->name;
+		Offset = spvBlockVariable->offset;
+		Size = spvBlockVariable->size;
+		PaddingSize = spvBlockVariable->offset;
+		Numeric.FillIn(spvBlockVariable->type_description->op, spvBlockVariable->numeric);
+	}
+
+	void SSampledImageTrait::FindIn(SpvReflectImageTraits* spvImageTraits)
+	{
+		using enum EFormat;
+		switch (spvImageTraits->image_format)
+		{
+		case SpvImageFormatUnknown:
+			Format = UNDEFINED;
+			break;
+		case SpvImageFormatRgba32f:
+			Format = A32R32G32B32F;
+			break;
+		case SpvImageFormatRgba8:
+			Format = R8G8B8A8;
+			break;
+		case SpvImageFormatR8ui:
+			Format = EFormat::R8_UINT;
+			break;
+		case SpvImageFormatR32f:
+			Format = R32_UINT;
+			break;
+		default:
+			Unimplement();
+			break;
+		}
+
+		switch (spvImageTraits->dim)
+		{
+		case SpvDim2D:
+			Type = ETextureType::Texture2D;
+			break;
+		case SpvDim3D:
+			Type = ETextureType::Texture3D;
+			break;
+		case SpvDimCube:
+			Type = ETextureType::TextureCube;
+			break;
+		default:
+			Unimplement();
+			break;
+		}
+	}
+
 	ShaderReflection* ShaderReflectionFactory::GetReflection(const String& shaderPath, const String& entry, EShaderType shaderType)
 	{
 		EShaderLanguage sl = GetShaderLanguage(shaderPath);
@@ -110,7 +188,7 @@ namespace Eggy
 
 		SpvReflectResult result;
 
-		uint32_t varCount = 0;
+		uint32 varCount = 0;
 		result = spvReflectEnumerateInputVariables(&mModule_, &varCount, NULL);
 		HYBRID_CHECK(result == SPV_REFLECT_RESULT_SUCCESS);
 
@@ -129,32 +207,7 @@ namespace Eggy
 			if (inputVar->semantic)
 				mInputVariable_[i].Semantic = inputVar->semantic;
 
-			// build numeric
-			{
-				mInputVariable_[i].Numeric.Scalar.width = inputVar->numeric.scalar.width;
-				mInputVariable_[i].Numeric.Scalar.signedness = inputVar->numeric.scalar.signedness;
-
-				switch (inputVar->type_description->op)
-				{
-				case SpvOpTypeBool:
-				case SpvOpTypeInt:
-				case SpvOpTypeFloat:
-					mInputVariable_[i].Numeric.Type = SShaderInputNumericType::SCALER;
-					break;
-				case SpvOpTypeVector:
-					mInputVariable_[i].Numeric.Type = SShaderInputNumericType::VECTOR;
-					mInputVariable_[i].Numeric.Block.Vector.component_count = inputVar->numeric.vector.component_count;
-					break;
-				case SpvOpTypeMatrix:
-					mInputVariable_[i].Numeric.Block.Matrix.row_count = inputVar->numeric.matrix.row_count;
-					mInputVariable_[i].Numeric.Block.Matrix.column_count = inputVar->numeric.matrix.column_count;
-					mInputVariable_[i].Numeric.Block.Matrix.stride = inputVar->numeric.matrix.stride;
-					break;
-				default:
-					Unimplement(0);
-					break;
-				}
-			}
+			mInputVariable_[i].Numeric.FillIn(inputVar->type_description->op, inputVar->numeric);
 		}
 	}
 
@@ -162,7 +215,7 @@ namespace Eggy
 	{
 		SpvReflectResult result;
 
-		uint32_t descSetCount = 0;
+		uint32 descSetCount = 0;
 		result = spvReflectEnumerateDescriptorSets(&mModule_, &descSetCount, NULL);
 		HYBRID_CHECK(result == SPV_REFLECT_RESULT_SUCCESS);
 		SpvReflectDescriptorSet** inputSets = (SpvReflectDescriptorSet**)malloc(descSetCount * sizeof(SpvReflectDescriptorSet*));
@@ -172,7 +225,7 @@ namespace Eggy
 		for (size_t i = 0; i < descSetCount; ++i)
 		{
 			SpvReflectDescriptorSet* inputSet = inputSets[i];
-			mDescriptor_[inputSet->set] = std::unordered_map<uint32_t, SShaderDescriptorData>();
+			mDescriptor_[inputSet->set] = std::unordered_map<uint32, SShaderDescriptorData>();
 			auto& descs = mDescriptor_[inputSet->set];
 			for (size_t j = 0; j < inputSet->binding_count; ++j)
 			{
@@ -189,9 +242,14 @@ namespace Eggy
 				case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
 					desc.Type = EDescriptorType::UNIFORM_BUFFER;
 					desc.Uniform.Size = inDescBinding->block.size;
+					desc.Uniform.MemberCount = inDescBinding->block.member_count;
+					desc.Uniform.Members = new SBlockVariableTrait[desc.Uniform.MemberCount];
+					for (uint32 i = 0; i < inDescBinding->block.member_count; ++i)
+						desc.Uniform.Members[i].FillIn(&inDescBinding->block.members[i]);
 					break;
 				case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
 					desc.Type = EDescriptorType::SAMPLED_IMAGE;
+					desc.SampledImage.FindIn(&inDescBinding->image);
 					break;
 				default:
 					Unimplement(0);

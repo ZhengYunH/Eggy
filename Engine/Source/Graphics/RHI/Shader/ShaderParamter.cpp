@@ -51,9 +51,13 @@ namespace Eggy
 		mParameterOffset_ = 0;
 	}
 
-	ShadingBatch::ShadingBatch()
+	ShadingBatch::ShadingBatch(int predictSize)
 	{
-		mBlockTotalSize_ = BLOCK_SIZE;
+		if (predictSize < 0)
+			mBlockAllocationSize_ = BLOCK_SIZE;
+		else
+			mBlockAllocationSize_ = mBlockTotalSize_;
+		mBlockTotalSize_ = mBlockAllocationSize_;
 		mParameterBlock_ = new byte[mBlockTotalSize_];
 	}
 
@@ -65,11 +69,11 @@ namespace Eggy
 
 	void ShadingBatch::ExpandBlock()
 	{
-		byte* _alloc = new byte[mBlockTotalSize_ + BLOCK_SIZE];
+		byte* _alloc = new byte[mBlockTotalSize_ + mBlockAllocationSize_];
 		memcpy(_alloc, mParameterBlock_, mBlockTotalSize_);
 		delete[] mParameterBlock_;
 		mParameterBlock_ = _alloc;
-		mBlockTotalSize_ = mBlockTotalSize_ + BLOCK_SIZE;
+		mBlockTotalSize_ = mBlockTotalSize_ + mBlockAllocationSize_;
 	}
 
 	bool ShadingBatch::SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept
