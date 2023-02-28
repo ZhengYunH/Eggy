@@ -4,11 +4,13 @@
 #include <cmath>
 #include <limits>
 #include <tuple>
+#include <numbers>
 
 
 namespace Eggy
 {
-	static constexpr float MATH_PI = (3.141592653589793238462643383279502884197169399375105820974944592307816406286f);
+	static constexpr float MATH_E = std::numbers::e_v<float>;
+	static constexpr float MATH_PI = std::numbers::pi_v<float>;
 	static constexpr float MATH_HALF_PI = (MATH_PI / 2.f);
 	static constexpr float MATH_DOUBLE_PI = (2.f * MATH_PI);
 
@@ -22,6 +24,9 @@ namespace Eggy
 	static constexpr float MIN_FLOAT = std::numeric_limits<float>::min();
 	static constexpr float MAX_FLOAT = std::numeric_limits<float>::max();
 	static constexpr uint32 MAX_UINT = std::numeric_limits<uint32>::max();
+	static constexpr float SQRT2 = std::numbers::sqrt2_v<float>;
+	static constexpr float SQRT3 = std::numbers::sqrt3_v<float>;
+
 
 	static constexpr uint32 FLOATU32SignMask = (1UL << 31);
 	static constexpr inline uint32 FLOATU32(float x) noexcept
