@@ -150,12 +150,12 @@ namespace Eggy
 		{
 			if (IsResourceCreated())
 				return;
-			HYBRID_CHECK(ShaderCollection);
-			factory->CreateInputLayout(this, ShaderCollection);
+			HYBRID_CHECK(VSShader);
+			factory->CreateInputLayout(this, VSShader);
 		}
 
 		List<InputElementDesc> Descs;
-		struct IShaderCollection* ShaderCollection{ nullptr };
+		struct ShaderRenderResource* VSShader{ nullptr };
 
 		virtual bool IsValid() override { return !Descs.empty(); }
 	};

@@ -2,7 +2,6 @@
 #include "Config.h"
 #include "Object/IObject.h"
 #include "Resource/ShaderResource.h"
-#include "Graphics/RHI/IRenderHeader.h"
 #include "Graphics/RHI/Shader/ShaderCollection.h"
 
 
@@ -21,8 +20,10 @@ namespace Eggy
 			, mShaderCollection_(ShaderCollectionFactory::Instance().GetCollection(resource->GetShaderName()))
 		{
 		}
+
 	public:
-		String GetShaderPath(EShaderType shaderType);
+		String GetShaderPath(EShaderStage shaderType);
+		const ShaderCollection* GetShaderCollection() const { return mShaderCollection_; }
 
 	protected:
 		String mShaderPath_;

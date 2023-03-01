@@ -10,7 +10,6 @@ namespace Eggy
 {
 	class D3D11Device;
 	struct D3D11Shader;
-	struct IShaderCollection;
 
 	struct D3D11Resource : public IDevcieResource
 	{
@@ -101,8 +100,8 @@ namespace Eggy
 	public:
 		D3D11ResourceFactory(class D3D11Device* device);
 
-		void CreateInputLayout(struct IInputLayout* inputLayout, struct IShaderCollection* shaderCollection) override;
-		void CreateShader(struct IShader* shader) override;
+		void CreateInputLayout(struct IInputLayout* inputLayout, struct ShaderRenderResource* vsShader) override;
+		void CreateShader(struct ShaderRenderResource* shader) override;
 		void CreateBuffer(struct IBuffer* buffer) override;
 		void CreateTexture(struct ITextureBuffer* texture) override;
 		void CreateSamplerState(struct SamplerState* samplerState) override;

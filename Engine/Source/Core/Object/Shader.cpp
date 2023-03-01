@@ -3,14 +3,14 @@
 namespace Eggy
 {
 
-	String Shader::GetShaderPath(EShaderType shaderType)
+	String Shader::GetShaderPath(EShaderStage shaderStage)
 	{
-		switch (shaderType)
+		switch (shaderStage)
 		{
-		case EShaderType::VS:
+		case EShaderStage::VS:
 			return mShaderPath_ + "_VS.hlsl";
 			break;
-		case EShaderType::PS:
+		case EShaderStage::PS:
 			return mShaderPath_ + "_PS.hlsl";
 			break;
 		default:

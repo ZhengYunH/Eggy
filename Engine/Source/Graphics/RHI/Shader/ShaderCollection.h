@@ -2,56 +2,79 @@
 #include "Config.h"
 #include "Graphics/RHI/IRenderHeader.h"
 #include "Core/DataType/DesignPattern/DP_Factory.h"
-#include "Graphics/RHI/Shader/ShaderParamter.h"
+#include "ShaderParamter.h"
 #include "ShaderReflection.h"
 
 
 namespace Eggy
 {
-	class ShaderReflection;
+	struct ShaderTextureInfo
+	{
+		uint8 Binding;
+		String Name;
+		EFormat Format;
+		ETextureType Type;
+	};
+
+	struct ShaderSamplerState
+	{
+		uint8 Binding;
+		String Name;
+	};
+
+	struct ShaderRenderResource;
+	class ShaderStageInstance
+	{
+	public:
+		ShaderStageInstance(EShaderStage stage, const String& shaderPath, String entry);
+		~ShaderStageInstance();
+
+	public:
+		bool GetTextureSlot(const String& name, uint8& outSlot) const;
+		bool GetSamplerSlot(const String& name, uint8& outSlot) const;
+		List<EShaderConstant> GetReletedBatch() const;
+
+	protected:
+		void _ParseDescriptorInternel();
+		void _ParseUniform(Map<uint8, SShaderDescriptorData>& uniforms);
+		void _ParseImage(Map<uint8, SShaderDescriptorData>& images);
+		void _ParseSampler(Map<uint8, SShaderDescriptorData>& samplers);
+
+	public:
+		struct ShaderRenderResource* _ShaderRenderResource{ nullptr };
+
+	public:
+		EShaderStage _Stage;
+		String _Entry;
+		String _ShaderPath;
+		ShaderReflection* _Reflection{ nullptr };
+		Map<EShaderConstant, uint8> _BatchSlot;
+		Map<EShaderConstant, ShadingParameterTable*> _BatchMap;
+		List<ShaderTextureInfo> _Images;
+		List<ShaderSamplerState> _SamplerStates;
+		uint8 _MaxImageBinding{ 0 };
+		uint8 _MaxSamplerStateBinding{ 0 };
+	};
+
+
 	class ShaderTechnique
 	{
-		struct ShaderTextureInfo
-		{
-			uint8 Binding;
-			String Name;
-			EFormat Format;
-			ETextureType Type;
-		};
-
-		struct ShaderSamplerState
-		{
-			uint8 Binding;
-			String Name;
-		};
-
-		struct StageData
-		{
-			String _Entry;
-			ShaderReflection* _Reflection{ nullptr };
-			Map<EShaderConstant, ShadingBatch*> _BatchMap;
-			List<ShaderTextureInfo> _Images;
-			List<ShaderSamplerState> _SamplerStates;
-			uint8 _MaxImageBinding{ 0 };
-			uint8 _MAxSamplerStateBinding{ 0 };
-		};
-
-		friend class ShaderCollection;
 	public:
 		ShaderTechnique() = default;
-		ShaderTechnique(ETechnique techniquem, const String& shaderPath);
+		ShaderTechnique(ETechnique technique, const String& shaderPath);
 		virtual ~ShaderTechnique();
 
-	protected:
-		virtual void ParseReflectionImpl();
-		void _ParseDescriptorInternel(StageData& stageData, ShaderReflection& reflection);
-		void _ParseUniform(StageData& stageData, Map<uint8, SShaderDescriptorData>& uniforms);
-		void _ParseImage(StageData& stageData, Map<uint8, SShaderDescriptorData>& images);
-		void _ParseSampler(StageData& stageData, Map<uint8, SShaderDescriptorData>& samplers);
+	public:
+		void CreateDeviceResource(IRenderResourceFactory* factory);
+
+	public:
+		const ShadingParameterTable* GetConstantTable(EShaderConstant esc) const;
+		const ShaderStageInstance* GetStageInstance(EShaderStage stage) const;
+		bool GetTextureSlot(EShaderStage stage, const String& name, uint8& outSlot) const;
+		bool GetSamplerSlot(EShaderStage stage, const String& name, uint8& outSlot) const;
 
 	protected:
-		Map<EShaderType, StageData> mEntrys_;
-		String mShaderPath_;
+		Map<EShaderStage, ShaderStageInstance*> mStageInstances_;
 	};
 
 	class ShaderCollection
@@ -60,8 +83,8 @@ namespace Eggy
 		ShaderCollection() = default;
 		ShaderCollection(const String& shaderPath);
 		~ShaderCollection();
-		bool IsTechniqueExist(ETechnique technique);
-		const ShaderTechnique* GetShaderTechnique(ETechnique technique);
+		bool IsTechniqueExist(ETechnique technique) const;
+		const ShaderTechnique* GetShaderTechnique(ETechnique technique) const;
 
 	protected:
 		Map<ETechnique, ShaderTechnique*> mTechnique_;

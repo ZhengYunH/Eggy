@@ -1,5 +1,7 @@
 #include "IRenderPipeline.h"
 #include "IRenderPass.h"
+#include "IShadingState.h"
+#include "RenderItem.h"
 
 
 namespace Eggy
@@ -32,6 +34,16 @@ namespace Eggy
 		mPipeline_->AddDrawCall(set, dp);
 	}
 
+	RenderContext::RenderContext(RenderPipeline* pipeline) : mPipeline_(pipeline)
+	{
+		mPipeline_->mContext_ = this;
+		auto globalTable = new ShadingParameterTable();
+		globalTable->AddParameter("cView", EShaderParameterType::Matrix4x4);
+		globalTable->AddParameter("cProj", EShaderParameterType::Matrix4x4);
+		globalTable->AddParameter("DebugColor", EShaderParameterType::Float, 4);
+		mParams_ = new ShadingParameterCollection(globalTable);
+	}
+
 	RenderContext::~RenderContext()
 	{
 
@@ -58,40 +70,21 @@ namespace Eggy
 		dp->Item_ = item;
 		RenderItemInfo* info = item->Info;
 		RenderObject* object = info->Object;
-		info->ShadingState_->Initialize(info->Material_);
+		IShadingState* shadingState = info->ShadingState_;
+		IShadingBatch* batch = shadingState->GetBatch();
+		shadingState->SetDataFromMaterial(info->Material_);
+		object->PrepareBatchData(batch);
 
 		// ShaderCollection
 		{
-			dp->ShaderCollection_ = info->ShadingState_->ShaderCollection;
+			dp->ShaderTechnique_ = const_cast<ShaderTechnique*>(shadingState->GetShaderCollection()->GetShaderTechnique(ETechnique::Shading));
 		}
 		
 		// Geometry Binding
 		{
 			dp->GeometryBinding_ = info->GeometryBinding_; 
-			dp->GeometryBinding_->Layout.ShaderCollection = dp->ShaderCollection_;
+			dp->GeometryBinding_->Layout.VSShader = dp->ShaderTechnique_->GetStageInstance(EShaderStage::VS)->_ShaderRenderResource;
 		}
-
-		// Resource Binding
-		{
-			auto constantSize = dp->ShaderCollection_->GetConstantSize();
-			auto textureSize = dp->ShaderCollection_->GetTextureSize();
-			auto viewSize = dp->ShaderCollection_->GetViewSize();
-			dp->ResourceBinding_ = new ResourceBinding(constantSize, textureSize, viewSize);
-
-			// Bind Batch Constant
-			auto shaderCollection = dp->ShaderCollection_;
-			uint8 batchSlot = shaderCollection->GetConstantSlot(EShaderConstant::Batch);
-			auto batchConstant = info->ShadingState_->BindingConstants[batchSlot];
-			batchConstant->Data = &object->ObjectConstantData_;
-			batchConstant->ByteWidth = sizeof(object->ObjectConstantData_);
-			batchConstant->Count = 1;
-			dp->ResourceBinding_->SetConstant(batchSlot, batchConstant);
-			for (size_t i = 0; i < info->ShadingState_->BindingTextures.size(); ++i)
-			{
-				dp->ResourceBinding_->SetTexture(static_cast<uint16>(i), info->ShadingState_->BindingTextures[i]);
-			}
-		}
-		
 		// TODO: setup Pipeline State
 		return dp;
 	}
@@ -100,7 +93,6 @@ namespace Eggy
 	void RenderContext::RecycleDrawCall(DrawCall* dp)
 	{
 		SafeDestroy(dp->Item_);
-		SafeDestroy(dp->ResourceBinding_);
 		SafeDestroy(dp);
 	}
 
@@ -208,6 +200,13 @@ namespace Eggy
 			return nullptr;
 		HYBRID_CHECK(rtIndex < mRenderTargetResource_.size());
 		return mRenderTargetResource_[rtIndex];
+	}
+
+	void RenderContext::PrepareBatchData()
+	{
+		mParams_->SetMatrix4x4("cView", mConstant_.ViewTransform);
+		mParams_->SetMatrix4x4("cProj", mConstant_.ProjectTransform);
+		mParams_->SetFloat("DebugColor", 0, 4, mConstant_.Color.GetPointer());
 	}
 
 }

@@ -1,16 +1,17 @@
 #include "ShaderCollection.h"
+#include "Graphics/RHI/IShaderRenderResource.h"
 
 
 namespace Eggy
 {
-	static String GetShaderPath(const String& shaderPath, EShaderType shaderType)
+	static String GetShaderPath(const String& shaderPath, EShaderStage stage)
 	{
-		switch (shaderType)
+		switch (stage)
 		{
-		case EShaderType::VS:
+		case EShaderStage::VS:
 			return shaderPath + "_VS.hlsl";
 			break;
-		case EShaderType::PS:
+		case EShaderStage::PS:
 			return shaderPath + "_PS.hlsl";
 			break;
 		default:
@@ -20,47 +21,65 @@ namespace Eggy
 		return "";
 	}
 
-	ShaderTechnique::ShaderTechnique(ETechnique technique, const String& shaderPath)
+	ShaderStageInstance::ShaderStageInstance(EShaderStage stage, const String& shaderPath, String entry)
+		: _Stage(stage)
+		, _ShaderPath(shaderPath)
+		, _Entry(entry)
 	{
-		using enum EShaderType;
-		mShaderPath_ = shaderPath;
-
-		mEntrys_[VS] = StageData();
-		mEntrys_[VS]._Entry = "VS";
-
-		mEntrys_[PS] = StageData();
-		mEntrys_[PS]._Entry = "PS";
-		ParseReflectionImpl();
+		_Reflection = ShaderReflectionFactory::Instance().GetReflection(GetShaderPath(_ShaderPath, stage), _Entry, stage);
+		_ShaderRenderResource = new ShaderRenderResource(this);
+		_ParseDescriptorInternel();
 	}
 
-	ShaderTechnique::~ShaderTechnique()
+	ShaderStageInstance::~ShaderStageInstance()
 	{
-		for (auto& pair : mEntrys_)
+		_Reflection = nullptr;
+		for (auto& pair : _BatchMap)
+			SafeDestroy(pair.second);
+	}
+
+	bool ShaderStageInstance::GetTextureSlot(const String& name, uint8& outSlot) const
+	{
+		for (auto& image : _Images)
 		{
-			StageData& data = pair.second;
-			for (auto& batchPair : data._BatchMap)
-				SafeDestroy(batchPair.second);
+			if (image.Name == name)
+			{
+				outSlot = image.Binding;
+				return true;
+			}
 		}
+		return false;
 	}
 
-	void ShaderTechnique::ParseReflectionImpl()
+	bool ShaderStageInstance::GetSamplerSlot(const String& name, uint8& outSlot) const
 	{
-		for (auto& pair : mEntrys_)
+		for (auto& ss : _SamplerStates)
 		{
-			StageData& data = pair.second;
-			data._Reflection = ShaderReflectionFactory::Instance().GetReflection(GetShaderPath(mShaderPath_, pair.first), data._Entry, pair.first);
-			_ParseDescriptorInternel(data, *data._Reflection);
+			if (ss.Name == name)
+			{
+				outSlot = ss.Binding;
+				return true;
+			}
 		}
+		return false;
 	}
 
-	void ShaderTechnique::_ParseDescriptorInternel(StageData& stageData, ShaderReflection& reflection)
+	List<EShaderConstant> ShaderStageInstance::GetReletedBatch() const
 	{
-		auto descriptor = reflection.GetDescriptor();
+		List<EShaderConstant> ret;
+		for (auto& pair : _BatchMap)
+			ret.push_back(pair.first);
+		return ret;
+	}
+
+	void ShaderStageInstance::_ParseDescriptorInternel()
+	{
+		auto descriptor = _Reflection->GetDescriptor();
 		if (descriptor.empty())
 			return;
 
 		// TODO: support multi-set, now just ignore binding set
-		for (auto& set2Desc: descriptor)
+		for (auto& set2Desc : descriptor)
 		{
 			uint32 set = set2Desc.first;
 			for (auto desc2Binding : set2Desc.second)
@@ -68,13 +87,13 @@ namespace Eggy
 				switch (desc2Binding.first)
 				{
 				case EDescriptorType::UNIFORM_BUFFER:
-					_ParseUniform(stageData, desc2Binding.second);
+					_ParseUniform(desc2Binding.second);
 					break;
 				case EDescriptorType::SAMPLED_IMAGE:
-					_ParseImage(stageData, desc2Binding.second);
+					_ParseImage(desc2Binding.second);
 					break;
 				case EDescriptorType::SAMPLER:
-					_ParseSampler(stageData, desc2Binding.second);
+					_ParseSampler(desc2Binding.second);
 					break;
 				default:
 					break;
@@ -83,7 +102,7 @@ namespace Eggy
 		}
 	}
 
-	void ShaderTechnique::_ParseUniform(StageData& stageData, Map<uint8, SShaderDescriptorData>& uniforms)
+	void ShaderStageInstance::_ParseUniform(Map<uint8, SShaderDescriptorData>& uniforms)
 	{
 		for (auto& binding2BindingData : uniforms)
 		{
@@ -94,11 +113,12 @@ namespace Eggy
 			else if (bindingData.Name == "Batch")		esc = EShaderConstant::Batch;
 			else if (bindingData.Name == "Skeleton")	esc = EShaderConstant::Skeleton;
 			else if (bindingData.Name == "Light")		esc = EShaderConstant::Light;
-			else LOG(Shader, Warning) << "Invalid Shader Constant" << bindingData.Name << "; in Shader: " << mShaderPath_ << "; in Stage: " << stageData._Entry;
+			else LOG(Shader, Warning) << "Invalid Shader Constant" << bindingData.Name << "; in Shader: " << _ShaderPath << "; in Stage: " << _Entry;
 
 			if (esc == EShaderConstant::END)
 				continue;
-			stageData._BatchMap[esc] = new ShadingBatch();
+			_BatchMap[esc] = new ShadingParameterTable();
+			_BatchSlot[esc] = binding2BindingData.first;
 			for (uint32 i = 0; i < bindingData.Uniform.MemberCount; ++i)
 			{
 				auto& member = bindingData.Uniform.Members[i];
@@ -106,15 +126,15 @@ namespace Eggy
 				{
 				case SShaderInputNumericType::MATRIX:
 					if (member.Numeric.Block.Matrix.column_count == 3 || member.Numeric.Block.Matrix.row_count == 3)
-						stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x3);
+						_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x3);
 					else
-						stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x4);
+						_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x4);
 					break;
 				case SShaderInputNumericType::VECTOR:
-					stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, member.Numeric.Block.Vector.component_count);
+					_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, member.Numeric.Block.Vector.component_count);
 					break;
 				case SShaderInputNumericType::SCALER:
-					stageData._BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, 1);
+					_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, 1);
 					break;
 				default:
 					break;
@@ -123,37 +143,84 @@ namespace Eggy
 		}
 	}
 
-	void ShaderTechnique::_ParseImage(StageData& stageData, Map<uint8, SShaderDescriptorData>& images)
+	void ShaderStageInstance::_ParseImage(Map<uint8, SShaderDescriptorData>& images)
 	{
-		stageData._MaxImageBinding = 0;
+		_MaxImageBinding = 0;
 		for (auto& binding2BindingData : images)
-			stageData._MaxImageBinding = Max(stageData._MaxImageBinding, binding2BindingData.first);
+			_MaxImageBinding = Max(_MaxImageBinding, binding2BindingData.first);
 
 		for (auto& binding2BindingData : images)
 		{
 			auto& bindingData = binding2BindingData.second;
-			stageData._Images.push_back({ binding2BindingData.first, bindingData.Name, bindingData.SampledImage.Format, bindingData.SampledImage.Type });
+			_Images.push_back({ binding2BindingData.first, bindingData.Name, bindingData.SampledImage.Format, bindingData.SampledImage.Type });
 		}
 	}
 
-	void ShaderTechnique::_ParseSampler(StageData& stageData, Map<uint8, SShaderDescriptorData>& samplers)
+	void ShaderStageInstance::_ParseSampler(Map<uint8, SShaderDescriptorData>& samplers)
 	{
-		stageData._MAxSamplerStateBinding = 0;
+		_MaxSamplerStateBinding = 0;
 		for (auto& binding2BindingData : samplers)
-			stageData._MAxSamplerStateBinding = Max(stageData._MAxSamplerStateBinding, binding2BindingData.first);
+			_MaxSamplerStateBinding = Max(_MaxSamplerStateBinding, binding2BindingData.first);
 
 		for (auto& binding2BindingData : samplers)
 		{
 			auto& bindingData = binding2BindingData.second;
-			stageData._SamplerStates.push_back({ binding2BindingData.first, bindingData.Name });
+			_SamplerStates.push_back({ binding2BindingData.first, bindingData.Name });
 		}
+	}
+
+	ShaderTechnique::ShaderTechnique(ETechnique technique, const String& shaderPath)
+	{
+		using enum EShaderStage;
+		mStageInstances_[VS] = new ShaderStageInstance(VS, shaderPath, "VS");
+		mStageInstances_[PS] = new ShaderStageInstance(VS, shaderPath, "PS");
+	}
+
+	ShaderTechnique::~ShaderTechnique()
+	{
+		for (auto& pair : mStageInstances_)
+			SafeDestroy(pair.second);
+	}
+
+	void ShaderTechnique::CreateDeviceResource(IRenderResourceFactory* factory)
+	{
+		for (auto& stage2Instance : mStageInstances_)
+			stage2Instance.second->_ShaderRenderResource->CreateDeviceResource(factory);
+	}
+
+	const ShadingParameterTable* ShaderTechnique::GetConstantTable(EShaderConstant esc) const
+	{
+		if (mStageInstances_.at(EShaderStage::PS)->_BatchMap.contains(esc))
+			return mStageInstances_.at(EShaderStage::PS)->_BatchMap.at(esc);
+		return nullptr;
+	}
+
+	const ShaderStageInstance* ShaderTechnique::GetStageInstance(EShaderStage stage) const
+	{
+		if (!mStageInstances_.contains(stage))
+			return nullptr;
+		return mStageInstances_.at(stage);
+	}
+
+	bool ShaderTechnique::GetTextureSlot(EShaderStage stage, const String& name, uint8& outSlot) const
+	{
+		if (!mStageInstances_.contains(stage))
+			return false;
+		
+		return mStageInstances_.at(stage)->GetTextureSlot(name, outSlot);
+	}
+
+	bool ShaderTechnique::GetSamplerSlot(EShaderStage stage, const String& name, uint8& outSlot) const
+	{
+		if (!mStageInstances_.contains(stage))
+			return false;
+		
+		return mStageInstances_.at(stage)->GetSamplerSlot(name, outSlot);
 	}
 
 	ShaderCollection::ShaderCollection(const String& shaderPath)
 	{
-		using enum EShaderType;
-		using enum ETechnique;
-		mTechnique_[Shading] = new ShaderTechnique(Shading, shaderPath);
+		mTechnique_[ETechnique::Shading] = new ShaderTechnique(ETechnique::Shading, shaderPath);
 	}
 
 	ShaderCollection::~ShaderCollection()
@@ -162,12 +229,12 @@ namespace Eggy
 			SafeDestroy(pair.second);
 	}
 
-	bool ShaderCollection::IsTechniqueExist(ETechnique technique)
+	bool ShaderCollection::IsTechniqueExist(ETechnique technique) const
 	{
 		return mTechnique_.contains(technique);
 	}
 
-	const ShaderTechnique* ShaderCollection::GetShaderTechnique(ETechnique technique)
+	const Eggy::ShaderTechnique* ShaderCollection::GetShaderTechnique(ETechnique technique) const
 	{
 		HYBRID_CHECK(IsTechniqueExist(technique));
 		return mTechnique_.at(technique);

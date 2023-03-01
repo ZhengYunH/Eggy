@@ -1,87 +1,55 @@
 #pragma once
 #include "IRenderResource.h"
 #include "Core/Object/Material.h"
-#include "Core/DataType/WeakPtr.h"
+#include "Core/Object/Shader.h"
 #include "System/TextureSystem.h"
+#include "IShadingBatch.h"
+#include "Shader/ShaderCollection.h"
 
 
 namespace Eggy
 {
+
+
 	class Texture;
-	struct IShaderCollection;
-	
 	class IShadingState
 	{
 	public:
-		IShadingState()
+		IShadingState(Shader* shader)
 		{
-			ShaderCollection = new IShaderCollection();
+			mCollection_ = shader->GetShaderCollection();
+			mBatch_ = new IShadingBatch(shader);
 		}
 
-		IShadingState(Material* material)
-		{
-			ShaderCollection = new IShaderCollection();
-			Initialize(material);
-		}
-		
 		~IShadingState()
 		{
-			SafeDestroy(ShaderCollection);
+			SafeDestroy(mBatch_);
 		}
 
 	public:
-		void Initialize(Material* material)
+		void CreateDeviceResource(IRenderResourceFactory* factory)
 		{
-			if (mMaterial && mMaterial == material)
-				return;
-
-			ShaderCollection->SetShaderPath(EShaderType::VS, material->GetShaderPath(EShaderType::VS));
-			ShaderCollection->SetShaderPath(EShaderType::PS, material->GetShaderPath(EShaderType::PS));
-			mMaterial = material;
-			OnShaderCreated();
+			mBatch_->CreateDeviceResource(factory);
 		}
 
-		void OnShaderCreated()
+		void SetDataFromMaterial(Material* material)
 		{
-			DoConstantBinding();
-			DoTextureBinding();
+			for (auto& pair : material->GetTextures())
+			{
+				uint8 slot = 0;
+				EShaderStage stage = EShaderStage::PS;
+				if (mBatch_->GetTextureSlot(ETechnique::Shading, stage, pair.first, slot))
+					mBatch_->mResourceBindings_[stage]->SetTexture(slot, pair.second->GetRenderTexture());
+			}
+			mBatch_->SetConstantBuffer(EShaderConstant::Shader, material->GetParameters());
 		}
 
-	public:
-		List<ITextureBuffer*> BindingTextures;
-		List<IConstantBuffer*> BindingConstants;
-		IShaderCollection* ShaderCollection;
+		IShadingBatch* GetBatch() { return mBatch_; }
+
+		const ShaderCollection* GetShaderCollection() { return mCollection_; }
 
 	protected:
-		Material* mMaterial{ nullptr };
-
-	protected:
-		void DoConstantBinding()
-		{
-			BindingConstants.resize(ShaderCollection->GetConstantSize(), nullptr);
-			if (!mMaterial)
-				return;
-
-			for (uint8 i = 0; i < ShaderCollection->GetConstantSize(); ++i)
-			{
-				BindingConstants[i] = new IConstantBuffer();
-			}
-		}
-
-		void DoTextureBinding()
-		{
-			BindingTextures.resize(ShaderCollection->GetTextureSize(), nullptr);
-			if (!mMaterial)
-				return;
-			for (auto& pair : mMaterial->GetTextures())
-			{
-				uint8 slot = ShaderCollection->GetTextureSlot(pair.first);
-				if (slot != IShaderCollection::INVALID_SLOT)
-				{
-					BindingTextures[slot] = pair.second->GetRenderTexture();
-				}
-			}
-		}
-		
+		const ShaderCollection* mCollection_;
+		IShadingBatch* mBatch_;
 	};
 }

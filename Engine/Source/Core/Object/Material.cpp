@@ -7,17 +7,24 @@
 
 namespace Eggy
 {
-	Material::Material(TSharedPtr<MaterialResource> resource)
+	Material::Material(Shader* shader) 
+		: mShader_(shader)
 	{
-		mResource_ = resource;
-		mShader_ = new Shader(resource->GetShader());
+		auto technique = shader->GetShaderCollection()->GetShaderTechnique(ETechnique::Shading);
+		mParams_ = new ShadingParameterCollection(technique->GetConstantTable(EShaderConstant::Shader));
+
+		float roughness = 1;
+		mParams_->SetFloat("Roughness", 0, 1, &roughness);
+	}
+
+	Material::Material(TSharedPtr<MaterialResource> resource)
+		: Material(new Shader(resource->GetShader()))
+	{
 		for (auto pair : resource->GetTextureMap())
 		{
 			ITexture* texture = TextureSystem::Get()->GetTexture(pair.second);
 			if (!texture && resource->GetTexture(pair.first))
-			{
 				texture = new Texture(resource->GetTexture(pair.first));
-			}
 			mTextures_[pair.first] = texture;
 		}
 	}
@@ -25,9 +32,10 @@ namespace Eggy
 	Material::~Material()
 	{
 		SafeDestroy(mShader_);
+		SafeDestroy(mParams_);
 	}
 
-	String Material::GetShaderPath(EShaderType shaderType)
+	String Material::GetShaderPath(EShaderStage shaderType)
 	{
 		HYBRID_CHECK(mShader_);
 		return mShader_->GetShaderPath(shaderType);

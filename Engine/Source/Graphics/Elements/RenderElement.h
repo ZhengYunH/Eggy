@@ -5,7 +5,7 @@
 #include "Graphics/Renderer/VertexFactory.h"
 #include "Graphics/RHI/IRenderPipeline.h"
 #include "Graphics/RHI/IShadingState.h"
-#include "Core/DataType/WeakPtr.h"
+#include "Graphics/RHI/RenderItem.h"
 
 #include "Core/Math/Matrix4x3.h"
 #include "Core/Math/Matrix4x4.h"
@@ -68,7 +68,6 @@ namespace Eggy
 		RenderElement()
 		{
 			Geometry = new GeometryBinding();
-			ShadingState = new IShadingState();
 		}
 
 		void GetVertexData(void*& outData, size_t& outVertexCount, size_t& outByteWidth) override
@@ -99,6 +98,9 @@ namespace Eggy
 
 		void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) override
 		{
+			if(!ShadingState)
+				ShadingState = new IShadingState(info->Material_->GetShader());
+
 			info->GeometryBinding_ = Geometry;
 			info->ShadingState_ = ShadingState;
 		}
@@ -111,8 +113,8 @@ namespace Eggy
 		size_t Stride{ 0 };
 		size_t ByteWidth{ 0 };
 
-		GeometryBinding* Geometry;
-		IShadingState* ShadingState;
+		GeometryBinding* Geometry{ nullptr };
+		IShadingState* ShadingState{ nullptr };
 	};
 
 

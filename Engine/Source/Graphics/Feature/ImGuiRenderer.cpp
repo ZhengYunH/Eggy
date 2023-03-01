@@ -55,7 +55,7 @@ namespace Eggy
 		}
 		ImGui::End();
 
-		auto& gConstant = Pipeline->GetGlobalConstant();
+		auto& gConstant = Pipeline->GetContext()->GetGlobalConstant();
 		gConstant.Color = ImGuiData::sUseCustomColor ? mData.cCustomColor : Vector4(1.f, 1.f, 1.f, 1.f);
 
 		RenderPass* inputPass = GetInput(0);

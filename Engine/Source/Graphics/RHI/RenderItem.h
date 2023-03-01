@@ -1,34 +1,12 @@
 #pragma once
 #include "IRenderResource.h"
-#include "Core/Interface/IRenderObject.h"
 #include "Core/Math/Matrix4x4.h"
 #include "Graphics/RHI/IShadingState.h"
+#include "RenderObject.h"
 
 
 namespace Eggy
 {
-	struct BatchConstant
-	{
-		Matrix4x4 ModelTransform;
-	};
-
-	struct ShaderConstant
-	{
-
-	};
-
-	struct GlobalConstant
-	{
-		Matrix4x4 ViewTransform;
-		Matrix4x4 ProjectTransform;
-		Vector4 Color{ 1.f,1.f,1.f,1.f };
-	};
-
-	struct RenderObject : public IRenderObject
-	{
-		BatchConstant ObjectConstantData_;
-	};
-
 	class RenderItemInfo
 	{
 	public:

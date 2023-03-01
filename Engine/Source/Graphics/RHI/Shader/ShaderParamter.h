@@ -10,6 +10,7 @@ namespace Eggy
 {
 	enum class EShaderParameterType : uint8
 	{
+		None,
 		Integer,
 		Float,
 		Boolean,
@@ -121,16 +122,16 @@ namespace Eggy
 	};
 
 
-	class ShadingBatch
+	class ShadingParameterTable
 	{
 	public:
-		ShadingBatch() = default;
-		~ShadingBatch();
+		ShadingParameterTable() = default;
+		~ShadingParameterTable();
 
 	public:
 		IShaderParamter* AddParameter(const String& name, EShaderParameterType type, uint16 arrayCount=1);
 		IShaderParamter* GetParameter(const String& name);
-		uint16 GetParameterSize() { return mParameterOffset_; }
+		uint16 GetParameterSize() const { return mParameterOffset_; }
 		void Clear();
 
 	private:
@@ -138,34 +139,37 @@ namespace Eggy
 		Map<String, IShaderParamter*> mParams_;
 	};
 
-	class ShadingParamterCollection
+	class ShadingParameterCollection
 	{
 		constexpr static uint16 BLOCK_SIZE = 4096;
 	public:
-		ShadingParamterCollection(ShadingBatch* batch)
-			: mBatch_(batch)
+		ShadingParameterCollection(const ShadingParameterTable* table = nullptr);
+
+		~ShadingParameterCollection()
 		{
-			if (mBatch_->GetParameterSize() < 0)
-				mBlockAllocationSize_ = BLOCK_SIZE;
-			else
-				mBlockAllocationSize_ = mBatch_->GetParameterSize();
-			mBlockTotalSize_ = mBlockAllocationSize_;
-			mParameterBlock_ = new byte[mBlockTotalSize_];
-			memset(mParameterBlock_, 0, mBlockTotalSize_);
+			SafeDestroy(mAuxTable_);
 		}
 
 		bool SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept;
 		bool SetFloat(const String& name, uint16 offset, uint16 count, const float* value) noexcept;
 		bool SetBoolean(const String& name, uint16 offset, uint16 count, const bool* value) noexcept;
+		bool SetMatrix4x4(const String& name, const Matrix4x4& mat);
+		bool SetMatrix4x3(const String& name, const Matrix4x3& mat);
+		bool SetTexture(const String& name, const Guid& texture);
 
-		IShaderParamter* GetParameter(const String& name);
+		IShaderParamter* GetParameter(const String& name, EShaderParameterType type = EShaderParameterType::None, uint16 arrayCount = 1);
+
+		void CreateDeviceResource(IRenderResourceFactory* factory);
+		IConstantBuffer* GetRenderResource() { return mConstant_; }
 
 	protected:
 		void ExpandBlock() noexcept;
+		void PrepareRenderResource();
 
 	private:
-		ShadingBatch* mBatch_{ nullptr };
-		ShadingBatch* mCustomBatch_{ nullptr };
+		ShadingParameterTable* mMainTable_{ nullptr };
+		ShadingParameterTable* mAuxTable_{ nullptr };
+		IConstantBuffer* mConstant_{ nullptr };
 		byte* mParameterBlock_{ nullptr };
 		uint16 mBlockTotalSize_{ 0 };
 		uint16 mBlockAllocationSize_{ 0 };

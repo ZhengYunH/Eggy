@@ -168,38 +168,36 @@ namespace Eggy
 	void D3D11Device::EncodeDrawCall(DrawCall* drawCall)
 	{
 		drawCall->CreateDeviceResource(GetResourceFactory());
-		ResourceBinding* resourceBinding = drawCall->ResourceBinding_;
 		
-		// Update Constant Buffer
-		{
-			for (uint16 i = 0; i < resourceBinding->Buffers; ++i)
-			{
-				IBuffer* srcBuffer = resourceBinding->GetConstant(i);
-				if (!srcBuffer)
-					continue;
-				D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
-				D3D11_MAPPED_SUBRESOURCE mappedData;
-				mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
-				memcpy_s(mappedData.pData, srcBuffer->ByteWidth, srcBuffer->Data, srcBuffer->ByteWidth);
-				mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
-			}
-		}
+		auto batch = drawCall->ShadingState_->GetBatch();
 
+		// update batch uniform
+		auto batchBuffer = batch->GetConstantBuffer(EShaderConstant::Batch);
+		IConstantBuffer* srcBuffer = batchBuffer->GetRenderResource();
+		D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
+		D3D11_MAPPED_SUBRESOURCE mappedData;
+		mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+		memcpy_s(mappedData.pData, srcBuffer->ByteWidth, srcBuffer->Data, srcBuffer->ByteWidth);
+		mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
 		
 		// VS
 		{
+			auto vsInstance = drawCall->ShaderTechnique_->GetStageInstance(EShaderStage::VS);
+
 			// Constant	
-			for (uint16 i = 0; i < resourceBinding->Buffers; ++i)
+			for (EShaderConstant esc : vsInstance->GetReletedBatch())
 			{
-				IBuffer* srcBuffer = resourceBinding->GetConstant(i);
-				if (!srcBuffer)
-					continue;
-				D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
-				UINT numBuffer = 1;
-				mImmediateContext_->VSSetConstantBuffers(i, numBuffer, buffer->ppBuffer.GetAddressOf());
+				auto parameter = batch->GetConstantBuffer(esc);
+				if (parameter)
+				{
+					IConstantBuffer* srcBuffer = parameter->GetRenderResource();
+					D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
+					UINT numBuffer = 1;
+					mImmediateContext_->VSSetConstantBuffers(vsInstance->_BatchSlot.at(esc), numBuffer, buffer->ppBuffer.GetAddressOf());
+				}
 			}
 
-			D3D11VertexShader* vertexShader = (D3D11VertexShader*)drawCall->ShaderCollection_->GetShader(EShaderType::VS)->DeviceResource;
+			D3D11VertexShader* vertexShader = (D3D11VertexShader*)vsInstance->_ShaderRenderResource->DeviceResource;
 			mImmediateContext_->VSSetShader(vertexShader->ppShader.Get(), nullptr, 0);
 
 		}
@@ -211,23 +209,28 @@ namespace Eggy
 
 		// PS
 		{
-			auto psShader = drawCall->ShaderCollection_->GetShader(EShaderType::PS);
 
-			// Constant
-			for (uint16 i = 0; i < resourceBinding->Buffers; ++i)
+			auto psInstance = drawCall->ShaderTechnique_->GetStageInstance(EShaderStage::PS);
+			auto psShader = psInstance->_ShaderRenderResource;
+
+			// Constant	
+			for (EShaderConstant esc : psInstance->GetReletedBatch())
 			{
-				IBuffer* srcBuffer = resourceBinding->GetConstant(i);
-				if (!srcBuffer)
-					continue;
-				D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
-				UINT numBuffer = 1;
-				mImmediateContext_->VSSetConstantBuffers(i, numBuffer, buffer->ppBuffer.GetAddressOf());
+				auto parameter = batch->GetConstantBuffer(esc);
+				if (parameter)
+				{
+					IConstantBuffer* srcBuffer = parameter->GetRenderResource();
+					D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
+					UINT numBuffer = 1;
+					mImmediateContext_->PSSetConstantBuffers(psInstance->_BatchSlot.at(esc), numBuffer, buffer->ppBuffer.GetAddressOf());
+				}
 			}
 
 			// Texture
 			List<ID3D11ShaderResourceView*> texViews;
-			texViews.reserve(resourceBinding->Textures);
-			for (uint16 i = 0; i < resourceBinding->Textures; ++i)
+			texViews.reserve(psInstance->_MaxImageBinding);
+			auto resourceBinding = batch->GetResourceBinding(EShaderStage::PS);
+			for (uint16 i = 0; i < psInstance->_MaxImageBinding; ++i)
 			{
 				ITextureBuffer* tex = (ITextureBuffer*)resourceBinding->GetTexture(i);
 				HYBRID_CHECK(tex->BindType & EBufferTypes(EBufferType::ShaderResource));

@@ -118,25 +118,19 @@ namespace Eggy
 		DrawCall* dp = DrawCallHead;
 		while (dp)
 		{
+			auto batch = dp->ShadingState_->GetBatch();
 			// Bind Global Constant
-			uint8 globalConstantSlot = dp->ShaderCollection_->GetConstantSlot(EShaderConstant::Global);
-			if (globalConstantSlot != IShaderCollection::INVALID_SLOT && globalConstantSlot < dp->ResourceBinding_->Buffers)
-			{
-				auto& globalConstant = Pipeline->GetGlobalConstant();
-				dp->ResourceBinding_->SetConstant(globalConstantSlot, dp->Item_->Info->ShadingState_->BindingConstants[globalConstantSlot]);
-				IConstantBuffer* globalConstantBuffer = static_cast<IConstantBuffer*>(dp->ResourceBinding_->Data[globalConstantSlot]);
-				globalConstantBuffer->Data = &globalConstant;
-				globalConstantBuffer->ByteWidth = sizeof(globalConstant);
-				globalConstantBuffer->Count = 1;
-			}
-		
-			// Bind Texture(View Type)
+			dp->ShadingState_->GetBatch()->SetConstantBuffer(EShaderConstant::Global, Pipeline->GetContext()->GetParameters());
+
+			// Bind Texture(RT Type)
 			for (auto& pair : mBatch.RenderTargetMaps)
 			{
-				uint8 textureSlot = dp->ShaderCollection_->GetTextureSlot(pair.first);
-				if (textureSlot == IShaderCollection::INVALID_SLOT || textureSlot > dp->ResourceBinding_->Textures)
-					continue;
-				dp->ResourceBinding_->SetTexture(textureSlot, Pipeline->GetRenderTargetResource(pair.second));
+				uint8 textureSlot;
+				if (batch->GetTextureSlot(ETechnique::Shading, EShaderStage::PS, pair.first, textureSlot))
+				{
+					batch->SetTextureBinding(EShaderStage::PS, textureSlot, Pipeline->GetRenderTargetResource(pair.second));
+				}
+				
 			}
 
 			dp = dp->Next_;

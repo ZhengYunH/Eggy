@@ -2,117 +2,53 @@
 #include "IRenderHeader.h"
 #include "IRenderResource.h"
 #include "RenderGraph.h"
-#include "IShader.h"
-#include "RenderItem.h"
+#include "IShaderRenderResource.h"
+#include "Shader/ShaderCollection.h"
+#include "IShadingState.h"
+#include "RenderObject.h"
 
 
 namespace Eggy
 {
-	struct ResourceBinding
+	struct GlobalConstant
 	{
-		uint16 Buffers{ 0 };
-		uint16 Textures{ 0 };
-		uint16 Views{ 0 };
-
-		// Buffer -> Texture -> Views
-		IRenderResource** Data{ nullptr };
-
-		ResourceBinding(uint16 buffers, uint16 textures, uint16 views)
-		{
-			Buffers = buffers;
-			Textures = textures;
-			Views = views;
-
-			Data = new IRenderResource * [buffers + textures + views];
-			for (uint16 i = 0; i < Buffers + Textures + Views; ++i)
-				Data[i] = nullptr;
-		}
-
-		~ResourceBinding()
-		{
-			SafeDestroyArray(Data);
-		}
-
-		void CreateDeviceResource(IRenderResourceFactory* factory)
-		{
-			for (uint16 i = 0; i < Buffers; ++i)
-			{
-				if(!Data[i])
-					continue;
-				IBuffer* buffer = (IBuffer*)Data[i];
-				HYBRID_CHECK(buffer);
-				buffer->CreateDeviceResource(factory);
-			}
-
-			for (uint16 i = Buffers; i < Buffers + Textures; ++i)
-			{
-				if (!Data[i])
-					continue;
-				ITextureBuffer* texture = (ITextureBuffer*)Data[i];
-				HYBRID_CHECK(texture);
-				texture->CreateDeviceResource(factory);
-			}
-		}
-
-		void SetConstant(uint16 i, IConstantBuffer* tex)
-		{
-			Data[i] = tex;
-		}
-		IConstantBuffer* GetConstant(uint16 i)
-		{
-			return (IConstantBuffer*)Data[i];
-		}
-
-		void SetTexture(uint16 i, ITextureBuffer* tex)
-		{
-			Data[Buffers + i] = tex;
-		}
-		ITextureBuffer* GetTexture(uint16 i)
-		{
-			return (ITextureBuffer*)Data[Buffers + i];
-		}
-
-		void SetView(uint16 i, IRenderTarget* view)
-		{
-			Data[Buffers + Textures + i] = view;
-		}
-		IRenderTarget* GetView(uint16 i)
-		{
-			return (IRenderTarget*)Data[Buffers + Textures + i];
-		}
-
+		Matrix4x4 ViewTransform;
+		Matrix4x4 ProjectTransform;
+		Vector4 Color{ 1.f,1.f,1.f,1.f };
 	};
 
 	class RenderPipeline;
 	class RenderContext;
 	class RenderPass;
 	class RenderItem;
+	class RenderItemInfo;
 
 	struct DrawCall
 	{
 		RenderItem* Item_{ nullptr };
 		DrawCall* Next_{ nullptr };
-
-		PipelineState Pipeline_;
 		RenderPass* Pass_;
-		GeometryBinding* GeometryBinding_{ nullptr };
-		ResourceBinding* ResourceBinding_{ nullptr };
-		IShaderCollection* ShaderCollection_{ nullptr };
 
-		bool IsAllResourceReady()
+		ShaderTechnique* ShaderTechnique_{ nullptr };
+		IShadingState* ShadingState_{ nullptr };
+		GeometryBinding* GeometryBinding_{ nullptr };
+		PipelineState Pipeline_;
+
+
+		bool IsMemberReady()
 		{
 			HYBRID_CHECK(GeometryBinding_);
-			HYBRID_CHECK(ResourceBinding_);
-			HYBRID_CHECK(ShaderCollection_);
+			HYBRID_CHECK(ShadingState_);
+			HYBRID_CHECK(ShaderTechnique_);
 			return true;
 		}
 
 		void CreateDeviceResource(IRenderResourceFactory* factory)
 		{
-			HYBRID_CHECK(IsAllResourceReady());
-			ShaderCollection_->CreateDeviceResource(factory);
+			HYBRID_CHECK(IsMemberReady());
+			ShaderTechnique_->CreateDeviceResource(factory);
+			ShadingState_->CreateDeviceResource(factory);
 			GeometryBinding_->CreateDeviceResource(factory);
-			ResourceBinding_->CreateDeviceResource(factory);
 			Pipeline_.CreateDeviceResource(factory);
 		}
 
@@ -121,6 +57,7 @@ namespace Eggy
 
 	class RenderPipeline
 	{
+		friend class RenderContext;
 	public:
 		RenderPipeline() = default;
 		virtual ~RenderPipeline();
@@ -138,16 +75,15 @@ namespace Eggy
 		List<RenderPass*>& GetRenderPasses() { return mRenderPasses_; }
 		void Consolidate();
 		void AddDrawCall(ERenderSet set, DrawCall* dp);
-		GlobalConstant& GetGlobalConstant() { return mConstant_; }
 		virtual const RenderTargetDesc& GetBackBuffer(RenderGraphBuilder* builder) = 0;
 
 		void CopyRenderTargetList(List<IRenderTarget*>&& RenderTargets);
 		IRenderTarget* GetRenderTargetResource(size_t rtIndex) const;
+		RenderContext* GetContext() { return mContext_; }
 
 	protected:
 		List<RenderPass*> mRenderPasses_;
 		Map<ERenderSet, List<RenderPass*>> mRenderPassSet_;
-		GlobalConstant mConstant_;
 		RenderContext* mContext_;
 
 		List<IRenderTarget*> mRenderTargetResource_;
@@ -156,8 +92,7 @@ namespace Eggy
 	class RenderContext
 	{
 	public:
-		RenderContext(RenderPipeline* pipeline) : mPipeline_(pipeline)
-		{}
+		RenderContext(RenderPipeline* pipeline);
 		virtual ~RenderContext();
 
 		RenderItemInfo* AddRenderSceneInfo(RenderObject* object);
@@ -168,11 +103,16 @@ namespace Eggy
 		void Prepare();
 		void Clear();
 		void SubmitRenderItem(ERenderSet set, RenderItem* item);
+		void PrepareBatchData();
+		GlobalConstant& GetGlobalConstant() { return mConstant_; }
+		ShadingParameterCollection* GetParameters() { return mParams_; }
 
 	protected:
 		RenderPipeline* mPipeline_;
 		RenderGraphBuilder mBuilder_;
 		List<RenderItemInfo*> mRenderInfoItems_;
+		ShadingParameterCollection* mParams_;
+		GlobalConstant mConstant_;
 	};
 
 }

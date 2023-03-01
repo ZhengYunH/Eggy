@@ -5,14 +5,14 @@
 
 namespace Eggy
 {
-	D3D11Shader::D3D11Shader(IShader* shader) : Shader(shader)
+	D3D11Shader::D3D11Shader(ShaderRenderResource* shader) : Shader(shader)
 	{
-		HLSLPath = IShader::GetAbsShaderFilePath(shader->FilePath);
-		CSOPath = IShader::GetCacheFilePath(HLSLPath);
+		HLSLPath = ShaderRenderResource::GetAbsShaderFilePath(shader->FilePath);
+		CSOPath = ShaderRenderResource::GetCacheFilePath(HLSLPath);
 
 	}
 
-	D3D11VertexShader::D3D11VertexShader(IShader* shader) : D3D11Shader(shader)
+	D3D11VertexShader::D3D11VertexShader(ShaderRenderResource* shader) : D3D11Shader(shader)
 	{
 		EntryPoint = "VS";
 		ShaderModel = "vs_5_0";

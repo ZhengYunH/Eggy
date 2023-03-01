@@ -24,9 +24,10 @@ namespace Eggy
 
 	void RenderScene::EndFrame()
 	{
-		auto& globalConstant = mPipeline_->GetGlobalConstant();
+		auto& globalConstant = mContext_->GetGlobalConstant();
 		globalConstant.ProjectTransform = GetCamera()->getProjMatrix();
 		globalConstant.ViewTransform = GetCamera()->getViewMatrix();
+		mContext_->PrepareBatchData();
 		mPipeline_->Consolidate();
 	}
 

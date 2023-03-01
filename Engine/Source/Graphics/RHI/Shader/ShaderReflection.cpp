@@ -85,7 +85,7 @@ namespace Eggy
 		}
 	}
 
-	ShaderReflection* ShaderReflectionFactory::GetReflection(const String& shaderPath, const String& entry, EShaderType shaderType)
+	ShaderReflection* ShaderReflectionFactory::GetReflection(const String& shaderPath, const String& entry, EShaderStage shaderType)
 	{
 		EShaderLanguage sl = GetShaderLanguage(shaderPath);
 		ShaderReflection* reflect = nullptr;

@@ -1,7 +1,7 @@
 #include "D3D11Resource.h"
 #include "D3D11Device.h"
 #include "D3D11Shader.h"
-#include "Graphics/RHI/IShader.h"
+#include "Graphics/RHI/IShaderRenderResource.h"
 #include <d3dcompiler.h>
 
 
@@ -12,7 +12,7 @@ namespace Eggy
 
 	}
 
-	void D3D11ResourceFactory::CreateInputLayout(IInputLayout* inputLayout, IShaderCollection* shaderCollection)
+	void D3D11ResourceFactory::CreateInputLayout(struct IInputLayout* inputLayout, struct ShaderRenderResource* vsShader)
 	{
 		SafeDestroy(inputLayout->DeviceResource);
 		D3D11InputLayout* deviceInputLayout = new D3D11InputLayout(inputLayout);
@@ -32,7 +32,7 @@ namespace Eggy
 				Converter::InputClassification(desc.SlotClass)
 			};
 		}
-		D3D11VertexShader* vertexShader = (D3D11VertexShader*)shaderCollection->GetShader(EShaderType::VS)->DeviceResource;
+		D3D11VertexShader* vertexShader = (D3D11VertexShader*)vsShader->DeviceResource;
 		void* pShaderBytecodeWithInputSignature = vertexShader->ppBlob->GetBufferPointer();
 		SIZE_T bytecodeLength = vertexShader->ppBlob->GetBufferSize();
 		HR(mD3D11Device_->mDevice_->CreateInputLayout(
@@ -44,20 +44,21 @@ namespace Eggy
 	}
 
 
-	void D3D11ResourceFactory::CreateShader(IShader* shader)
+	void D3D11ResourceFactory::CreateShader(ShaderRenderResource* shader)
 	{
+		using enum EShaderStage;
 		SafeDestroy(shader->DeviceResource);
 
 		D3D11Shader* deviceShader = nullptr;
-		switch (shader->Type)
+		switch (shader->Stage)
 		{
-		case EShaderType::UNDEFINE:
+		case UNDEFINE:
 			Unimplement();
 			break;
-		case EShaderType::VS:
+		case VS:
 			deviceShader = new D3D11VertexShader(shader);
 			break;
-		case EShaderType::PS:
+		case PS:
 			deviceShader = new D3D11PixelShader(shader);
 			break;
 		default:
@@ -69,15 +70,15 @@ namespace Eggy
 		shader->DeviceResource = deviceShader;
 		CreateShaderFromFile(deviceShader);
 
-		switch (shader->Type)
+		switch (shader->Stage)
 		{
-		case EShaderType::UNDEFINE:
+		case UNDEFINE:
 			Unimplement();
 			break;
-		case EShaderType::VS:
+		case VS:
 			CreateVertexShader(deviceShader);
 			break;
-		case EShaderType::PS:
+		case PS:
 			CreatePixelShader(deviceShader);
 			break;
 		default:

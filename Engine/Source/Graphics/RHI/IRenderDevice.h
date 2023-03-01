@@ -7,8 +7,8 @@ namespace Eggy
 	class IRenderResourceFactory
 	{
 	public:
-		virtual void CreateInputLayout(struct IInputLayout* inputLayout, struct IShaderCollection* shaderCollection) = 0;
-		virtual void CreateShader(struct IShader* shader) = 0;
+		virtual void CreateInputLayout(struct IInputLayout* inputLayout, struct ShaderRenderResource* vsShader) = 0;
+		virtual void CreateShader(struct ShaderRenderResource* shader) = 0;
 		virtual void CreateBuffer(struct IBuffer* buffer) = 0;
 		virtual void CreateTexture(struct ITextureBuffer* texture) = 0;
 		virtual void CreateSamplerState(struct SamplerState* samplerState) = 0;

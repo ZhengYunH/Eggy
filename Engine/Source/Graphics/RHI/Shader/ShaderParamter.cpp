@@ -3,7 +3,7 @@
 
 namespace Eggy
 {
-	IShaderParamter* ShadingBatch::GetParameter(const String& name)
+	IShaderParamter* ShadingParameterTable::GetParameter(const String& name)
 	{
 		if (auto itr = mParams_.find(name); itr != mParams_.end())
 		{
@@ -12,7 +12,7 @@ namespace Eggy
 		return nullptr;
 	}
 
-	IShaderParamter* ShadingBatch::AddParameter(const String& name, EShaderParameterType type, uint16 arrayCount/*=1*/)
+	IShaderParamter* ShadingParameterTable::AddParameter(const String& name, EShaderParameterType type, uint16 arrayCount/*=1*/)
 	{
 		IShaderParamter* param = GetParameter(name);
 		HYBRID_CHECK(!param, "Duplicate ShaderParmeter: ", name);
@@ -45,7 +45,7 @@ namespace Eggy
 		return param;
 	}
 
-	void ShadingBatch::Clear()
+	void ShadingParameterTable::Clear()
 	{
 		for (auto& pair : mParams_)
 			delete pair.second;
@@ -53,41 +53,91 @@ namespace Eggy
 		mParameterOffset_ = 0;
 	}
 
-	ShadingBatch::~ShadingBatch()
+	ShadingParameterTable::~ShadingParameterTable()
 	{
 		Clear();
 	}
 
-	bool ShadingParamterCollection::SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept
+	ShadingParameterCollection::ShadingParameterCollection(const ShadingParameterTable* table)
+		: mMainTable_(const_cast<ShadingParameterTable*>(table))
 	{
-		if (auto param = GetParameter(name))
+		if (mMainTable_ && mMainTable_->GetParameterSize() > 0)
+			mBlockAllocationSize_ = mMainTable_->GetParameterSize();
+		else
+			mBlockAllocationSize_ = BLOCK_SIZE;
+		
+		mBlockTotalSize_ = mBlockAllocationSize_;
+		mParameterBlock_ = new byte[mBlockTotalSize_];
+		memset(mParameterBlock_, 0, mBlockTotalSize_);
+
+		mAuxTable_ = new ShadingParameterTable();
+		PrepareRenderResource();
+	}
+
+	bool ShadingParameterCollection::SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept
+	{
+		if (auto param = GetParameter(name, EShaderParameterType::Integer, count))
 			return param->SetInteger(mParameterBlock_, offset, count, value);
 		return false;
 	}
 
-	bool ShadingParamterCollection::SetFloat(const String& name, uint16 offset, uint16 count, const float* value) noexcept
+	bool ShadingParameterCollection::SetFloat(const String& name, uint16 offset, uint16 count, const float* value) noexcept
 	{
-		if (auto param = GetParameter(name))
+		if (auto param = GetParameter(name, EShaderParameterType::Float, count))
 			return param->SetFloat(mParameterBlock_, offset, count, value);
 		return false;
 	}
 
-	bool ShadingParamterCollection::SetBoolean(const String& name, uint16 offset, uint16 count, const bool* value) noexcept
+	bool ShadingParameterCollection::SetBoolean(const String& name, uint16 offset, uint16 count, const bool* value) noexcept
 	{
-		if (auto param = GetParameter(name))
+		if (auto param = GetParameter(name, EShaderParameterType::Boolean, count))
 			return param->SetBoolean(mParameterBlock_, offset, count, value);
 		return false;
 	}
 
-	IShaderParamter* ShadingParamterCollection::GetParameter(const String& name)
+	bool ShadingParameterCollection::SetMatrix4x4(const String& name, const Matrix4x4& mat)
 	{
-		IShaderParamter* param = mBatch_->GetParameter(name);
-		if (param)
-			return param;
-		return nullptr;
+		if (auto param = GetParameter(name, EShaderParameterType::Matrix4x4))
+			return param->SetMatrix4x4(mParameterBlock_, mat);
+		return false;
 	}
 
-	void ShadingParamterCollection::ExpandBlock() noexcept
+	bool ShadingParameterCollection::SetMatrix4x3(const String& name, const Matrix4x3& mat)
+	{
+		if (auto param = GetParameter(name, EShaderParameterType::Matrix4x3))
+			return param->SetMatrix4x3(mParameterBlock_, mat);
+		return false;
+	}
+
+	bool ShadingParameterCollection::SetTexture(const String& name, const Guid& texture)
+	{
+		if (auto param = GetParameter(name, EShaderParameterType::Texture))
+			return param->SetTexture(mParameterBlock_, texture);
+		return false;
+	}
+
+	IShaderParamter* ShadingParameterCollection::GetParameter(const String& name, EShaderParameterType type, uint16 arrayCount)
+	{
+		IShaderParamter* param = nullptr;
+		if (mMainTable_)
+			param = mMainTable_->GetParameter(name);
+		if (param)
+			return param;
+		
+		param = mAuxTable_->GetParameter(name);
+		if (param)
+			return param;
+		if(type != EShaderParameterType::None)
+			param = mAuxTable_->AddParameter(name, type, arrayCount);
+		return param;
+	}
+
+	void ShadingParameterCollection::CreateDeviceResource(IRenderResourceFactory* factory)
+	{
+		mConstant_->CreateDeviceResource(factory);
+	}
+
+	void ShadingParameterCollection::ExpandBlock() noexcept
 	{
 		byte* _alloc = new byte[mBlockTotalSize_ + mBlockAllocationSize_];
 		memset(_alloc + mBlockTotalSize_, 0, mBlockAllocationSize_);
@@ -95,6 +145,17 @@ namespace Eggy
 		delete[] mParameterBlock_;
 		mParameterBlock_ = _alloc;
 		mBlockTotalSize_ = mBlockTotalSize_ + mBlockAllocationSize_;
+		PrepareRenderResource();
+	}
+
+	void ShadingParameterCollection::PrepareRenderResource()
+	{
+		SafeDestroy(mConstant_);
+
+		mConstant_ = new IConstantBuffer();
+		mConstant_->ByteWidth = mBlockTotalSize_;
+		mConstant_->Count = 1;
+		mConstant_->Data = mParameterBlock_;
 	}
 
 	ShaderParamaterInteger::ShaderParamaterInteger(uint16 blockOffset, uint16 arrayCount)

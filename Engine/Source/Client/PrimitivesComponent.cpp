@@ -34,10 +34,9 @@ namespace Eggy
 			return;
 
 		IEntity* entity = GetParent();
-		mRenderObject_.ObjectConstantData_.ModelTransform = entity->GetTransform();
-
-		IRenderMesh* renderMesh = mModel_.GetMesh()->GetRenderMesh();
+		mRenderObject_.ModelTransform = entity->GetTransform();
 		Material* material = mModel_.GetMaterial();
+		IRenderMesh* renderMesh = mModel_.GetMesh()->GetRenderMesh();
 		for (size_t i = 0; i < renderMesh->GetElementsSize(); ++i)
 		{
 			IRenderElement* element = renderMesh->GetRenderElement(i);

@@ -3,6 +3,7 @@
 #include "Core/Object/IObject.h"
 #include "Resource/MaterialResource.h"
 #include "Resource/TextureResource.h"
+#include "Graphics/RHI/Shader/ShaderParamter.h"
 
 
 namespace Eggy
@@ -13,21 +14,19 @@ namespace Eggy
 	{
 	public:
 		Material() = default;
-		Material(Shader* shader) 
-			: mShader_(shader)
-		{
-		}
+		Material(Shader* shader);
 
 		Material(TSharedPtr<MaterialResource> resource);
 		~Material();
 
 		Map<String, ITexture*>& GetTextures() { return mTextures_; }
-		String GetShaderPath(EShaderType shaderType);
+		ShadingParameterCollection* GetParameters() { return mParams_; }
+		String GetShaderPath(EShaderStage shaderType);
+		Shader* GetShader() { return mShader_; }
 
 	protected:
-		TSharedPtr<MaterialResource> mResource_;
-
 		Shader* mShader_{ nullptr };
 		Map<String, ITexture*> mTextures_;
+		ShadingParameterCollection* mParams_{ nullptr };
 	};
 }

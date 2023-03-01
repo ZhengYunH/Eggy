@@ -6,6 +6,6 @@ namespace Eggy
 {
 	struct IRenderObject
 	{
-		virtual void Consolidate() {};
+		virtual void PrepareBatchData(class IShadingBatch* batch) {};
 	};
 }
