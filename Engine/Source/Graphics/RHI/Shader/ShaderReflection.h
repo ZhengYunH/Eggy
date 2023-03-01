@@ -117,12 +117,12 @@ namespace Eggy
 		{}
 		virtual ~ShaderReflection();
 
-		const std::vector<SShaderInputVariableData>& GetInputVariable()
+		const List<SShaderInputVariableData>& GetInputVariable()
 		{
 			return mInputVariable_;
 		}
 
-		const std::unordered_map<uint32, std::unordered_map<uint32, SShaderDescriptorData>>& GetDescriptor()
+		const Map<uint32/*set*/, Map<EDescriptorType, Map<uint8/*binding*/, SShaderDescriptorData>>>& GetDescriptor()
 		{
 			return mDescriptor_;
 		}
@@ -142,8 +142,8 @@ namespace Eggy
 		String mEntry_;
 		EShaderType mShaderType_;
 
-		std::vector<SShaderInputVariableData> mInputVariable_;
-		std::unordered_map<uint32/*set*/, std::unordered_map<uint32/* binding*/, SShaderDescriptorData>> mDescriptor_;
+		List<SShaderInputVariableData> mInputVariable_;
+		Map<uint32/*set*/, Map<EDescriptorType, Map<uint8/*binding*/, SShaderDescriptorData>>> mDescriptor_;
 		SpvReflectShaderModule mModule_;
 		std::atomic<bool> mIsResourceReady_{ false };
 	};

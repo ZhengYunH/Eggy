@@ -225,32 +225,32 @@ namespace Eggy
 
 		for (size_t i = 0; i < descSetCount; ++i)
 		{
+			using enum EDescriptorType;
 			SpvReflectDescriptorSet* inputSet = inputSets[i];
-			mDescriptor_[inputSet->set] = std::unordered_map<uint32, SShaderDescriptorData>();
-			auto& descs = mDescriptor_[inputSet->set];
+			auto& bindingSet = mDescriptor_[inputSet->set];
 			for (size_t j = 0; j < inputSet->binding_count; ++j)
 			{
 				SpvReflectDescriptorBinding* inDescBinding = inputSet->bindings[j];
-				SShaderDescriptorData& desc = descs[inDescBinding->binding] = SShaderDescriptorData();
-				desc.Name = inDescBinding->name;
-
 				switch (inDescBinding->descriptor_type)
 				{
 				case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
 				case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-					desc.Type = EDescriptorType::SAMPLER;
+					bindingSet[SAMPLER][inDescBinding->binding].Name = inDescBinding->name;
+					bindingSet[SAMPLER][inDescBinding->binding].Type = SAMPLER;
 					break;
 				case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-					desc.Type = EDescriptorType::UNIFORM_BUFFER;
-					desc.Uniform.Size = inDescBinding->block.size;
-					desc.Uniform.MemberCount = inDescBinding->block.member_count;
-					desc.Uniform.Members = new SBlockVariableTrait[desc.Uniform.MemberCount];
+					bindingSet[UNIFORM_BUFFER][inDescBinding->binding].Name = inDescBinding->name;
+					bindingSet[UNIFORM_BUFFER][inDescBinding->binding].Type = UNIFORM_BUFFER;
+					bindingSet[UNIFORM_BUFFER][inDescBinding->binding].Uniform.Size = inDescBinding->block.size;
+					bindingSet[UNIFORM_BUFFER][inDescBinding->binding].Uniform.MemberCount = inDescBinding->block.member_count;
+					bindingSet[UNIFORM_BUFFER][inDescBinding->binding].Uniform.Members = new SBlockVariableTrait[inDescBinding->block.member_count];
 					for (uint32 i = 0; i < inDescBinding->block.member_count; ++i)
-						desc.Uniform.Members[i].FillIn(&inDescBinding->block.members[i]);
+						bindingSet[UNIFORM_BUFFER][inDescBinding->binding].Uniform.Members[i].FillIn(&inDescBinding->block.members[i]);
 					break;
 				case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-					desc.Type = EDescriptorType::SAMPLED_IMAGE;
-					desc.SampledImage.FindIn(&inDescBinding->image);
+					bindingSet[SAMPLED_IMAGE][inDescBinding->binding].Name = inDescBinding->name;
+					bindingSet[SAMPLED_IMAGE][inDescBinding->binding].Type = SAMPLED_IMAGE;
+					bindingSet[SAMPLED_IMAGE][inDescBinding->binding].SampledImage.FindIn(&inDescBinding->image);
 					break;
 				default:
 					Unimplement(0);

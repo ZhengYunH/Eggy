@@ -89,6 +89,17 @@ namespace Eggy
 
 		bool GetTexture(const byte* block, Guid& texture) noexcept override;
 		bool SetTexture(byte* block, const Guid& texture) noexcept override;
+		
+		void SetFormat(EFormat format) { Format = format; }
+		EFormat GetFormat() const { return Format; }
+
+		void SetType(ETextureType type) { Type = type; }
+		ETextureType GetType() const { return Type; }
+
+	protected:
+		EFormat			Format;
+		ETextureType	Type;
+		uint8			__spare0__[1];
 	};
 
 	class ShaderParameterMatrix4x3 : public IShaderParamter

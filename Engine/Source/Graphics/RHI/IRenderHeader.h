@@ -16,7 +16,7 @@ namespace Eggy
 	using ERenderSets = uint32;
 
 
-	enum class EFormat : uint32
+	enum class EFormat : uint16
 	{
 		UNDEFINED = 0,
 		R32G32B32,
@@ -51,7 +51,7 @@ namespace Eggy
 
 	const EFormatInfo& GetFormatInfo(EFormat format);
 
-	enum class ETextureType
+	enum class ETextureType : uint8
 	{
 		UNDEFINE = 0,
 		Texture2D,
