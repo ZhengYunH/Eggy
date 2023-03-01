@@ -41,8 +41,6 @@ namespace Eggy
 			break;
 		}
 		mParameterOffset_ += param->GetSize();
-		if (mParameterOffset_ > mBlockTotalSize_)
-			ExpandBlock();
 		mParams_[name] = param;
 		return param;
 	}
@@ -50,58 +48,53 @@ namespace Eggy
 	void ShadingBatch::Clear()
 	{
 		for (auto& pair : mParams_)
-		{
 			delete pair.second;
-		}
 		mParams_.clear();
 		mParameterOffset_ = 0;
-	}
-
-	ShadingBatch::ShadingBatch(int predictSize) noexcept
-	{
-		if (predictSize < 0)
-			mBlockAllocationSize_ = BLOCK_SIZE;
-		else
-			mBlockAllocationSize_ = predictSize;
-		mBlockTotalSize_ = mBlockAllocationSize_;
-		mParameterBlock_ = new byte[mBlockTotalSize_];
-		memset(mParameterBlock_, 0, mBlockTotalSize_);
 	}
 
 	ShadingBatch::~ShadingBatch()
 	{
 		Clear();
-		SafeDestroy(mParameterBlock_);
 	}
 
-	void ShadingBatch::ExpandBlock() noexcept
-	{
-		byte* _alloc = new byte[mBlockTotalSize_ + mBlockAllocationSize_];
-		memcpy(_alloc, mParameterBlock_, mBlockTotalSize_);
-		delete[] mParameterBlock_;
-		mParameterBlock_ = _alloc;
-		mBlockTotalSize_ = mBlockTotalSize_ + mBlockAllocationSize_;
-	}
-
-	bool ShadingBatch::SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept
+	bool ShadingParamterCollection::SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept
 	{
 		if (auto param = GetParameter(name))
 			return param->SetInteger(mParameterBlock_, offset, count, value);
 		return false;
 	}
 
-	bool ShadingBatch::SetFloat(const String& name, uint16 offset, uint16 count, const float* value) noexcept
+	bool ShadingParamterCollection::SetFloat(const String& name, uint16 offset, uint16 count, const float* value) noexcept
 	{
 		if (auto param = GetParameter(name))
 			return param->SetFloat(mParameterBlock_, offset, count, value);
 		return false;
 	}
 
-	bool ShadingBatch::SetBoolean(const String& name, uint16 offset, uint16 count, const bool* value) noexcept
+	bool ShadingParamterCollection::SetBoolean(const String& name, uint16 offset, uint16 count, const bool* value) noexcept
 	{
 		if (auto param = GetParameter(name))
 			return param->SetBoolean(mParameterBlock_, offset, count, value);
 		return false;
+	}
+
+	IShaderParamter* ShadingParamterCollection::GetParameter(const String& name)
+	{
+		IShaderParamter* param = mBatch_->GetParameter(name);
+		if (param)
+			return param;
+		return nullptr;
+	}
+
+	void ShadingParamterCollection::ExpandBlock() noexcept
+	{
+		byte* _alloc = new byte[mBlockTotalSize_ + mBlockAllocationSize_];
+		memset(_alloc + mBlockTotalSize_, 0, mBlockAllocationSize_);
+		memcpy(_alloc, mParameterBlock_, mBlockTotalSize_);
+		delete[] mParameterBlock_;
+		mParameterBlock_ = _alloc;
+		mBlockTotalSize_ = mBlockTotalSize_ + mBlockAllocationSize_;
 	}
 
 	ShaderParamaterInteger::ShaderParamaterInteger(uint16 blockOffset, uint16 arrayCount)

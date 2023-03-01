@@ -98,7 +98,7 @@ namespace Eggy
 
 			if (esc == EShaderConstant::END)
 				continue;
-			stageData._BatchMap[esc] = new ShadingBatch(bindingData.Uniform.Size);
+			stageData._BatchMap[esc] = new ShadingBatch();
 			for (uint32 i = 0; i < bindingData.Uniform.MemberCount; ++i)
 			{
 				auto& member = bindingData.Uniform.Members[i];
