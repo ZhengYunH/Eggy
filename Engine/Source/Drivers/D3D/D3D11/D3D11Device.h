@@ -25,6 +25,7 @@ namespace Eggy
 	protected:
 		void EncodeRenderPass(class RenderPass* renderPass);
 		void EncodeDrawCall(struct DrawCall* drawCall);
+		void _UpdateConstantBuffer(class ShadingParameterCollection* collection);
 
 	private:
 		void CreateSwapChain() override final;

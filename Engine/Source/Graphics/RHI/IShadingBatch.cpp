@@ -44,8 +44,8 @@ namespace Eggy
 	ShadingParameterCollection* IShadingBatch::GetConstantBuffer(EShaderConstant esc)
 	{
 		if (!mShadingParameters_.contains(esc))
-			mShadingParameters_[esc] = new ShadingParameterCollection(nullptr);
-		return nullptr;
+			return nullptr;
+		return mShadingParameters_[esc];
 	}
 
 	void IShadingBatch::SetConstantBuffer(EShaderConstant esc, ShadingParameterCollection* param)

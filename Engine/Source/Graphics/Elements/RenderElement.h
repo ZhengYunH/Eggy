@@ -101,7 +101,7 @@ namespace Eggy
 			if (!ShadingState)
 			{
 				ShadingState = new IShadingState(info->Material_->GetShader());
-				auto psInstance = ShadingState->GetShaderCollection()->GetShaderTechnique(ETechnique::Shading)->GetStageInstance(EShaderStage::PS);
+				auto psInstance = ShadingState->GetShaderCollection()->GetShaderTechnique(ETechnique::Shading)->GetStageInstance(EShaderStage::VS);
 				if (psInstance->_BatchMap.contains(EShaderConstant::Batch))
 				{
 					mParams_ = new ShadingParameterCollection();

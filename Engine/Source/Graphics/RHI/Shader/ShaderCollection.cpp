@@ -27,8 +27,8 @@ namespace Eggy
 	{
 		_ShaderPath = GetShaderPath(shaderPath, stage);
 		_Reflection = ShaderReflectionFactory::Instance().GetReflection(_ShaderPath, _Entry, stage);
-		_ShaderRenderResource = new ShaderRenderResource(this);
 		_ParseDescriptorInternel();
+		_ShaderRenderResource = new ShaderRenderResource(this);
 	}
 
 	ShaderStageInstance::~ShaderStageInstance()
@@ -147,7 +147,7 @@ namespace Eggy
 	{
 		_MaxImageBinding = 0;
 		for (auto& binding2BindingData : images)
-			_MaxImageBinding = Max(_MaxImageBinding, binding2BindingData.first);
+			_MaxImageBinding = Max(_MaxImageBinding, binding2BindingData.first + 1);
 
 		for (auto& binding2BindingData : images)
 		{
@@ -160,7 +160,7 @@ namespace Eggy
 	{
 		_MaxSamplerStateBinding = 0;
 		for (auto& binding2BindingData : samplers)
-			_MaxSamplerStateBinding = Max(_MaxSamplerStateBinding, binding2BindingData.first);
+			_MaxSamplerStateBinding = Max(_MaxSamplerStateBinding, binding2BindingData.first + 1);
 
 		for (auto& binding2BindingData : samplers)
 		{

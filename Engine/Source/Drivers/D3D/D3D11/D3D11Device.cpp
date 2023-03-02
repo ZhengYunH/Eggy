@@ -119,10 +119,28 @@ namespace Eggy
 		}
 	}
 	
+	void D3D11Device::_UpdateConstantBuffer(ShadingParameterCollection* collection)
+	{
+		// update batch uniform
+		if (collection)
+		{
+			IConstantBuffer* srcBuffer = collection->GetRenderResource();
+			D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
+			D3D11_MAPPED_SUBRESOURCE mappedData;
+			mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+			memcpy_s(mappedData.pData, srcBuffer->ByteWidth, srcBuffer->Data, srcBuffer->ByteWidth);
+			mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
+		}
+	}
+
 	void D3D11Device::DrawFrame()
 	{
 		ClearScreen();
 		auto pipeline = Engine::Get()->GetClientScene()->GetRenderScene()->GetPipeline();
+
+		// Update Global Uniform
+		pipeline->GetContext()->GetParameters()->CreateDeviceResource(GetResourceFactory());
+		_UpdateConstantBuffer(pipeline->GetContext()->GetParameters());
 		for (auto renderPass : pipeline->GetRenderPasses())
 		{
 			EncodeRenderPass(renderPass);
@@ -172,16 +190,9 @@ namespace Eggy
 		auto batch = drawCall->ShadingState_->GetBatch();
 
 		// update batch uniform
-		auto batchBuffer = batch->GetConstantBuffer(EShaderConstant::Batch);
-		if (batchBuffer)
-		{
-			IConstantBuffer* srcBuffer = batchBuffer->GetRenderResource();
-			D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
-			D3D11_MAPPED_SUBRESOURCE mappedData;
-			mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
-			memcpy_s(mappedData.pData, srcBuffer->ByteWidth, srcBuffer->Data, srcBuffer->ByteWidth);
-			mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
-		}
+		auto batchCollection = batch->GetConstantBuffer(EShaderConstant::Batch);
+		if (batchCollection)
+			_UpdateConstantBuffer(batchCollection);
 		
 		// VS
 		{

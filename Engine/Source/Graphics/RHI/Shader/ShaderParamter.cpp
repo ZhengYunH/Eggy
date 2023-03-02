@@ -255,13 +255,13 @@ namespace Eggy
 
 	bool ShaderParameterMatrix4x3::GetMatrix4x3(const byte* block, Matrix4x3& matrix) noexcept
 	{
-		memcpy(&matrix, block, sizeof(Matrix4x3));
+		memcpy(&matrix, block + mBlockOffset, sizeof(Matrix4x3));
 		return true;
 	}
 
 	bool ShaderParameterMatrix4x3::SetMatrix4x3(byte* block, const Matrix4x3& matrix) noexcept
 	{
-		memcpy(block, &matrix, sizeof(Matrix4x3));
+		memcpy(block + mBlockOffset, &matrix, sizeof(Matrix4x3));
 		return true;
 	}
 
@@ -274,13 +274,13 @@ namespace Eggy
 
 	bool ShaderParameterMatrix4x4::GetMatrix4x4(const byte* block, Matrix4x4& matrix) noexcept
 	{
-		memcpy(&matrix, block, sizeof(Matrix4x4));
+		memcpy(&matrix, block + mBlockOffset, sizeof(Matrix4x4));
 		return true;
 	}
 
 	bool ShaderParameterMatrix4x4::SetMatrix4x4(byte* block, const Matrix4x4& matrix) noexcept
 	{
-		memcpy(block, &matrix, sizeof(Matrix4x4));
+		memcpy(block + mBlockOffset, &matrix, sizeof(Matrix4x4));
 		return true;
 	}
 
