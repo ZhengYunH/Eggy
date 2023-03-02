@@ -23,10 +23,10 @@ namespace Eggy
 
 	ShaderStageInstance::ShaderStageInstance(EShaderStage stage, const String& shaderPath, String entry)
 		: _Stage(stage)
-		, _ShaderPath(shaderPath)
 		, _Entry(entry)
 	{
-		_Reflection = ShaderReflectionFactory::Instance().GetReflection(GetShaderPath(_ShaderPath, stage), _Entry, stage);
+		_ShaderPath = GetShaderPath(shaderPath, stage);
+		_Reflection = ShaderReflectionFactory::Instance().GetReflection(_ShaderPath, _Entry, stage);
 		_ShaderRenderResource = new ShaderRenderResource(this);
 		_ParseDescriptorInternel();
 	}
@@ -173,7 +173,7 @@ namespace Eggy
 	{
 		using enum EShaderStage;
 		mStageInstances_[VS] = new ShaderStageInstance(VS, shaderPath, "VS");
-		mStageInstances_[PS] = new ShaderStageInstance(VS, shaderPath, "PS");
+		mStageInstances_[PS] = new ShaderStageInstance(PS, shaderPath, "PS");
 	}
 
 	ShaderTechnique::~ShaderTechnique()

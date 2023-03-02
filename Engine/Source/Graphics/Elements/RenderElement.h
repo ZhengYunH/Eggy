@@ -98,11 +98,24 @@ namespace Eggy
 
 		void PrepareRenderItemInfo(class RenderContext* context, class RenderItemInfo* info) override
 		{
-			if(!ShadingState)
+			if (!ShadingState)
+			{
 				ShadingState = new IShadingState(info->Material_->GetShader());
+				auto psInstance = ShadingState->GetShaderCollection()->GetShaderTechnique(ETechnique::Shading)->GetStageInstance(EShaderStage::PS);
+				if (psInstance->_BatchMap.contains(EShaderConstant::Batch))
+				{
+					mParams_ = new ShadingParameterCollection();
+					ShadingState->GetBatch()->SetConstantBuffer(EShaderConstant::Batch, mParams_);
+				}
+			}
 
 			info->GeometryBinding_ = Geometry;
 			info->ShadingState_ = ShadingState;
+		}
+
+		ShadingParameterCollection* GetParameters()
+		{
+			return mParams_;
 		}
 
 		VertexInfo vertexInfo;
@@ -115,6 +128,7 @@ namespace Eggy
 
 		GeometryBinding* Geometry{ nullptr };
 		IShadingState* ShadingState{ nullptr };
+		ShadingParameterCollection* mParams_;
 	};
 
 

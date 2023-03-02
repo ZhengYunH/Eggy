@@ -173,12 +173,15 @@ namespace Eggy
 
 		// update batch uniform
 		auto batchBuffer = batch->GetConstantBuffer(EShaderConstant::Batch);
-		IConstantBuffer* srcBuffer = batchBuffer->GetRenderResource();
-		D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
-		D3D11_MAPPED_SUBRESOURCE mappedData;
-		mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
-		memcpy_s(mappedData.pData, srcBuffer->ByteWidth, srcBuffer->Data, srcBuffer->ByteWidth);
-		mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
+		if (batchBuffer)
+		{
+			IConstantBuffer* srcBuffer = batchBuffer->GetRenderResource();
+			D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
+			D3D11_MAPPED_SUBRESOURCE mappedData;
+			mImmediateContext_->Map(buffer->ppBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+			memcpy_s(mappedData.pData, srcBuffer->ByteWidth, srcBuffer->Data, srcBuffer->ByteWidth);
+			mImmediateContext_->Unmap(buffer->ppBuffer.Get(), 0);
+		}
 		
 		// VS
 		{

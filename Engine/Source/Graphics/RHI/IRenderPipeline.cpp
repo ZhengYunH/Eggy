@@ -71,6 +71,7 @@ namespace Eggy
 		RenderItemInfo* info = item->Info;
 		RenderObject* object = info->Object;
 		IShadingState* shadingState = info->ShadingState_;
+		dp->ShadingState_ = shadingState;
 		IShadingBatch* batch = shadingState->GetBatch();
 		shadingState->SetDataFromMaterial(info->Material_);
 		object->PrepareBatchData(batch);

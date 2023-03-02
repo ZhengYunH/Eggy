@@ -27,8 +27,10 @@ namespace Eggy
 		{
 			mRenderElement.Initialize();
 			mInfo_.Object = new RenderObject();
-			mInfo_.Material_ = new Material(new Shader(shaderPath));
+			auto shader = new Shader(shaderPath);
+			mInfo_.Material_ = new Material(shader);
 			mInfo_.Object->ModelTransform.SetIdentity();
+			mInfo_.ShadingState_ = new IShadingState(shader);
 		}
 		virtual void Consolidate() override;
 		void Render(RenderContext* context) override;
