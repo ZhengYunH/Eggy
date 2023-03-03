@@ -189,7 +189,11 @@ namespace Eggy
 		
 		auto batch = drawCall->ShadingState_->GetBatch();
 
-		// update batch uniform
+		// update uniform
+		auto shaderCollection = batch->GetConstantBuffer(EShaderConstant::Shader);
+		if (shaderCollection)
+			_UpdateConstantBuffer(shaderCollection);
+
 		auto batchCollection = batch->GetConstantBuffer(EShaderConstant::Batch);
 		if (batchCollection)
 			_UpdateConstantBuffer(batchCollection);

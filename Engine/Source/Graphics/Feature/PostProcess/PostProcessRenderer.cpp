@@ -36,6 +36,8 @@ namespace Eggy
 
 	void TextureToScreen::Compile(RenderGraphBuilder* builder)
 	{
+		GetParameters()->SetFloat("Brightness", 0, 1, &Pipeline->GetContext()->GetGlobalConstant().Brightness);
+
 		size_t backBuffer = RenderGraphBuilder::INVALID_RT;
 		size_t dsBuffer = RenderGraphBuilder::INVALID_RT;
 		builder->GetBackBuffer(backBuffer, dsBuffer);

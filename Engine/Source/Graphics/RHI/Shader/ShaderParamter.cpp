@@ -58,11 +58,20 @@ namespace Eggy
 		Clear();
 	}
 
+	static uint32 AlignTo16(uint32 size)
+	{
+		uint32 remain = size % 16;
+		if (remain)
+			return size + 16 - remain;
+		else
+			return size;
+	}
+
 	ShadingParameterCollection::ShadingParameterCollection(const ShadingParameterTable* table)
 		: mMainTable_(const_cast<ShadingParameterTable*>(table))
 	{
 		if (mMainTable_ && mMainTable_->GetParameterSize() > 0)
-			mBlockAllocationSize_ = mMainTable_->GetParameterSize();
+			mBlockAllocationSize_ = AlignTo16(mMainTable_->GetParameterSize());
 		else
 			mBlockAllocationSize_ = BLOCK_SIZE;
 		
@@ -153,7 +162,7 @@ namespace Eggy
 		SafeDestroy(mConstant_);
 
 		mConstant_ = new IConstantBuffer();
-		mConstant_->ByteWidth = mBlockTotalSize_;
+		mConstant_->ByteWidth = AlignTo16(mBlockTotalSize_);
 		mConstant_->Count = 1;
 		mConstant_->Data = mParameterBlock_;
 	}

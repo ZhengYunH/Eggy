@@ -110,10 +110,10 @@ namespace Eggy
 	class ShaderReflection
 	{
 	public:
-		ShaderReflection(const String& inputFilePath, const String& entry, EShaderStage shaderType) 
+		ShaderReflection(const String& inputFilePath, const String& entry, EShaderStage shaderStage) 
 			: mInputFilePath_(inputFilePath) 
 			, mEntry_(entry)
-			, mShaderStage_(shaderType)
+			, mShaderStage_(shaderStage)
 		{}
 		virtual ~ShaderReflection();
 
@@ -151,7 +151,7 @@ namespace Eggy
 	class ShaderReflectionFactory : public TSingleton<ShaderReflectionFactory>
 	{
 	public:
-		ShaderReflection* GetReflection(const String& shaderPath, const String& entry, EShaderStage shaderType);
+		ShaderReflection* GetReflection(const String& shaderPath, const String& entry, EShaderStage shaderStage);
 		EShaderLanguage GetShaderLanguage(const String& shaderPath);
 
 	private:
@@ -177,8 +177,8 @@ namespace Eggy
 	class ShaderReflectionHLSL : public ShaderReflectionSpirv
 	{
 	public:
-		ShaderReflectionHLSL(const String& inputFilePath, const String& entry, EShaderStage shaderType) 
-			: ShaderReflectionSpirv(inputFilePath, entry, shaderType) {}
+		ShaderReflectionHLSL(const String& inputFilePath, const String& entry, EShaderStage shaderStage)
+			: ShaderReflectionSpirv(inputFilePath, entry, shaderStage) {}
 	protected:
 		void PrepareSpirvFilePath() override;
 	};
@@ -186,8 +186,8 @@ namespace Eggy
 	class ShaderReflectionGLSL : public ShaderReflectionSpirv
 	{
 	public:
-		ShaderReflectionGLSL(const String& inputFilePath, const String& entry, EShaderStage shaderType) 
-			: ShaderReflectionSpirv(inputFilePath, entry, shaderType) {}
+		ShaderReflectionGLSL(const String& inputFilePath, const String& entry, EShaderStage shaderStage) 
+			: ShaderReflectionSpirv(inputFilePath, entry, shaderStage) {}
 	protected:
 		void PrepareSpirvFilePath() override;
 	};

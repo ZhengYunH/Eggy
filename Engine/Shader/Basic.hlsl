@@ -1,10 +1,16 @@
 #include "Common.hlsli"
 
 
+cbuffer Shader : register(b1)
+{
+    float Roughness;
+}
+
 cbuffer Batch : register(b2)
 {
 	row_major matrix cWorld;
 }
+
 
 Texture2D BaseMap : register(t0);
 SamplerState BaseMapSampler : register(s0);
@@ -40,5 +46,5 @@ VertexOut VS(VertexIn vIn)
 float4 PS(VertexOut pIn) : SV_Target
 {
     float4 texColor = BaseMap.Sample(BaseMapSampler, pIn.st);
-    return pIn.color * texColor;   
+    return pIn.color * texColor * Roughness;   
 }

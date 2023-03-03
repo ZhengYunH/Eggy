@@ -37,10 +37,8 @@ namespace Eggy
 	RenderContext::RenderContext(RenderPipeline* pipeline) : mPipeline_(pipeline)
 	{
 		mPipeline_->mContext_ = this;
-		auto globalTable = new ShadingParameterTable();
-		globalTable->AddParameter("cView", EShaderParameterType::Matrix4x4);
-		globalTable->AddParameter("cProj", EShaderParameterType::Matrix4x4);
-		globalTable->AddParameter("DebugColor", EShaderParameterType::Float, 4);
+		auto collection = ShaderCollectionFactory::Instance().GetCollection("Basic");
+		auto globalTable = collection->GetShaderTechnique(ETechnique::Shading)->GetConstantTable(EShaderConstant::Global);
 		mParams_ = new ShadingParameterCollection(globalTable);
 	}
 

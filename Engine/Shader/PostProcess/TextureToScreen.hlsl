@@ -1,5 +1,10 @@
 #include "PostProcessBasic.hlsli"
 
+cbuffer Shader : register(b1)
+{
+    float Brightness;
+}
+
 Texture2D Base : register(t0);
 SamplerState BaseSampler : register(s0);
 
@@ -17,6 +22,6 @@ VertexOut VS(VertexIn vIn)
 
 float4 PS(VertexOut pIn) : SV_Target
 {
-	float4 baseColor = Base.Sample(BaseSampler, pIn.st);
+	float4 baseColor = Base.Sample(BaseSampler, pIn.st) * Brightness;
 	return baseColor;
 }

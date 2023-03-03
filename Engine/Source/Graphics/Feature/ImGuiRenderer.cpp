@@ -44,10 +44,12 @@ namespace Eggy
 			ImGui::ShowUserGuide();*/
 		}
 
+		auto& gConstant = Pipeline->GetContext()->GetGlobalConstant();
 		if (ImGui::Begin("Use ImGui"))
 		{
 			ImGui::SliderFloat("Scale", &mData.cCustomScale, 0.2f, 2.0f);
 			ImGui::Checkbox("Use Custom Color", &ImGuiData::sUseCustomColor);
+			ImGui::SliderFloat("Brightness", &gConstant.Brightness, 0.f, 2.f);
 			if (ImGuiData::sUseCustomColor)
 			{
 				ImGui::ColorEdit4("Color", reinterpret_cast<float*>(&mData.cCustomColor));
@@ -55,7 +57,6 @@ namespace Eggy
 		}
 		ImGui::End();
 
-		auto& gConstant = Pipeline->GetContext()->GetGlobalConstant();
 		gConstant.Color = ImGuiData::sUseCustomColor ? mData.cCustomColor : Vector4(1.f, 1.f, 1.f, 1.f);
 
 		RenderPass* inputPass = GetInput(0);

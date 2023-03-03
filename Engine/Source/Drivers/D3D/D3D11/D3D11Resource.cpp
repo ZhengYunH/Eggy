@@ -154,11 +154,13 @@ namespace Eggy
 		ZeroMemory(&initData, sizeof(initData));
 		initData.pSysMem = buffer->Data;
 		
-		HR(mD3D11Device_->mDevice_->CreateBuffer(
-				&bufferDesc, 
-				buffer->Data ? &initData : nullptr,
-				deviceBuffer->ppBuffer.GetAddressOf()
-			)
+		HRESULT hr = mD3D11Device_->mDevice_->CreateBuffer(
+			&bufferDesc,
+			buffer->Data ? &initData : nullptr,
+			deviceBuffer->ppBuffer.GetAddressOf()
+		);
+
+		HR(hr
 		);
 	}
 

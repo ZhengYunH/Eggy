@@ -34,6 +34,10 @@ namespace Eggy
 		}
 		virtual void Consolidate() override;
 		void Render(RenderContext* context) override;
+		ShadingParameterCollection* GetParameters()
+		{
+			return mInfo_.Material_->GetParameters();
+		}
 
 	protected:
 		PostprocessElement mRenderElement;

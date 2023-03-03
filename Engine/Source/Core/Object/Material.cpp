@@ -13,7 +13,7 @@ namespace Eggy
 		auto technique = shader->GetShaderCollection()->GetShaderTechnique(ETechnique::Shading);
 		mParams_ = new ShadingParameterCollection(technique->GetConstantTable(EShaderConstant::Shader));
 
-		float roughness = 1;
+		float roughness = 1.0f;
 		mParams_->SetFloat("Roughness", 0, 1, &roughness);
 	}
 
