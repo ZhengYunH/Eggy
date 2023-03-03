@@ -34,12 +34,5 @@ namespace Eggy
 		SafeDestroy(mShader_);
 		SafeDestroy(mParams_);
 	}
-
-	String Material::GetShaderPath(EShaderStage shaderType)
-	{
-		HYBRID_CHECK(mShader_);
-		return mShader_->GetShaderPath(shaderType);
-	}
-
 }
 

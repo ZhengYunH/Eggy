@@ -21,7 +21,6 @@ namespace Eggy
 
 		Map<String, ITexture*>& GetTextures() { return mTextures_; }
 		ShadingParameterCollection* GetParameters() { return mParams_; }
-		String GetShaderPath(EShaderStage shaderType);
 		Shader* GetShader() { return mShader_; }
 
 	protected:

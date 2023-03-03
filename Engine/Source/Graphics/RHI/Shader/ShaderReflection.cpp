@@ -161,12 +161,14 @@ namespace Eggy
 		FPath shaderConductorEXE = FileSystem::Get()->GetToolRoot() + "ShaderConductor/ShaderConductorCmd.exe";
 		FPath hlslShaderFile = FileSystem::Get()->GetShaderRoot() + mInputFilePath_;
 		FPath spirvFilePath = hlslShaderFile;
-		spirvFilePath.replaceFilePostfix("spirv.cache");
+		String postFix = ESHADER_TYPE_STR[uint8(mShaderStage_)];
+		postFix += ".spirv.cache";
+		spirvFilePath.replaceFilePostfix(postFix);
 
 		std::stringstream ss;
 		ss << shaderConductorEXE.ToString();
 		ss << " -I " << hlslShaderFile.ToString();
-		ss << " -S " << ESHADER_TYPE_STR[uint8(mShaderType_)];
+		ss << " -S " << ESHADER_TYPE_STR[uint8(mShaderStage_)];
 		ss << " -E " << mEntry_;
 		ss << " -T spirv";
 		ss << " -O " << spirvFilePath.ToString();

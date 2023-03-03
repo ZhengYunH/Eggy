@@ -1,5 +1,8 @@
 #include "PostProcessBasic.hlsli"
 
+Texture2D Base : register(t0);
+SamplerState BaseSampler : register(s0);
+
 
 VertexOut VS(VertexIn vIn)
 {
@@ -9,4 +12,11 @@ VertexOut VS(VertexIn vIn)
     vOut.posH = float4(vPos.xy * 2 - 1, vPos.z, 1.0);
     vOut.st = vIn.st;
     return vOut;
+}
+
+
+float4 PS(VertexOut pIn) : SV_Target
+{
+	float4 baseColor = Base.Sample(BaseSampler, pIn.st);
+	return baseColor;
 }

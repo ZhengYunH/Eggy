@@ -22,7 +22,6 @@ namespace Eggy
 		}
 
 	public:
-		String GetShaderPath(EShaderStage shaderType);
 		const ShaderCollection* GetShaderCollection() const { return mShaderCollection_; }
 
 	protected:

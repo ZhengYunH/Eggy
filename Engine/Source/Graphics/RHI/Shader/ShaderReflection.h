@@ -113,7 +113,7 @@ namespace Eggy
 		ShaderReflection(const String& inputFilePath, const String& entry, EShaderStage shaderType) 
 			: mInputFilePath_(inputFilePath) 
 			, mEntry_(entry)
-			, mShaderType_(shaderType)
+			, mShaderStage_(shaderType)
 		{}
 		virtual ~ShaderReflection();
 
@@ -140,7 +140,7 @@ namespace Eggy
 	protected:
 		String mInputFilePath_;
 		String mEntry_;
-		EShaderStage mShaderType_;
+		EShaderStage mShaderStage_;
 
 		List<SShaderInputVariableData> mInputVariable_;
 		Map<uint32/*set*/, Map<EDescriptorType, Map<uint8/*binding*/, SShaderDescriptorData>>> mDescriptor_;

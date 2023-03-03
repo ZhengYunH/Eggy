@@ -4,28 +4,11 @@
 
 namespace Eggy
 {
-	static String GetShaderPath(const String& shaderPath, EShaderStage stage)
-	{
-		switch (stage)
-		{
-		case EShaderStage::VS:
-			return shaderPath + "_VS.hlsl";
-			break;
-		case EShaderStage::PS:
-			return shaderPath + "_PS.hlsl";
-			break;
-		default:
-			Unimplement();
-			break;
-		}
-		return "";
-	}
-
 	ShaderStageInstance::ShaderStageInstance(EShaderStage stage, const String& shaderPath, String entry)
 		: _Stage(stage)
 		, _Entry(entry)
 	{
-		_ShaderPath = GetShaderPath(shaderPath, stage);
+		_ShaderPath = shaderPath + ".hlsl";
 		_Reflection = ShaderReflectionFactory::Instance().GetReflection(_ShaderPath, _Entry, stage);
 		_ParseDescriptorInternel();
 		_ShaderRenderResource = new ShaderRenderResource(this);
