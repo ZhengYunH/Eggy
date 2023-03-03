@@ -70,8 +70,8 @@ namespace Eggy
 	public:
 		const ShadingParameterTable* GetConstantTable(EShaderConstant esc) const;
 		const ShaderStageInstance* GetStageInstance(EShaderStage stage) const;
-		bool GetTextureSlot(EShaderStage stage, const String& name, uint8& outSlot) const;
-		bool GetSamplerSlot(EShaderStage stage, const String& name, uint8& outSlot) const;
+		bool GetTextureSlot(const String& name, uint8& outSlot) const;
+		bool GetSamplerSlot(const String& name, uint8& outSlot) const;
 
 	protected:
 		Map<EShaderStage, ShaderStageInstance*> mStageInstances_;

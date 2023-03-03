@@ -173,8 +173,11 @@ namespace Eggy
 
 	const ShadingParameterTable* ShaderTechnique::GetConstantTable(EShaderConstant esc) const
 	{
-		if (mStageInstances_.at(EShaderStage::PS)->_BatchMap.contains(esc))
-			return mStageInstances_.at(EShaderStage::PS)->_BatchMap.at(esc);
+		for (auto& pair : mStageInstances_)
+		{
+			if (pair.second->_BatchMap.contains(esc))
+				return pair.second->_BatchMap.at(esc);
+		}
 		return nullptr;
 	}
 
@@ -185,20 +188,24 @@ namespace Eggy
 		return mStageInstances_.at(stage);
 	}
 
-	bool ShaderTechnique::GetTextureSlot(EShaderStage stage, const String& name, uint8& outSlot) const
+	bool ShaderTechnique::GetTextureSlot(const String& name, uint8& outSlot) const
 	{
-		if (!mStageInstances_.contains(stage))
-			return false;
-		
-		return mStageInstances_.at(stage)->GetTextureSlot(name, outSlot);
+		for (auto& pair : mStageInstances_)
+		{
+			if (pair.second->GetTextureSlot(name, outSlot))
+				return true;
+		}
+		return false;
 	}
 
-	bool ShaderTechnique::GetSamplerSlot(EShaderStage stage, const String& name, uint8& outSlot) const
+	bool ShaderTechnique::GetSamplerSlot(const String& name, uint8& outSlot) const
 	{
-		if (!mStageInstances_.contains(stage))
-			return false;
-		
-		return mStageInstances_.at(stage)->GetSamplerSlot(name, outSlot);
+		for (auto& pair : mStageInstances_)
+		{
+			if (pair.second->GetSamplerSlot(name, outSlot))
+				return true;
+		}
+		return false;
 	}
 
 	ShaderCollection::ShaderCollection(const String& shaderPath)

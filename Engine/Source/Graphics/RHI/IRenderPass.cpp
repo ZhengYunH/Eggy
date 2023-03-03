@@ -126,7 +126,7 @@ namespace Eggy
 			for (auto& pair : mBatch.RenderTargetMaps)
 			{
 				uint8 textureSlot;
-				if (batch->GetTextureSlot(ETechnique::Shading, EShaderStage::PS, pair.first, textureSlot))
+				if (batch->GetTextureSlot(ETechnique::Shading, pair.first, textureSlot))
 				{
 					batch->SetTextureBinding(EShaderStage::PS, textureSlot, Pipeline->GetRenderTargetResource(pair.second));
 				}

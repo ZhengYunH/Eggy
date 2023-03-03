@@ -58,18 +58,18 @@ namespace Eggy
 		mResourceBindings_[stage]->SetTexture(i, tex);
 	}
 
-	bool IShadingBatch::GetTextureSlot(ETechnique technique, EShaderStage stage, const String& name, uint8& outSlot)
+	bool IShadingBatch::GetTextureSlot(ETechnique technique, const String& name, uint8& outSlot)
 	{
 		if (!mShaderTechnique_.contains(technique))
 			return false;
-		return mShaderTechnique_[technique]->GetTextureSlot(stage, name, outSlot);
+		return mShaderTechnique_[technique]->GetTextureSlot(name, outSlot);
 	}
 
-	bool IShadingBatch::GetSamplerSlot(ETechnique technique, EShaderStage stage, const String& name, uint8& outSlot)
+	bool IShadingBatch::GetSamplerSlot(ETechnique technique, const String& name, uint8& outSlot)
 	{
 		if (!mShaderTechnique_.contains(technique))
 			return false;
-		return mShaderTechnique_[technique]->GetSamplerSlot(stage, name, outSlot);
+		return mShaderTechnique_[technique]->GetSamplerSlot(name, outSlot);
 	}
 
 	ResourceBinding* IShadingBatch::GetResourceBinding(EShaderStage stage)

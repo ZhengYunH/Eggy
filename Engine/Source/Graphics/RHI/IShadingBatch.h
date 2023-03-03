@@ -91,8 +91,8 @@ namespace Eggy
 		void SetConstantBuffer(EShaderConstant esc, ShadingParameterCollection* parameters);
 		void SetTextureBinding(EShaderStage stage, uint16 i, ITextureBuffer* tex);
 
-		bool GetTextureSlot(ETechnique technique, EShaderStage stage, const String& name, uint8& outSlot);
-		bool GetSamplerSlot(ETechnique technique, EShaderStage stage, const String& name, uint8& outSlot);
+		bool GetTextureSlot(ETechnique technique, const String& name, uint8& outSlot);
+		bool GetSamplerSlot(ETechnique technique, const String& name, uint8& outSlot);
 		ResourceBinding* GetResourceBinding(EShaderStage stage);
 	protected:
 		Map<EShaderStage, ResourceBinding*> mResourceBindings_;
