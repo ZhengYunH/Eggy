@@ -28,5 +28,13 @@ namespace Eggy
 	DEFINE_INTRINSIC_TYPE(IntegerType, int);
 	DEFINE_INTRINSIC_TYPE(FloatType, float);
 	DEFINE_INTRINSIC_TYPE(BoolType, bool);
+
+	DEFINE_INTRINSIC_TYPE(Vector2Type, Vector2);
+	DEFINE_INTRINSIC_TYPE(Vector3Type, Vector3);
+	DEFINE_INTRINSIC_TYPE(Vector4Type, Vector4);
+
+	DEFINE_INTRINSIC_TYPE(Matrix3x3Type, Matrix3x3);
+	DEFINE_INTRINSIC_TYPE(Matrix4x3Type, Matrix4x3);
+	DEFINE_INTRINSIC_TYPE(Matrix4x4Type, Matrix4x4);
 }
 

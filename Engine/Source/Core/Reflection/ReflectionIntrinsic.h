@@ -1,5 +1,13 @@
 #pragma once
 #include "ReflectionDefine.h"
+#include "Math/Vector2.h"
+#include "Math/Vector3.h"
+#include "Math/Vector4.h"
+#include "Math/Matrix3x3.h"
+#include "Math/Matrix4x3.h"
+#include "Math/Matrix4x4.h"
+
+
 
 
 namespace Eggy
@@ -65,5 +73,16 @@ namespace Eggy
 	DECLARE_INTRINSIC_TYPE(IntegerType, int);
 	DECLARE_INTRINSIC_TYPE(FloatType, float);
 	DECLARE_INTRINSIC_TYPE(BoolType, bool);
+
+	DECLARE_INTRINSIC_TYPE(Vector2Type, Vector2);
+	DECLARE_INTRINSIC_TYPE(Vector3Type, Vector3);
+	DECLARE_INTRINSIC_TYPE(Vector4Type, Vector4);
+
+	DECLARE_INTRINSIC_TYPE(Matrix3x3Type, Matrix3x3);
+	DECLARE_INTRINSIC_TYPE(Matrix4x3Type, Matrix4x3);
+	DECLARE_INTRINSIC_TYPE(Matrix4x4Type, Matrix4x4);
+
+
+
 }
 
