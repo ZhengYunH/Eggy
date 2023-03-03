@@ -28,7 +28,7 @@ namespace Eggy
 			};
 			uint16 numFunctions = 3;
 
-			Reflection::RegisterType<ReflectionClassTester>(
+			Reflection::Instance().RegisterType<ReflectionClassTester>(
 				"ReflectionClassTester",
 				[] {return new ReflectionClassTester(); }, [](void* s) {delete (ReflectionClassTester*)s; },
 				fieldInfos,

@@ -17,7 +17,7 @@ namespace Eggy
 
 		static Type* GetClassInfo(const Name& name)
 		{
-			return Reflection::GRegistrationDict.find(name)->second;
+			return Reflection::Instance().GetType(name);
 		}
 
 		Ghost* GetGhost() const { return mGhost_; }
