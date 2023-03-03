@@ -9,24 +9,12 @@ namespace Eggy
 		auto shaderCollection = shader->GetShaderCollection();
 		auto shaderTechnique = shaderCollection->GetShaderTechnique(ETechnique::Shading);
 		mShaderTechnique_[ETechnique::Shading] = shaderTechnique;
-		for (uint8 i = uint8(EShaderStage::START) + 1; i < uint8(EShaderStage::END); ++i)
-		{
-			EShaderStage stage = EShaderStage(i);
-			auto sd = shaderTechnique->GetStageInstance(EShaderStage(i));
-			if (!sd)
-				continue;
-			uint16 textures = sd->_MaxImageBinding;
-			uint16 buffers = 0;
-			uint16 views = 0;
-			mResourceBindings_[stage] = new ResourceBinding(textures, buffers, views);
-		}
+		mResourceBindings_ = new ResourceBinding(shaderTechnique->GetMaxImageBinding(), 0, 0);
 	}
 
 	IShadingBatch::~IShadingBatch()
 	{
-		for (auto& pair : mResourceBindings_)
-			delete pair.second;
-		mResourceBindings_.clear();
+		SafeDestroy(mResourceBindings_);
 
 		for (auto& pair : mShadingParameters_)
 			delete pair.second;
@@ -37,8 +25,7 @@ namespace Eggy
 	{
 		for (auto& pair : mShadingParameters_)
 			pair.second->CreateDeviceResource(factory);
-		for (auto& pair : mResourceBindings_)
-			pair.second->CreateDeviceResource(factory);
+		mResourceBindings_->CreateDeviceResource(factory);
 	}
 
 	ShadingParameterCollection* IShadingBatch::GetConstantBuffer(EShaderConstant esc)
@@ -53,9 +40,9 @@ namespace Eggy
 		mShadingParameters_[esc] = param;
 	}
 
-	void IShadingBatch::SetTextureBinding(EShaderStage stage, uint16 i, ITextureBuffer* tex)
+	void IShadingBatch::SetTextureBinding(uint16 i, ITextureBuffer* tex)
 	{
-		mResourceBindings_[stage]->SetTexture(i, tex);
+		mResourceBindings_->SetTexture(i, tex);
 	}
 
 	bool IShadingBatch::GetTextureSlot(ETechnique technique, const String& name, uint8& outSlot)
@@ -72,11 +59,10 @@ namespace Eggy
 		return mShaderTechnique_[technique]->GetSamplerSlot(name, outSlot);
 	}
 
-	ResourceBinding* IShadingBatch::GetResourceBinding(EShaderStage stage)
+	ResourceBinding* IShadingBatch::GetResourceBinding()
 	{
-		if (!mResourceBindings_.contains(stage))
-			return nullptr;
-		return mResourceBindings_.at(stage);
+		HYBRID_CHECK(mResourceBindings_);
+		return mResourceBindings_;
 	}
 
 }

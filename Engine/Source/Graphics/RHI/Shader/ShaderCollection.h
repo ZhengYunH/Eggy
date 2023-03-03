@@ -25,14 +25,23 @@ namespace Eggy
 	struct ShaderRenderResource;
 	class ShaderStageInstance
 	{
+		friend struct ShaderRenderResource;
 	public:
 		ShaderStageInstance(EShaderStage stage, const String& shaderPath, String entry);
 		~ShaderStageInstance();
 
 	public:
+		const ShadingParameterTable* GetBatchTable(EShaderConstant esc) const;
 		bool GetTextureSlot(const String& name, uint8& outSlot) const;
 		bool GetSamplerSlot(const String& name, uint8& outSlot) const;
+		uint8 GetMaxImageBinding() const { return _MaxImageBinding; }
+		uint8 GetMaxSamplerBinding() const { return _MaxSamplerStateBinding; }
+
+	public:
 		List<EShaderConstant> GetReletedBatch() const;
+		bool IsImageBinding(uint8 slot) const;
+		bool IsSamplerBinding(uint8 slot) const;
+		bool GetBatchSlot(EShaderConstant esc, uint8& outSlot) const;
 
 	protected:
 		void _ParseDescriptorInternel();
@@ -43,7 +52,7 @@ namespace Eggy
 	public:
 		struct ShaderRenderResource* _ShaderRenderResource{ nullptr };
 
-	public:
+	protected:
 		EShaderStage _Stage;
 		String _Entry;
 		String _ShaderPath;
@@ -72,6 +81,8 @@ namespace Eggy
 		const ShaderStageInstance* GetStageInstance(EShaderStage stage) const;
 		bool GetTextureSlot(const String& name, uint8& outSlot) const;
 		bool GetSamplerSlot(const String& name, uint8& outSlot) const;
+		uint8 GetMaxImageBinding() const;
+		uint8 GetMaxSamplerBinding() const;
 
 	protected:
 		Map<EShaderStage, ShaderStageInstance*> mStageInstances_;

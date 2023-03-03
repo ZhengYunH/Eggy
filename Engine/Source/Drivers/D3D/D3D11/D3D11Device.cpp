@@ -189,7 +189,6 @@ namespace Eggy
 		
 		auto batch = drawCall->ShadingState_->GetBatch();
 
-		// update uniform
 		auto shaderCollection = batch->GetConstantBuffer(EShaderConstant::Shader);
 		if (shaderCollection)
 			_UpdateConstantBuffer(shaderCollection);
@@ -211,7 +210,10 @@ namespace Eggy
 					IConstantBuffer* srcBuffer = parameter->GetRenderResource();
 					D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
 					UINT numBuffer = 1;
-					mImmediateContext_->VSSetConstantBuffers(vsInstance->_BatchSlot.at(esc), numBuffer, buffer->ppBuffer.GetAddressOf());
+					uint8 slot = 0;
+					bool isOK = vsInstance->GetBatchSlot(esc, slot);
+					HYBRID_CHECK(isOK);
+					mImmediateContext_->VSSetConstantBuffers(slot, numBuffer, buffer->ppBuffer.GetAddressOf());
 				}
 			}
 
@@ -240,16 +242,25 @@ namespace Eggy
 					IConstantBuffer* srcBuffer = parameter->GetRenderResource();
 					D3D11Buffer* buffer = (D3D11Buffer*)srcBuffer->DeviceResource;
 					UINT numBuffer = 1;
-					mImmediateContext_->PSSetConstantBuffers(psInstance->_BatchSlot.at(esc), numBuffer, buffer->ppBuffer.GetAddressOf());
+					uint8 slot = 0;
+					bool isOK = psInstance->GetBatchSlot(esc, slot);
+					HYBRID_CHECK(isOK);
+					mImmediateContext_->PSSetConstantBuffers(slot, numBuffer, buffer->ppBuffer.GetAddressOf());
 				}
 			}
 
 			// Texture
 			List<ID3D11ShaderResourceView*> texViews;
-			texViews.reserve(psInstance->_MaxImageBinding);
-			auto resourceBinding = batch->GetResourceBinding(EShaderStage::PS);
-			for (uint16 i = 0; i < psInstance->_MaxImageBinding; ++i)
+			texViews.reserve(psInstance->GetMaxImageBinding());
+			auto resourceBinding = batch->GetResourceBinding();
+			for (uint8 i = 0; i < psInstance->GetMaxImageBinding(); ++i)
 			{
+				if (!psInstance->IsImageBinding(i))
+				{
+					texViews.push_back(nullptr);
+					continue;
+				}
+
 				ITextureBuffer* tex = (ITextureBuffer*)resourceBinding->GetTexture(i);
 				HYBRID_CHECK(tex->BindType & EBufferTypes(EBufferType::ShaderResource));
 				if (tex)
@@ -272,6 +283,12 @@ namespace Eggy
 			samplerStates.reserve(psShader->Samplers.size());
 			for (size_t i = 0; i < psShader->Samplers.size(); ++i)
 			{
+				if (!psInstance->IsSamplerBinding(i))
+				{
+					samplerStates.push_back(nullptr);
+					continue;
+				}
+
 				SamplerState* sampler = psShader->Samplers[i];
 				samplerStates.push_back(((D3D11SamplerState*)(sampler->DeviceResource))->ppSamplerState.Get());
 			}

@@ -128,7 +128,7 @@ namespace Eggy
 				uint8 textureSlot;
 				if (batch->GetTextureSlot(ETechnique::Shading, pair.first, textureSlot))
 				{
-					batch->SetTextureBinding(EShaderStage::PS, textureSlot, Pipeline->GetRenderTargetResource(pair.second));
+					batch->SetTextureBinding(textureSlot, Pipeline->GetRenderTargetResource(pair.second));
 				}
 				
 			}

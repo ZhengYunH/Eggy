@@ -21,6 +21,13 @@ namespace Eggy
 			SafeDestroy(pair.second);
 	}
 
+	const ShadingParameterTable* ShaderStageInstance::GetBatchTable(EShaderConstant esc) const
+	{
+		if (_BatchMap.contains(esc))
+			return _BatchMap.at(esc);
+		return nullptr;
+	}
+
 	bool ShaderStageInstance::GetTextureSlot(const String& name, uint8& outSlot) const
 	{
 		for (auto& image : _Images)
@@ -53,6 +60,36 @@ namespace Eggy
 		for (auto& pair : _BatchMap)
 			ret.push_back(pair.first);
 		return ret;
+	}
+
+	bool ShaderStageInstance::IsImageBinding(uint8 slot) const
+{
+		for (auto& pair : _Images)
+		{
+			if (pair.Binding == slot)
+				return true;
+		}
+		return false;
+	}
+
+	bool ShaderStageInstance::IsSamplerBinding(uint8 slot) const
+	{
+		for (auto& pair : _SamplerStates)
+		{
+			if (pair.Binding == slot)
+				return true;
+		}
+		return false;
+	}
+
+	bool ShaderStageInstance::GetBatchSlot(EShaderConstant esc, uint8& outSlot) const
+	{
+		if (_BatchSlot.contains(esc))
+		{
+			outSlot = _BatchSlot.at(esc);
+			return true;
+		}
+		return false;
 	}
 
 	void ShaderStageInstance::_ParseDescriptorInternel()
@@ -130,7 +167,7 @@ namespace Eggy
 	{
 		_MaxImageBinding = 0;
 		for (auto& binding2BindingData : images)
-			_MaxImageBinding = Max(_MaxImageBinding, binding2BindingData.first + 1);
+			_MaxImageBinding = Max(GetMaxImageBinding(), binding2BindingData.first + 1);
 
 		for (auto& binding2BindingData : images)
 		{
@@ -175,8 +212,8 @@ namespace Eggy
 	{
 		for (auto& pair : mStageInstances_)
 		{
-			if (pair.second->_BatchMap.contains(esc))
-				return pair.second->_BatchMap.at(esc);
+			if (auto batchTable = pair.second->GetBatchTable(esc))
+				return batchTable;
 		}
 		return nullptr;
 	}
@@ -206,6 +243,22 @@ namespace Eggy
 				return true;
 		}
 		return false;
+	}
+
+	uint8 ShaderTechnique::GetMaxImageBinding() const
+	{
+		uint8 maxIB = 0;
+		for (auto& pair : mStageInstances_)
+			maxIB = Max(maxIB, pair.second->GetMaxImageBinding());
+		return maxIB;
+	}
+
+	uint8 ShaderTechnique::GetMaxSamplerBinding() const
+	{
+		uint8 maxSB = 0;
+		for (auto& pair : mStageInstances_)
+			maxSB = Max(maxSB, pair.second->GetMaxSamplerBinding());
+		return maxSB;
 	}
 
 	ShaderCollection::ShaderCollection(const String& shaderPath)
