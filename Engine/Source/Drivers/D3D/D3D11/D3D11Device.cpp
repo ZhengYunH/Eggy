@@ -283,7 +283,7 @@ namespace Eggy
 			samplerStates.reserve(psShader->Samplers.size());
 			for (size_t i = 0; i < psShader->Samplers.size(); ++i)
 			{
-				if (!psInstance->IsSamplerBinding(i))
+				if (!psInstance->IsSamplerBinding(uint8(i)))
 				{
 					samplerStates.push_back(nullptr);
 					continue;

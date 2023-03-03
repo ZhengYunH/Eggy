@@ -57,20 +57,18 @@ namespace Eggy::UnitTest
 
 			static void TestDisenableShared()
 			{
-#if ENABLE_UNSHARED
 				auto ptr = new NotSharedClass();
 				{
-					TSharedPtr<NotSharedClass> ptr1(ptr);
-					TSharedPtr<NotSharedClass> ptr2 = ptr1;
-					TSharedPtr<NotSharedClass> ptr3(std::move(ptr1));
-					TSharedPtr<NotSharedClass> ptr4(ptr2);
+					TSharedPtrUnref<NotSharedClass> ptr1(ptr);
+					TSharedPtrUnref<NotSharedClass> ptr2 = ptr1;
+					TSharedPtrUnref<NotSharedClass> ptr3(std::move(ptr1));
+					TSharedPtrUnref<NotSharedClass> ptr4(ptr2);
 					ptr1 = std::move(ptr2);
 					UT_ASSERT(!ptr2);
 					UT_ASSERT(ptr3->I == 1);
 					UT_ASSERT(ptr3.GetRefCount() == 3);
 				}
 				UT_ASSERT(NotSharedClassIsExpired); // now ptr is invalid
-#endif
 			}
 		}
 		

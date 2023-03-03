@@ -50,74 +50,22 @@ namespace Eggy
 		std::atomic<int> mRef_{ 0 };
 	};
 
-	template<typename _Type>
-	class TRefObject : public IRefObject
-	{
-	public:
-		explicit TRefObject(_Type* ptr)
-			: IRefObject()
-			, mPtr_(ptr)
-		{
-		}
-
-		~TRefObject()
-		{
-			delete mPtr_;
-		}
-
-		_Type* operator->()
-		{
-			return mPtr_;
-		}
-
-		_Type& operator*()
-		{
-			return *mPtr_;
-		}
-		_Type* Get()
-		{
-			return mPtr_;
-		}
-
-		_Type* mPtr_{ nullptr };
-	};
-
-#define ENABLE_UNSHARED 0
 
 	template<typename _Type>
 	class TSharedPtr
 	{
 		template<class _Other>
 		friend class TSharedPtr;
-		
-#if ENABLE_UNSHARED
-		// for unshared source object, can't cast up/down directly
-		using RefType = std::conditional_t<cEnableShared<_Type>, _Type, TRefObject<_Type>>;
-#else
-		using RefType = _Type;
-#endif
 	public:
 		// ctor && dtor
 		TSharedPtr(){}
 
 		TSharedPtr(std::nullptr_t){}
 
-#if ENABLE_UNSHARED
-		TSharedPtr(_Type* ref) requires cEnableShared<_Type> : mPtr_(ref)
-		{
-			IncRef();
-		}
-
-		TSharedPtr(_Type* ref) : mPtr_(new TRefObject<_Type>(ref))
-		{
-			IncRef();
-		}
-#else
 		TSharedPtr(_Type* ref) : mPtr_(ref)
 		{
 			IncRef();
 		}
-#endif
 
 		TSharedPtr(const TSharedPtr<_Type>& rhs) noexcept
 		{
@@ -196,12 +144,12 @@ namespace Eggy
 			return *this;
 		}
 
-		RefType* operator->()
+		_Type* operator->()
 		{
 			return mPtr_;
 		}
 
-		RefType& operator*()
+		_Type& operator*()
 		{
 			return *mPtr_;
 		}
@@ -211,36 +159,13 @@ namespace Eggy
 			return mPtr_->GetRefCount();
 		}
 
-		RefType* Get()
+		_Type* Get()
 		{
 			return mPtr_;
 		}
 
 
 	private:
-#if ENABLE_UNSHARED
-		template<typename _Other>
-		void _Attach(const TSharedPtr<_Other>& src)  
-			requires cEnableShared<_Type>
-		{
-			HYBRID_CHECK(!mPtr_);
-			mPtr_ = compatible_cast<_Type*>(src.mPtr_);
-			if (mPtr_)
-			{
-				IncRef();
-			}
-		}
-
-		void _Attach(const TSharedPtr<_Type>& src)
-		{
-			HYBRID_CHECK(!mPtr_);
-			mPtr_ = src.mPtr_;
-			if (mPtr_)
-			{
-				IncRef();
-			}
-		}
-#else
 		template<typename _Other>
 		void _Attach(const TSharedPtr<_Other>& src)
 		{
@@ -251,7 +176,6 @@ namespace Eggy
 				IncRef();
 			}
 		}
-#endif
 
 		void _Detach()
 		{
@@ -280,7 +204,179 @@ namespace Eggy
 		}
 
 	private:
-		RefType* mPtr_{ nullptr };
+		_Type* mPtr_{ nullptr };
+	};
+
+	template<typename _Type>
+	class TRefObject
+	{
+	public:
+		explicit TRefObject(_Type* ptr)
+			: mPtr_(ptr)
+		{
+		}
+
+		~TRefObject()
+		{
+			delete mPtr_;
+		}
+
+		_Type* Get()
+		{
+			return mPtr_;
+		}
+
+		void Acquire()
+		{
+			mRef_.fetch_add(1, std::memory_order_acq_rel);
+		}
+
+		void Release()
+		{
+			if (mRef_.fetch_sub(1, std::memory_order_acq_rel) == 1)
+			{
+				delete this;
+			}
+		}
+
+		int GetRefCount()
+		{
+			return mRef_.load(std::memory_order_acquire);
+		}
+
+	protected:
+		_Type* mPtr_{ nullptr };
+		std::atomic<int> mRef_{ 0 };
+	};
+
+
+	template<typename _Type>
+	class TSharedPtrUnref
+	{
+	public:
+		TSharedPtrUnref() {}
+
+		TSharedPtrUnref(std::nullptr_t) {}
+
+		TSharedPtrUnref(_Type* ref) : mPtr_(new TRefObject<_Type>(ref))
+		{
+			IncRef();
+		}
+
+		TSharedPtrUnref(const TSharedPtrUnref<_Type>& rhs) noexcept
+		{
+			if (rhs)
+				_Attach(rhs);
+		}
+
+		TSharedPtrUnref(TSharedPtrUnref<_Type>&& rhs) noexcept
+		{
+			if (rhs)
+				_Transfer(std::move(rhs));
+		}
+
+		~TSharedPtrUnref()
+		{
+			if (mPtr_)
+				DecRef();
+		}
+
+	public:
+		// operator
+		explicit operator bool() const noexcept
+		{
+			return mPtr_ != nullptr;
+		}
+
+		bool operator!() const noexcept
+		{
+			return mPtr_ == nullptr;
+		}
+
+		TSharedPtrUnref<_Type>& operator=(const TSharedPtrUnref<_Type>& rhs) noexcept
+		{
+			if (mPtr_)
+			{
+				_Detach();
+			}
+			if (rhs)
+			{
+				_Attach(rhs);
+			}
+			return *this;
+		}
+
+		TSharedPtrUnref<_Type>& operator=(TSharedPtrUnref<_Type>&& rhs) noexcept
+		{
+			if (mPtr_)
+			{
+				_Detach();
+			}
+			if (rhs)
+			{
+				_Transfer(std::move(rhs));
+			}
+			return *this;
+		}
+
+		_Type* operator->()
+		{
+			return mPtr_->Get();
+		}
+
+		_Type& operator*()
+		{
+			return *(mPtr_->Get());
+		}
+
+	public:
+		int GetRefCount()
+		{
+			return mPtr_->GetRefCount();
+		}
+
+		_Type* Get()
+		{
+			return mPtr_->Get();
+		}
+
+		void _Attach(const TSharedPtrUnref<_Type>& src)
+		{
+			HYBRID_CHECK(!mPtr_);
+			mPtr_ = src.mPtr_;
+			if (mPtr_)
+				IncRef();
+		}
+
+	protected:
+		void _Detach()
+		{
+			HYBRID_CHECK(mPtr_);
+			DecRef();
+			mPtr_ = nullptr;
+		}
+
+		void _Transfer(TSharedPtrUnref<_Type>&& src)
+		{
+			HYBRID_CHECK(!mPtr_);
+			mPtr_ = src.mPtr_;
+			src.mPtr_ = nullptr;
+		}
+
+		void IncRef()
+		{
+			HYBRID_CHECK(mPtr_);
+			mPtr_->Acquire();
+		}
+
+		void DecRef()
+		{
+			HYBRID_CHECK(mPtr_);
+			mPtr_->Release();
+		}
+
+	private:
+		TRefObject<_Type>* mPtr_{ nullptr };
 	};
 }
 
