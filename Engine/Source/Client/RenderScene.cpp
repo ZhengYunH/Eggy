@@ -2,6 +2,7 @@
 #include "Graphics/RHI/IRenderHeader.h"
 #include "Graphics/Elements/RenderElement.h"
 #include "Graphics/Pipeline/ForwardPipeline.h"
+#include "Graphics/Pipeline/DeferredPipeline.h"
 #include "Camera.h"
 
 
@@ -9,7 +10,10 @@ namespace Eggy
 {
 	RenderScene::RenderScene()
 	{
-		mPipeline_ = new ForwardPipeline();
+		if (RenderSystem::Get()->IsDeferredShading())
+			mPipeline_ = new DeferredPipeline();
+		else
+			mPipeline_ = new ForwardPipeline();
 		mContext_ = new RenderContext(mPipeline_);
 	}
 

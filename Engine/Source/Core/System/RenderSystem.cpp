@@ -7,6 +7,8 @@ namespace Eggy
 
 	void RenderSystem::Initialize()
 	{
+		ShadingType = EShadingType::Deferred;
+
 		mBackBufferCount_ = 2;
 
 		mBackBuffers_ = new IRenderTarget[mBackBufferCount_];

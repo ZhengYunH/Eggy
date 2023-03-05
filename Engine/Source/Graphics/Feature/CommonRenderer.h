@@ -1,3 +1,4 @@
+#pragma once
 #include "Graphics/RHI/IRenderPass.h"
 
 namespace Eggy
@@ -12,7 +13,15 @@ namespace Eggy
 	class ForwardScenePass : public RenderPass
 	{
 	public:
-		ForwardScenePass() {}
+		ForwardScenePass() = default;
+		RenderPass* Connect(RenderPass* input);
+		void Compile(RenderGraphBuilder* builder) override;
+	};
+
+	class DeferredScenePass : public RenderPass
+	{
+	public:
+		DeferredScenePass() = default;
 		RenderPass* Connect(RenderPass* input);
 		void Compile(RenderGraphBuilder* builder) override;
 	};
