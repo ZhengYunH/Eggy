@@ -1,3 +1,4 @@
+#pragma once
 #include "Graphics/RHI/IRenderPass.h"
 #include "Graphics/Elements/RenderElement.h"
 #include "Resource/MeshResource.h"
