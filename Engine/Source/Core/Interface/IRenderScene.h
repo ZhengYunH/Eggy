@@ -1,15 +1,11 @@
 #pragma once
 #include "Core/Config.h"
-#include "Graphics/RHI/IRenderHeader.h"
-#include "Graphics/RHI/IRenderPipeline.h"
 
 
 namespace Eggy
 {
-	struct IRenderObject;
-	struct IRenderElement;
 	class Camera;
-
+	class ILight;
 	class IRenderScene 
 	{
 	public:
@@ -21,5 +17,9 @@ namespace Eggy
 
 		virtual Camera* GetCamera() = 0;
 		virtual void SetCamera(Camera* camera) = 0;
+
+		virtual void AddLight(ILight* light) = 0;
+		virtual void DelLight(ILight* light) = 0;
+		virtual List<ILight*>& GetLights() = 0;
 	};
 }

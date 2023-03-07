@@ -7,6 +7,7 @@
 #include "Client/RenderScene.h"
 #include "Client/ClientScene.h" // #include "Scene.h"
 #include "Client/PrimitivesComponent.h"
+#include "Client/LightComponent.h"
 
 
 namespace Eggy
@@ -50,6 +51,14 @@ namespace Eggy
 		Matrix4x3 transf2;
 		transf2.SetTranslation(Vector3(1.f, 0, -0.5f));
 		entity2->SetTransform(transf2);
+		mEntities_.push_back(entity2);
+
+		IEntity* directLight = new IEntity();
+		directLight->AddComponent(new DirectionLightComponent());
+		Matrix4x3 transf3;
+		transf3.SetPitchYawRoll(DegreeToRadian(-45.f), 0, 0);
+		directLight->SetTransform(transf3);
+		directLight->EnterWorld(this);
 		mEntities_.push_back(entity2);
 	}
 

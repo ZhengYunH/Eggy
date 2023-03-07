@@ -1,5 +1,6 @@
 #include "PrimitivesComponent.h"
 #include "Graphics/Elements/RenderElement.h"
+#include "Graphics/RHI/RenderObject.h"
 #include "Client/Camera.h"
 #include "ResourceModule.h"
 #include "ResourceItem.h"
@@ -18,6 +19,7 @@ namespace Eggy
 
 	void PrimitiveComponent::PreInitialize()
 	{
+		mRenderObject_ = new RenderObject();
 	}
 
 	void PrimitiveComponent::PostInitialize()
@@ -26,6 +28,7 @@ namespace Eggy
 
 	void PrimitiveComponent::Destroy()
 	{
+		SafeDestroy(mRenderObject_);
 	}
 
 	void PrimitiveComponent::CollectPrimitives(RenderContext* context)
@@ -34,13 +37,13 @@ namespace Eggy
 			return;
 
 		IEntity* entity = GetParent();
-		mRenderObject_.ModelTransform = entity->GetTransform();
+		mRenderObject_->ModelTransform = entity->GetTransform();
 		Material* material = mModel_.GetMaterial();
 		IRenderMesh* renderMesh = mModel_.GetMesh()->GetRenderMesh();
 		for (size_t i = 0; i < renderMesh->GetElementsSize(); ++i)
 		{
 			IRenderElement* element = renderMesh->GetRenderElement(i);
-			RenderItemInfo* info = context->AddRenderSceneInfo(&mRenderObject_);
+			RenderItemInfo* info = context->AddRenderSceneInfo(mRenderObject_);
 			info->Material_ = material;
 			element->PrepareRenderItemInfo(context, info);
 			RenderItem* item = context->GenerateRenderItem(info);

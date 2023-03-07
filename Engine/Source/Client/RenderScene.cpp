@@ -1,5 +1,6 @@
 #include "RenderScene.h"
 #include "Graphics/RHI/IRenderHeader.h"
+#include "Graphics/RHI/ILight.h"
 #include "Graphics/Elements/RenderElement.h"
 #include "Graphics/Pipeline/ForwardPipeline.h"
 #include "Graphics/Pipeline/DeferredPipeline.h"
@@ -14,7 +15,7 @@ namespace Eggy
 			mPipeline_ = new DeferredPipeline();
 		else
 			mPipeline_ = new ForwardPipeline();
-		mContext_ = new RenderContext(mPipeline_);
+		mContext_ = new RenderContext(this, mPipeline_);
 	}
 
 	RenderScene::~RenderScene()
@@ -43,4 +44,24 @@ namespace Eggy
 	{
 		mContext_->Clear();
  	}
+
+	void RenderScene::AddLight(ILight* light)
+	{
+		HYBRID_CHECK(std::find(mLights_.begin(), mLights_.end(), light) == mLights_.end());
+		mLights_.push_back(light);
+	}
+
+	void RenderScene::DelLight(ILight* light)
+	{
+		if (auto itr = std::find(mLights_.begin(), mLights_.end(), light); itr != mLights_.end())
+		{
+			mLights_.erase(itr);
+		}
+	}
+
+	List<ILight*>& RenderScene::GetLights()
+	{
+		return mLights_;
+	}
+
 }

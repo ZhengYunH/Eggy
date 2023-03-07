@@ -13,7 +13,7 @@ namespace Eggy
 		World(ClientScene* scene);
 		~World();
 
-		IRenderScene* GetRenderScene() { return mRenderScene_; }
+		IRenderScene* GetRenderScene() override { return mRenderScene_; }
 		void Tick() override;
 
 		void StartLogicFrame() override;

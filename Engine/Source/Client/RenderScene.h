@@ -29,8 +29,13 @@ namespace Eggy
 		RenderContext* GetContext() { return mContext_; }
 		RenderPipeline* GetPipeline() { return mPipeline_; }
 
+		void AddLight(ILight* light) override;
+		void DelLight(ILight* light) override;
+		List<ILight*>& GetLights() override;
+
 	protected:
 		Camera* mCamera_{ nullptr };
+		List<ILight*> mLights_;
 		RenderContext* mContext_{ nullptr };
 		RenderPipeline* mPipeline_{ nullptr };
 	};

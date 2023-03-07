@@ -14,6 +14,7 @@ namespace Eggy
 
 	};
 
+	struct RenderObject;
 	class PrimitiveComponent : public IPrimitivesComponent
 	{
 	public:
@@ -30,7 +31,7 @@ namespace Eggy
 		virtual void Destroy() override;
 
 	protected:
-		RenderObject mRenderObject_;
+		RenderObject* mRenderObject_;
 		Model mModel_;
 	};
 }
