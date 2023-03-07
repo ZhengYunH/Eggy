@@ -212,6 +212,8 @@ namespace Eggy
 	{
 		mParams_->SetMatrix4x4("cView", mConstant_.ViewTransform);
 		mParams_->SetMatrix4x4("cProj", mConstant_.ProjectTransform);
+		Vector3 viewPos = mConstant_.ViewPos;
+		mParams_->SetFloat("ViewPos", 0, 3, mConstant_.ViewPos.GetPointer());
 		mParams_->SetFloat("DebugColor", 0, 4, mConstant_.Color.GetPointer());
 
 		float lightSize = (float)mLights_.size();

@@ -17,6 +17,7 @@ namespace Eggy
 		Matrix4x4 ViewTransform;
 		Matrix4x4 ProjectTransform;
 		Vector4 Color{ 1.f,1.f,1.f,1.f };
+		Vector3 ViewPos;
 		float Brightness{ 1.0f };
 	};
 

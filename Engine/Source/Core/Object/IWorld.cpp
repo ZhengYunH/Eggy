@@ -54,10 +54,10 @@ namespace Eggy
 		mEntities_.push_back(entity2);
 
 		IEntity* directLight = new IEntity();
-		directLight->AddComponent(new DirectionLightComponent());
 		Matrix4x3 transf3;
 		transf3.SetPitchYawRoll(DegreeToRadian(-45.f), 0, 0);
 		directLight->SetTransform(transf3);
+		directLight->AddComponent(new DirectionLightComponent());
 		directLight->EnterWorld(this);
 		mEntities_.push_back(entity2);
 	}

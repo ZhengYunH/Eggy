@@ -32,6 +32,7 @@ namespace Eggy
 		auto& globalConstant = mContext_->GetGlobalConstant();
 		globalConstant.ProjectTransform = GetCamera()->getProjMatrix();
 		globalConstant.ViewTransform = GetCamera()->getViewMatrix();
+		globalConstant.ViewPos = GetCamera()->GetTransform().GetTranslation();
 		mContext_->PrepareBatchData();
 		mPipeline_->Consolidate();
 	}

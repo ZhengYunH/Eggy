@@ -63,6 +63,7 @@ namespace Eggy
 		}
 
 	public:
+		const Matrix4x3& GetTransform() const { return mTransform_; }
 		Matrix4x3 getViewMatrix() const;
 		const Matrix4x4& getProjMatrix() const;
 		const float getFov() { return mFov_; }
