@@ -216,9 +216,9 @@ namespace Eggy
 		mParams_->SetFloat("ViewPos", 0, 3, mConstant_.ViewPos.GetPointer());
 		mParams_->SetFloat("DebugColor", 0, 4, mConstant_.Color.GetPointer());
 
-		float lightSize = (float)mLights_.size();
-		mLightParams_->SetFloat("LightCount", 0, 1, &lightSize);
+		int lightSize = (int)mLights_.size();
 		mLightParams_->SetStruct("Lights", 0, (uint16)mLights_.size(), (const void**)mLights_.data());
+		mLightParams_->SetInteger("LightCount", 0, 1, &lightSize);
 	}
 
 	void RenderContext::CollectionLights()

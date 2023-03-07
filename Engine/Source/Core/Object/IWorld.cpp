@@ -53,12 +53,15 @@ namespace Eggy
 		entity2->SetTransform(transf2);
 		mEntities_.push_back(entity2);
 
-		IEntity* directLight = new IEntity();
+		IEntity* Light = new IEntity();
 		Matrix4x3 transf3;
 		transf3.SetPitchYawRoll(DegreeToRadian(-45.f), 0, 0);
-		directLight->SetTransform(transf3);
-		directLight->AddComponent(new DirectionLightComponent());
-		directLight->EnterWorld(this);
+		transf3.SetTranslation(Vector3(0.f, 0.f, -2.5f));
+		Light->SetTransform(transf3);
+		Light->AddComponent(new DirectionLightComponent());
+		Light->AddComponent(new SpotLightComponent());
+		Light->AddComponent(new PointLightComponent());
+		Light->EnterWorld(this);
 		mEntities_.push_back(entity2);
 	}
 

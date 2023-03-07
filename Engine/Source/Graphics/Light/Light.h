@@ -42,7 +42,7 @@ namespace Eggy
 
 		void SetQuadratic(float v)
 		{
-			mData_.Misc2;
+			mData_.Misc2 = v;
 		}
 	};
 

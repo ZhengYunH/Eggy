@@ -14,7 +14,7 @@ cbuffer Global : register(b0)
 
 struct LightData
 {
-    float LightType;
+    int LightType;
     float3 Position;
     float Misc0;
     float3 Direction;
