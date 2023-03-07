@@ -86,7 +86,7 @@ namespace Eggy
 		PrepareRenderResource();
 	}
 
-	bool ShadingParameterCollection::SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept
+	bool ShadingParameterCollection::SetInteger(const String& name, uint16 offset, uint16 count, const int* value) noexcept
 	{
 		if (auto param = GetParameter(name, EShaderParameterType::Integer, count))
 			return param->SetInteger(mParameterBlock_, offset, count, value);

@@ -23,6 +23,14 @@ namespace Eggy
 		Array = 2,
 	};
 
+	enum class SShaderPrimitiveType
+	{
+		Default,
+		Boolean,
+		Float,
+		Integer
+	};
+
 	struct SShaderNumericTraits
 	{
 		void FillIn(SpvOp opType, SpvReflectNumericTraits& spvNumberTrait);
@@ -46,6 +54,7 @@ namespace Eggy
 		} Block;
 
 		SShaderNumericType Type;
+		SShaderPrimitiveType PrimitiveType;
 	};
 
 	struct SShaderInputVariableData

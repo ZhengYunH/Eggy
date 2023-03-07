@@ -136,7 +136,21 @@ namespace Eggy
 			table->AddParameter(trait.Name, EShaderParameterType::Float, trait.Numeric.Block.Vector.component_count);
 			break;
 		case SShaderNumericType::SCALER:
-			table->AddParameter(trait.Name, EShaderParameterType::Float, 1);
+			switch (trait.Numeric.PrimitiveType)
+			{
+			case SShaderPrimitiveType::Float:
+				table->AddParameter(trait.Name, EShaderParameterType::Float, 1);
+				break;
+			case SShaderPrimitiveType::Integer:
+				table->AddParameter(trait.Name, EShaderParameterType::Integer, 1);
+				break;
+			case SShaderPrimitiveType::Boolean:
+				table->AddParameter(trait.Name, EShaderParameterType::Boolean, 1);
+				break;
+			default:
+				Unimplement(0);
+				break;
+			}
 			break;
 		default:
 			break;

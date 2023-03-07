@@ -168,7 +168,7 @@ namespace Eggy
 			SafeDestroy(mAuxTable_);
 		}
 
-		bool SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept;
+		bool SetInteger(const String& name, uint16 offset, uint16 count, const int* value) noexcept;
 		bool SetFloat(const String& name, uint16 offset, uint16 count, const float* value) noexcept;
 		bool SetBoolean(const String& name, uint16 offset, uint16 count, const bool* value) noexcept;
 		bool SetMatrix4x4(const String& name, const Matrix4x4& mat) noexcept;

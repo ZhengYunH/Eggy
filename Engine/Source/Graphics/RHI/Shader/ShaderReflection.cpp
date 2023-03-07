@@ -6,11 +6,28 @@
 // can refer to SPIRV-Reflect/examples/main_descriptors.cpp
 namespace Eggy
 {
+	static SShaderPrimitiveType ConvertSprivType(SpvOp op)
+	{
+		switch (op)
+		{
+		case SpvOpTypeBool:
+			return SShaderPrimitiveType::Boolean;
+		case SpvOpTypeInt:
+			return SShaderPrimitiveType::Integer;
+		case SpvOpTypeFloat:
+			return SShaderPrimitiveType::Float;
+		default:
+			break;
+		}
+		return SShaderPrimitiveType::Default;
+	}
+
 	void SShaderNumericTraits::FillIn(SpvOp opType, SpvReflectNumericTraits& spvNumberTrait)
 	{
 		Scalar.width = spvNumberTrait.scalar.width;
 		Scalar.signedness = spvNumberTrait.scalar.signedness;
 
+		PrimitiveType = ConvertSprivType(opType);
 		switch (opType)
 		{
 		case SpvOpTypeBool:
@@ -35,7 +52,7 @@ namespace Eggy
 	}
 
 	void SBlockVariableTrait::FillIn(SpvReflectBlockVariable* spvBlockVariable)
-	{
+	{ 
 		Name = spvBlockVariable->name;
 		Offset = spvBlockVariable->offset;
 		Size = spvBlockVariable->size;
