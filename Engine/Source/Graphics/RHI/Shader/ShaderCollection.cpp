@@ -122,6 +122,27 @@ namespace Eggy
 		}
 	}
 
+	static void InsertPrimitiveParameter(ShadingParameterTable* table, SBlockVariableTrait& trait)
+	{
+		switch (trait.Numeric.Type)
+		{
+		case SShaderNumericType::MATRIX:
+			if (trait.Numeric.Block.Matrix.column_count == 3 || trait.Numeric.Block.Matrix.row_count == 3)
+				table->AddParameter(trait.Name, EShaderParameterType::Matrix4x3);
+			else
+				table->AddParameter(trait.Name, EShaderParameterType::Matrix4x4);
+			break;
+		case SShaderNumericType::VECTOR:
+			table->AddParameter(trait.Name, EShaderParameterType::Float, trait.Numeric.Block.Vector.component_count);
+			break;
+		case SShaderNumericType::SCALER:
+			table->AddParameter(trait.Name, EShaderParameterType::Float, 1);
+			break;
+		default:
+			break;
+		}
+	}
+
 	void ShaderStageInstance::_ParseUniform(Map<uint8, SShaderDescriptorData>& uniforms)
 	{
 		for (auto& binding2BindingData : uniforms)
@@ -139,24 +160,25 @@ namespace Eggy
 				continue;
 			_BatchMap[esc] = new ShadingParameterTable();
 			_BatchSlot[esc] = binding2BindingData.first;
+			
 			for (uint32 i = 0; i < bindingData.Uniform.MemberCount; ++i)
 			{
 				auto& member = bindingData.Uniform.Members[i];
-				switch (member.Numeric.Type)
+				switch (member.VariableType)
 				{
-				case SShaderInputNumericType::MATRIX:
-					if (member.Numeric.Block.Matrix.column_count == 3 || member.Numeric.Block.Matrix.row_count == 3)
-						_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x3);
-					else
-						_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Matrix4x4);
+				case SShaderVariableType::Primitive:
+					InsertPrimitiveParameter(_BatchMap[esc], member);
 					break;
-				case SShaderInputNumericType::VECTOR:
-					_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, member.Numeric.Block.Vector.component_count);
+				case SShaderVariableType::Array:
+				{
+					ShaderParamaterStruct* structTable = dynamic_cast<ShaderParamaterStruct*>(_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Struct, member.Array.ArrayCount, member.Size / member.Array.ArrayCount));
+					HYBRID_CHECK(structTable);
+					for (uint32 i = 0; i < member.Array.MemberCount; ++i)
+						InsertPrimitiveParameter(structTable, member.Array.Members[i]);
 					break;
-				case SShaderInputNumericType::SCALER:
-					_BatchMap[esc]->AddParameter(member.Name, EShaderParameterType::Float, 1);
-					break;
+				}
 				default:
+					Unimplement();
 					break;
 				}
 			}

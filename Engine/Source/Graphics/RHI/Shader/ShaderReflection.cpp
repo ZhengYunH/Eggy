@@ -16,14 +16,14 @@ namespace Eggy
 		case SpvOpTypeBool:
 		case SpvOpTypeInt:
 		case SpvOpTypeFloat:
-			Type = SShaderInputNumericType::SCALER;
+			Type = SShaderNumericType::SCALER;
 			break;
 		case SpvOpTypeVector:
-			Type = SShaderInputNumericType::VECTOR;
+			Type = SShaderNumericType::VECTOR;
 			Block.Vector.component_count = spvNumberTrait.vector.component_count;
 			break;
 		case SpvOpTypeMatrix:
-			Type = SShaderInputNumericType::MATRIX;
+			Type = SShaderNumericType::MATRIX;
 			Block.Matrix.row_count = spvNumberTrait.matrix.row_count;
 			Block.Matrix.column_count = spvNumberTrait.matrix.column_count;
 			Block.Matrix.stride = spvNumberTrait.matrix.stride;
@@ -40,7 +40,28 @@ namespace Eggy
 		Offset = spvBlockVariable->offset;
 		Size = spvBlockVariable->size;
 		PaddingSize = spvBlockVariable->offset;
-		Numeric.FillIn(spvBlockVariable->type_description->op, spvBlockVariable->numeric);
+		switch (spvBlockVariable->type_description->op)
+		{
+		case SpvOpTypeBool:
+		case SpvOpTypeInt:
+		case SpvOpTypeFloat:
+		case SpvOpTypeVector:
+		case SpvOpTypeMatrix:
+			VariableType = SShaderVariableType::Primitive;
+			Numeric.FillIn(spvBlockVariable->type_description->op, spvBlockVariable->numeric);
+			break;
+		case SpvOpTypeArray:
+			VariableType = SShaderVariableType::Array;
+			Array.ArrayCount = spvBlockVariable->array.dims[0];
+			Array.MemberCount = spvBlockVariable->member_count;
+			Array.Members = new SBlockVariableTrait[Array.MemberCount];
+			for (uint32 i = 0; i < Array.MemberCount; ++i)
+				Array.Members[i].FillIn(&spvBlockVariable->members[i]);
+			break;
+		default:
+			Unimplement(0);
+			break;
+		}
 	}
 
 	void SSampledImageTrait::FindIn(SpvReflectImageTraits* spvImageTraits)

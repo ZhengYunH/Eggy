@@ -16,12 +16,14 @@ namespace Eggy
 		Boolean,
 		Matrix4x3,
 		Matrix4x4,
-		Texture
+		Texture,
+		Struct,
 	};
 
 	class IShaderParamter
 	{
 	public:
+		IShaderParamter() {}
 		IShaderParamter(uint16 blockOffset, uint16 arrayCount): 
 			mBlockOffset(blockOffset), mArrayCount(arrayCount)
 		{}
@@ -46,6 +48,10 @@ namespace Eggy
 
 		virtual bool GetMatrix4x4(const byte* block, Matrix4x4& matrix) noexcept { return false; }
 		virtual bool SetMatrix4x4(byte* block, const Matrix4x4& matrix) noexcept { return false; }
+
+		virtual IShaderParamter* GetSubParameter(const String& Name) noexcept { return nullptr; }
+		virtual bool GetStruct(const byte* block, uint16 offset, uint16 count, void** value) noexcept { return false; }
+		virtual bool SetStruct(byte* block, uint16 offset, uint16 count, const void** value) noexcept { return false; }
 
 	protected:
 		// TODO: add allocator
@@ -121,7 +127,6 @@ namespace Eggy
 		bool SetMatrix4x4(byte* block, const Matrix4x4& matrix) noexcept override;
 	};
 
-
 	class ShadingParameterTable
 	{
 	public:
@@ -129,14 +134,27 @@ namespace Eggy
 		~ShadingParameterTable();
 
 	public:
-		IShaderParamter* AddParameter(const String& name, EShaderParameterType type, uint16 arrayCount=1);
+		IShaderParamter* AddParameter(const String& name, EShaderParameterType type, uint16 arrayCount=1, uint16 perByteWidth=0);
 		IShaderParamter* GetParameter(const String& name);
 		uint16 GetParameterSize() const { return mParameterOffset_; }
 		void Clear();
 
-	private:
+	protected:
 		uint16 mParameterOffset_{ 0 };
 		Map<String, IShaderParamter*> mParams_;
+	};
+
+	class ShaderParamaterStruct : public IShaderParamter, public ShadingParameterTable
+	{
+	public:
+		ShaderParamaterStruct(uint16 blockOffset, uint16 arrayCount, uint16 perSize);
+
+		IShaderParamter* GetSubParameter(const String& Name) noexcept override;
+		bool GetStruct(const byte* block, uint16 offset, uint16 count, void** value) noexcept override;
+		bool SetStruct(byte* block, uint16 offset, uint16 count, const void** value) noexcept override;
+
+	protected:
+		uint16 mPerStructSize_{ 0 };
 	};
 
 	class ShadingParameterCollection
@@ -153,9 +171,10 @@ namespace Eggy
 		bool SetInteget(const String& name, uint16 offset, uint16 count, const int* value) noexcept;
 		bool SetFloat(const String& name, uint16 offset, uint16 count, const float* value) noexcept;
 		bool SetBoolean(const String& name, uint16 offset, uint16 count, const bool* value) noexcept;
-		bool SetMatrix4x4(const String& name, const Matrix4x4& mat);
-		bool SetMatrix4x3(const String& name, const Matrix4x3& mat);
-		bool SetTexture(const String& name, const Guid& texture);
+		bool SetMatrix4x4(const String& name, const Matrix4x4& mat) noexcept;
+		bool SetMatrix4x3(const String& name, const Matrix4x3& mat) noexcept;
+		bool SetTexture(const String& name, const Guid& texture) noexcept;
+		bool SetStruct(const String& name, uint16 offset, uint16 count, const void** value) noexcept;
 
 		IShaderParamter* GetParameter(const String& name, EShaderParameterType type = EShaderParameterType::None, uint16 arrayCount = 1);
 

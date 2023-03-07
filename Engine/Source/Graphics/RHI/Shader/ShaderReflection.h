@@ -9,11 +9,18 @@
 
 namespace Eggy
 {
-	enum class SShaderInputNumericType
+	enum class SShaderNumericType
 	{
 		SCALER = 0,
 		VECTOR = 1,
 		MATRIX = 2,
+	};
+
+	enum class SShaderVariableType
+	{
+		Primitive = 0, // scaler, vector, matrix
+		Struct = 1,
+		Array = 2,
 	};
 
 	struct SShaderNumericTraits
@@ -38,10 +45,8 @@ namespace Eggy
 			} Matrix;
 		} Block;
 
-		SShaderInputNumericType Type;
+		SShaderNumericType Type;
 	};
-
-	
 
 	struct SShaderInputVariableData
 	{
@@ -67,7 +72,17 @@ namespace Eggy
 		uint32 Offset;
 		uint32 Size;
 		uint32 PaddingSize;
-		SShaderNumericTraits Numeric;
+		SShaderVariableType VariableType;
+		union
+		{
+			struct Array
+			{
+				uint32 ArrayCount;
+				SBlockVariableTrait* Members;
+				uint32 MemberCount;
+			} Array;
+			SShaderNumericTraits Numeric;
+		};
 	};
 
 	struct SShaderUniformTrait

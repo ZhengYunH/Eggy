@@ -12,7 +12,7 @@ namespace Eggy
 		return nullptr;
 	}
 
-	IShaderParamter* ShadingParameterTable::AddParameter(const String& name, EShaderParameterType type, uint16 arrayCount/*=1*/)
+	IShaderParamter* ShadingParameterTable::AddParameter(const String& name, EShaderParameterType type, uint16 arrayCount/*=1*/, uint16 perByteWidth/*=0*/)
 	{
 		IShaderParamter* param = GetParameter(name);
 		HYBRID_CHECK(!param, "Duplicate ShaderParmeter: ", name);
@@ -35,6 +35,9 @@ namespace Eggy
 			break;
 		case EShaderParameterType::Matrix4x4:
 			param = new ShaderParameterMatrix4x4(mParameterOffset_);
+			break;
+		case EShaderParameterType::Struct:
+			param = new ShaderParamaterStruct(mParameterOffset_, arrayCount, perByteWidth);
 			break;
 		default:
 			Unimplement(0);
@@ -103,25 +106,32 @@ namespace Eggy
 			return param->SetBoolean(mParameterBlock_, offset, count, value);
 		return false;
 	}
-
-	bool ShadingParameterCollection::SetMatrix4x4(const String& name, const Matrix4x4& mat)
+	 
+	bool ShadingParameterCollection::SetMatrix4x4(const String& name, const Matrix4x4& mat) noexcept
 	{
 		if (auto param = GetParameter(name, EShaderParameterType::Matrix4x4))
 			return param->SetMatrix4x4(mParameterBlock_, mat);
 		return false;
 	}
 
-	bool ShadingParameterCollection::SetMatrix4x3(const String& name, const Matrix4x3& mat)
+	bool ShadingParameterCollection::SetMatrix4x3(const String& name, const Matrix4x3& mat) noexcept
 	{
 		if (auto param = GetParameter(name, EShaderParameterType::Matrix4x3))
 			return param->SetMatrix4x3(mParameterBlock_, mat);
 		return false;
 	}
 
-	bool ShadingParameterCollection::SetTexture(const String& name, const Guid& texture)
+	bool ShadingParameterCollection::SetTexture(const String& name, const Guid& texture) noexcept
 	{
 		if (auto param = GetParameter(name, EShaderParameterType::Texture))
 			return param->SetTexture(mParameterBlock_, texture);
+		return false;
+	}
+
+	bool ShadingParameterCollection::SetStruct(const String& name, uint16 offset, uint16 count, const void** value) noexcept
+	{
+		if (auto param = GetParameter(name))
+			return param->SetStruct(mParameterBlock_, offset, count, value);
 		return false;
 	}
 
@@ -290,6 +300,46 @@ namespace Eggy
 	bool ShaderParameterMatrix4x4::SetMatrix4x4(byte* block, const Matrix4x4& matrix) noexcept
 	{
 		memcpy(block + mBlockOffset, &matrix, sizeof(Matrix4x4));
+		return true;
+	}
+
+	ShaderParamaterStruct::ShaderParamaterStruct(uint16 blockOffset, uint16 arrayCount, uint16 perByteWidth)
+		: IShaderParamter(blockOffset, arrayCount)
+	{
+		mSize = arrayCount * perByteWidth;
+		mPerStructSize_ = perByteWidth;
+		mParameterOffset_ = blockOffset;
+	}
+
+	IShaderParamter* ShaderParamaterStruct::GetSubParameter(const String& Name) noexcept
+	{
+		return GetParameter(Name);
+	}
+
+	bool ShaderParamaterStruct::GetStruct(const byte* block, uint16 offset, uint16 count, void** value) noexcept
+	{
+		if (count + offset > mArrayCount)
+			return false;
+
+		for (uint16 i = offset; i < offset + count; ++i)
+		{
+			if (value[i] == nullptr)
+				continue;
+			memcpy(value, block + mBlockOffset + mPerStructSize_ * i, mPerStructSize_ * count);
+		}
+		return true;
+	}
+
+	bool ShaderParamaterStruct::SetStruct(byte* block, uint16 offset, uint16 count, const void** value) noexcept
+	{
+		if (count + offset > mArrayCount)
+			return false;
+		for (uint16 i = offset; i < offset + count; ++i)
+		{
+			if (value[i] == nullptr)
+				continue;
+			memcpy(block + mBlockOffset + mPerStructSize_ * i, value[i], mPerStructSize_ * count);
+		}
 		return true;
 	}
 
