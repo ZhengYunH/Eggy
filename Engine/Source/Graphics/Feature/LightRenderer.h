@@ -4,11 +4,6 @@
 
 namespace Eggy
 {
-	class ForwardLightingPass : public RenderPass
-	{
-
-	};
-
 	class DeferredLightingPass : public Postprocess
 	{
 	public:

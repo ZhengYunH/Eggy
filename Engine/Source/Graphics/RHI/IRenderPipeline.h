@@ -5,7 +5,9 @@
 #include "IShaderRenderResource.h"
 #include "Shader/ShaderCollection.h"
 #include "IShadingState.h"
+#include "ILight.h"
 #include "RenderObject.h"
+#include "Core/Interface/IRenderScene.h"
 
 
 namespace Eggy
@@ -92,8 +94,9 @@ namespace Eggy
 
 	class RenderContext
 	{
+		static constexpr uint8 MAX_LIGHT_COUNT = 4;
 	public:
-		RenderContext(RenderPipeline* pipeline);
+		RenderContext(IRenderScene* scene, RenderPipeline* pipeline);
 		virtual ~RenderContext();
 
 		RenderItemInfo* AddRenderSceneInfo(RenderObject* object);
@@ -107,13 +110,19 @@ namespace Eggy
 		void PrepareBatchData();
 		GlobalConstant& GetGlobalConstant() { return mConstant_; }
 		ShadingParameterCollection* GetParameters() { return mParams_; }
+		ShadingParameterCollection* GetLightParameters() { return mLightParams_; }
+		List<ILight*>& GetLights() { return mLights_; }
+		void CollectionLights();
 
 	protected:
+		IRenderScene* mScene_;
 		RenderPipeline* mPipeline_;
 		RenderGraphBuilder mBuilder_;
 		List<RenderItemInfo*> mRenderInfoItems_;
 		ShadingParameterCollection* mParams_;
+		ShadingParameterCollection* mLightParams_;
 		GlobalConstant mConstant_;
+		List<ILight*> mLights_;
 	};
 
 }

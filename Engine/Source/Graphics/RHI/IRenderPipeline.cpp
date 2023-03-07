@@ -8,6 +8,8 @@ namespace Eggy
 {
 	void RenderContext::Prepare()
 	{
+		CollectionLights();
+
 		RenderPass* output = mPipeline_->Setup(&mBuilder_);
 		mBuilder_.Prepare();
 		mBuilder_.ResolveConnection(output, mPipeline_->GetRenderPasses());
@@ -34,12 +36,17 @@ namespace Eggy
 		mPipeline_->AddDrawCall(set, dp);
 	}
 
-	RenderContext::RenderContext(RenderPipeline* pipeline) : mPipeline_(pipeline)
+	RenderContext::RenderContext(IRenderScene* scene, RenderPipeline* pipeline) 
+		: mScene_(scene)
+		, mPipeline_(pipeline)
 	{
 		mPipeline_->mContext_ = this;
 		auto collection = ShaderCollectionFactory::Instance().GetCollection("Basic");
 		auto globalTable = collection->GetShaderTechnique(ETechnique::Shading)->GetConstantTable(EShaderConstant::Global);
 		mParams_ = new ShadingParameterCollection(globalTable);
+
+		auto lightTable = collection->GetShaderTechnique(ETechnique::Shading)->GetConstantTable(EShaderConstant::Light);
+		mLightParams_ = new ShadingParameterCollection(lightTable);
 	}
 
 	RenderContext::~RenderContext()
@@ -206,6 +213,25 @@ namespace Eggy
 		mParams_->SetMatrix4x4("cView", mConstant_.ViewTransform);
 		mParams_->SetMatrix4x4("cProj", mConstant_.ProjectTransform);
 		mParams_->SetFloat("DebugColor", 0, 4, mConstant_.Color.GetPointer());
+
+		float lightSize = (float)mLights_.size();
+		mLightParams_->SetFloat("LightCount", 0, 1, &lightSize);
+		mLightParams_->SetStruct("Lights", 0, (uint16)mLights_.size(), (const void**)mLights_.data());
+	}
+
+	void RenderContext::CollectionLights()
+	{
+		mLights_.clear();
+		uint32 i = 0;
+		for (auto light : mScene_->GetLights())
+		{
+			if (!light)
+				continue;
+			mLights_.push_back(light);
+			++i;
+			if (i >= MAX_LIGHT_COUNT)
+				break;
+		}
 	}
 
 }

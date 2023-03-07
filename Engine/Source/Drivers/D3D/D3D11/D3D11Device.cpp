@@ -140,7 +140,10 @@ namespace Eggy
 
 		// Update Global Uniform
 		pipeline->GetContext()->GetParameters()->CreateDeviceResource(GetResourceFactory());
+		pipeline->GetContext()->GetLightParameters()->CreateDeviceResource(GetResourceFactory());
+
 		_UpdateConstantBuffer(pipeline->GetContext()->GetParameters());
+		_UpdateConstantBuffer(pipeline->GetContext()->GetLightParameters());
 		for (auto renderPass : pipeline->GetRenderPasses())
 		{
 			EncodeRenderPass(renderPass);
