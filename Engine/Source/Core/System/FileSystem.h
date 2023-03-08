@@ -19,6 +19,8 @@ namespace Eggy
 	{
 		DeclareSystem(FileSystem);
 	public:
+		static long long GetFileModifyTime(String path);
+
 		FileHandle LoadFile(String resource);
 		bool FileExist(String path);
 		bool DirectoryExist(String path);

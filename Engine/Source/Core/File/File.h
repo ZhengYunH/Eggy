@@ -250,8 +250,6 @@ namespace Eggy
 
 		void Save(const char* str, size_t nStr);
 
-		long long GetModifyTime();
-
 	protected:
 		std::fstream mStream_;
 		EFileUsage mUsage_;

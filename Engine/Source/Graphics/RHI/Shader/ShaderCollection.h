@@ -37,6 +37,8 @@ namespace Eggy
 		uint8 GetMaxImageBinding() const { return _MaxImageBinding; }
 		uint8 GetMaxSamplerBinding() const { return _MaxSamplerStateBinding; }
 
+		bool CheckModify();
+
 	public:
 		List<EShaderConstant> GetReletedBatch() const;
 		bool IsImageBinding(uint8 slot) const;
@@ -48,6 +50,7 @@ namespace Eggy
 		void _ParseUniform(Map<uint8, SShaderDescriptorData>& uniforms);
 		void _ParseImage(Map<uint8, SShaderDescriptorData>& images);
 		void _ParseSampler(Map<uint8, SShaderDescriptorData>& samplers);
+		void _CreateRenderResource();
 
 	public:
 		struct ShaderRenderResource* _ShaderRenderResource{ nullptr };
@@ -63,6 +66,8 @@ namespace Eggy
 		List<ShaderSamplerState> _SamplerStates;
 		uint8 _MaxImageBinding{ 0 };
 		uint8 _MaxSamplerStateBinding{ 0 };
+
+		long long _CreateTime{ 0 };
 	};
 
 

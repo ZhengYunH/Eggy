@@ -1,9 +1,12 @@
 #include "FileSystem.h"
 #include "Core/Misc/StringHelper.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #if defined(_WIN32)
 #	include <filesystem>
 #	include <windows.h>
+#define stat _stat
 #endif
 
 
@@ -36,6 +39,17 @@ namespace Eggy
 		}
 #endif
 		return subDir;
+	}
+
+	long long FileSystem::GetFileModifyTime(String path)
+	{
+		time_t modTime = 0;
+		struct stat result;
+		if (stat(path.c_str(), &result) == 0)
+		{
+			modTime = result.st_mtime;
+		}
+		return modTime;
 	}
 
 	FileHandle FileSystem::LoadFile(String resource)

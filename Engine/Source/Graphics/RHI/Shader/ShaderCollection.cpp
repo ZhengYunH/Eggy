@@ -11,7 +11,7 @@ namespace Eggy
 		_ShaderPath = shaderPath + ".hlsl";
 		_Reflection = ShaderReflectionFactory::Instance().GetReflection(_ShaderPath, _Entry, stage);
 		_ParseDescriptorInternel();
-		_ShaderRenderResource = new ShaderRenderResource(this);
+		_CreateRenderResource();
 	}
 
 	ShaderStageInstance::~ShaderStageInstance()
@@ -52,6 +52,26 @@ namespace Eggy
 			}
 		}
 		return false;
+	}
+
+	bool ShaderStageInstance::CheckModify()
+	{
+		auto modTime = FileSystem::GetFileModifyTime((FileSystem::Get()->GetShaderRoot() + _ShaderPath).ToString());
+		if (_Stage == EShaderStage::PS && _CreateTime != modTime)
+		{
+			modTime = FileSystem::GetFileModifyTime((FileSystem::Get()->GetShaderRoot() + _ShaderPath).ToString());
+			_CreateRenderResource();
+			return true;
+		}
+		return false;
+	}
+
+	void ShaderStageInstance::_CreateRenderResource()
+	{
+		SafeDestroy(_ShaderRenderResource);
+		delete _ShaderRenderResource;
+		_ShaderRenderResource = new ShaderRenderResource(this);
+		_CreateTime = FileSystem::GetFileModifyTime((FileSystem::Get()->GetShaderRoot() + _ShaderPath).ToString());
 	}
 
 	List<EShaderConstant> ShaderStageInstance::GetReletedBatch() const
@@ -241,7 +261,10 @@ namespace Eggy
 	void ShaderTechnique::CreateDeviceResource(IRenderResourceFactory* factory)
 	{
 		for (auto& stage2Instance : mStageInstances_)
+		{
+			stage2Instance.second->CheckModify();
 			stage2Instance.second->_ShaderRenderResource->CreateDeviceResource(factory);
+		}
 	}
 
 	const ShadingParameterTable* ShaderTechnique::GetConstantTable(EShaderConstant esc) const

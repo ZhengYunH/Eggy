@@ -1,11 +1,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION // For ObjFile
 #include "File.h"
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fbxsdk.h>
 #if defined(_WIN32)
-#include <windows.h>
-#define stat _stat
+	#include <windows.h>
 #endif
 
 
@@ -58,17 +55,6 @@ namespace Eggy
 	{
 		HYBRID_CHECK(mUsage_ == EFileUsage::SAVE);
 		mStream_.write(str, nStr);
-	}
-
-	long long File::GetModifyTime()
-	{
-		time_t modTime = 0;
-		struct stat result;
-		if (stat(mFilePath_.c_str(), &result) == 0)
-		{
-			modTime = result.st_mtime;
-		}
-		return modTime;
 	}
 
 	ObjFile::ObjFile(const String& filePath) : IFile(filePath)

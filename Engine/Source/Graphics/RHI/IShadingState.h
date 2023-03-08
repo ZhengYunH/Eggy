@@ -9,8 +9,6 @@
 
 namespace Eggy
 {
-
-
 	class Texture;
 	class IShadingState
 	{
