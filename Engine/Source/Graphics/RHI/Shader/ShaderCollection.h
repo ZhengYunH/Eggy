@@ -37,7 +37,7 @@ namespace Eggy
 		uint8 GetMaxImageBinding() const { return _MaxImageBinding; }
 		uint8 GetMaxSamplerBinding() const { return _MaxSamplerStateBinding; }
 
-		bool CheckModify();
+		bool Reload();
 
 	public:
 		List<EShaderConstant> GetReletedBatch() const;
@@ -80,6 +80,7 @@ namespace Eggy
 
 	public:
 		void CreateDeviceResource(IRenderResourceFactory* factory);
+		void Reload();
 
 	public:
 		const ShadingParameterTable* GetConstantTable(EShaderConstant esc) const;
@@ -101,6 +102,7 @@ namespace Eggy
 		~ShaderCollection();
 		bool IsTechniqueExist(ETechnique technique) const;
 		const ShaderTechnique* GetShaderTechnique(ETechnique technique) const;
+		void Reload();
 
 	protected:
 		Map<ETechnique, ShaderTechnique*> mTechnique_;
@@ -110,8 +112,12 @@ namespace Eggy
 	{
 		typedef TSimpleFactory<ShaderCollection> Factory;
 	public:
+		ShaderCollectionFactory();
 		~ShaderCollectionFactory();
 		const ShaderCollection* GetCollection(const String& shaderPath);
+
+	protected:
+		void _ReloadShader(const String& shaderPath);
 
 	protected:
 		Map<String, ShaderCollection*> mCollections_;

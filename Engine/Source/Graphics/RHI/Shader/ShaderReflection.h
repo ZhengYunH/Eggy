@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Config.h"
+#include "Config.h"
 #include "Graphics/RHI/IRenderResource.h"
 #include "Core/System/FileSystem.h"
 #include "Core/Engine/Event/Event.h"

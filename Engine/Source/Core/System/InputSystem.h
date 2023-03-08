@@ -36,6 +36,9 @@ namespace Eggy
 		DEFINE_EVENT(MouseWheel, uint32 /* Wheel Offset */);
 		DEFINE_EVENT(MouseMove, uint32/* XPosition */, uint32/* YPosition */);
 
+		// Copy Data Event
+		DEFINE_EVENT(CopyData, uint32, void*);
+
 		void Initialize() override;
 		void Finalize() override;
 

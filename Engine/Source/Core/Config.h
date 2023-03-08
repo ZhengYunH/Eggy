@@ -45,3 +45,9 @@ namespace Eggy
 		LPCWSTR stringToLPCWSTR(const std::string& orig);
 	}
 }
+
+// CopyData Signal
+namespace Eggy::CopyDataSignal
+{
+	const uint32 ShaderChange = 1;
+}

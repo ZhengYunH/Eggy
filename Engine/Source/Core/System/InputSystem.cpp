@@ -47,6 +47,9 @@ case Msg: \
 			BOARDCAST_EVENT(WM_MOUSEWHEEL, MouseWheel, GET_WHEEL_DELTA_WPARAM(wParam));
 			BOARDCAST_EVENT(WM_MOUSEMOVE, MouseMove, LOWORD(lParam), HIWORD(lParam));
 
+			// Copy Data
+			BOARDCAST_EVENT(WM_COPYDATA, CopyData, uint32(wParam), (void*)lParam);
+
 		default:
 			break;
 		}

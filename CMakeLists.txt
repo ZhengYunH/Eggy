@@ -77,6 +77,34 @@ target_link_libraries(EggyEngine ${ADDITIONAL_DEP_LIB})
 # other feature
 target_compile_features(EggyEngine PRIVATE cxx_std_20)
 
+
+## Plugins
+set(SOURCE_PLUGIN_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Engine/Plugins)
+
+### ShaderConverter
+set(PLUGIN_SOURCE_CODE_ROOT ${SOURCE_PLUGIN_ROOT}/ShaderConverter/Source)
+
+
+# get all header / source files
+file (GLOB_RECURSE HEADER_LIST "${PLUGIN_SOURCE_CODE_ROOT}/*.h")
+file (GLOB_RECURSE SOURCE_LIST "${PLUGIN_SOURCE_CODE_ROOT}/*.cpp")
+
+# group source / header files
+source_group(TREE ${PLUGIN_SOURCE_CODE_ROOT} PREFIX "Source Files" FILES ${SOURCE_LIST})
+source_group(TREE ${PLUGIN_SOURCE_CODE_ROOT} PREFIX "Header Files" FILES ${HEADER_LIST})
+
+add_executable(ShaderConverter ${SOURCE_LIST} ${HEADER_LIST})
+
+
+set(
+    PLUGIN_ADDITIONAL_INCLUDE_DIR
+    ${ADDITIONAL_INCLUDE_DIR}
+)
+target_include_directories(ShaderConverter PUBLIC ${PLUGIN_ADDITIONAL_INCLUDE_DIR})
+target_compile_features(ShaderConverter PRIVATE cxx_std_20)
+
+
+
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Eggy")
 
 # add_subdirectory(${LIBRARY_ROOT}/ShaderConductor)

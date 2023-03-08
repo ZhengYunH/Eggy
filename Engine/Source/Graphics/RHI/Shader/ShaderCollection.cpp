@@ -1,5 +1,6 @@
 #include "ShaderCollection.h"
 #include "Graphics/RHI/IShaderRenderResource.h"
+#include "Core/System/InputSystem.h"
 
 
 namespace Eggy
@@ -54,7 +55,7 @@ namespace Eggy
 		return false;
 	}
 
-	bool ShaderStageInstance::CheckModify()
+	bool ShaderStageInstance::Reload()
 	{
 		auto modTime = FileSystem::GetFileModifyTime((FileSystem::Get()->GetShaderRoot() + _ShaderPath).ToString());
 		if (_Stage == EShaderStage::PS && _CreateTime != modTime)
@@ -261,10 +262,13 @@ namespace Eggy
 	void ShaderTechnique::CreateDeviceResource(IRenderResourceFactory* factory)
 	{
 		for (auto& stage2Instance : mStageInstances_)
-		{
-			stage2Instance.second->CheckModify();
 			stage2Instance.second->_ShaderRenderResource->CreateDeviceResource(factory);
-		}
+	}
+
+	void ShaderTechnique::Reload()
+	{
+		for (auto& stage2Instance : mStageInstances_)
+			stage2Instance.second->Reload();
 	}
 
 	const ShadingParameterTable* ShaderTechnique::GetConstantTable(EShaderConstant esc) const
@@ -336,10 +340,27 @@ namespace Eggy
 		return mTechnique_.contains(technique);
 	}
 
-	const Eggy::ShaderTechnique* ShaderCollection::GetShaderTechnique(ETechnique technique) const
+	const ShaderTechnique* ShaderCollection::GetShaderTechnique(ETechnique technique) const
 	{
 		HYBRID_CHECK(IsTechniqueExist(technique));
 		return mTechnique_.at(technique);
+	}
+
+	void ShaderCollection::Reload()
+	{
+		for (auto& pair : mTechnique_)
+			pair.second->Reload();
+	}
+
+	ShaderCollectionFactory::ShaderCollectionFactory()
+	{
+		InputSystem::Get()->Event_CopyData.Bind([this](uint32 msg, void* data) {
+			if (msg == CopyDataSignal::ShaderChange)
+			{
+				char* shaderName = (char*)data;
+				this->_ReloadShader(shaderName);
+			}
+		});
 	}
 
 	ShaderCollectionFactory::~ShaderCollectionFactory()
@@ -354,5 +375,13 @@ namespace Eggy
 			mCollections_[shaderPath] = Factory::Instance().Create(shaderPath);
 		return mCollections_.at(shaderPath);
 	}
+
+	void ShaderCollectionFactory::_ReloadShader(const String& shaderPath)
+	{
+		if (!mCollections_.contains(shaderPath))
+			return;
+		mCollections_[shaderPath]->Reload();
+	}
+
 }
 
