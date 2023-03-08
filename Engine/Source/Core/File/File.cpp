@@ -1,12 +1,76 @@
 #define TINYOBJLOADER_IMPLEMENTATION // For ObjFile
 #include "File.h"
-
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fbxsdk.h>
+#if defined(_WIN32)
 #include <windows.h>
+#define stat _stat
+#endif
+
 
 
 namespace Eggy
 {
+	File::File(const String& filePath, EFileUsage usage /*= EFileUsage::LOAD*/, int openMode /*= std::fstream::binary*/) : IFile(filePath)
+		, mUsage_(usage)
+	{
+		if (usage == EFileUsage::LOAD)
+			openMode |= (std::fstream::ate | std::fstream::in);
+		else if (usage == EFileUsage::SAVE)
+			openMode |= (std::fstream::ate | std::fstream::out);
+
+		
+
+		mStream_.exceptions(std::fstream::failbit | std::fstream::badbit);
+		try {
+			mStream_.open(filePath, openMode);
+		}
+		catch (const std::fstream::failure& e) {
+			// std::cout << strerror(errno);
+			String info = e.code().message();;
+			mState_ = EFileState::FAIL_TO_OPEN;
+			mStream_.close();
+		}
+		mDataSize_ = mStream_.tellg();
+		mState_ = EFileState::OPEN;
+	}
+
+	File::~File()
+	{
+		mState_ = EFileState::CLOSE;
+		mStream_.close();
+	}
+
+	void File::Read(void* buffer, size_t& inOutDataSize)
+	{
+		if (inOutDataSize == 0)
+		{
+			inOutDataSize = mDataSize_;
+			return;
+		}
+		HYBRID_CHECK(inOutDataSize <= mDataSize_);
+		mStream_.seekg(0);
+		mStream_.read((char*)buffer, inOutDataSize);
+	}
+
+	void File::Save(const char* str, size_t nStr)
+	{
+		HYBRID_CHECK(mUsage_ == EFileUsage::SAVE);
+		mStream_.write(str, nStr);
+	}
+
+	long long File::GetModifyTime()
+	{
+		time_t modTime = 0;
+		struct stat result;
+		if (stat(mFilePath_.c_str(), &result) == 0)
+		{
+			modTime = result.st_mtime;
+		}
+		return modTime;
+	}
+
 	ObjFile::ObjFile(const String& filePath) : IFile(filePath)
 	{
 		mFileType_ = EFileType::OBJ;
@@ -189,5 +253,7 @@ namespace Eggy
 		lSdkManager->Destroy();
 		return true;
 	}
+
+	
 
 }

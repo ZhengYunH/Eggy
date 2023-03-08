@@ -241,53 +241,16 @@ namespace Eggy
 	class File : public IFile
 	{
 	public:
-		File(const String& filePath, EFileUsage usage = EFileUsage::LOAD, int openMode = std::fstream::binary)
-			: IFile(filePath)
-			, mUsage_(usage)
-		{
-			if (usage == EFileUsage::LOAD)
-				openMode |= (std::fstream::ate | std::fstream::in);
-			else if (usage == EFileUsage::SAVE)
-				openMode |= (std::fstream::ate | std::fstream::out);
+		File(const String& filePath, EFileUsage usage = EFileUsage::LOAD, int openMode = std::fstream::binary);
 
-			mStream_.exceptions(std::fstream::failbit | std::fstream::badbit);
-			try {
-				mStream_.open(filePath, openMode);
-			}
-			catch (const std::fstream::failure& e) {
-				// std::cout << strerror(errno);
-				String info = e.code().message();;
-				mState_ = EFileState::FAIL_TO_OPEN;
-				mStream_.close();
-			}
-			mDataSize_ = mStream_.tellg();
-			mState_ = EFileState::OPEN;
-		}
-
-		virtual ~File()
-		{
-			mState_ = EFileState::CLOSE;
-			mStream_.close();
-		}
+		virtual ~File();
 
 	public:
-		void Read(void* buffer, size_t& inOutDataSize)
-		{
-			if (inOutDataSize == 0)
-			{
-				inOutDataSize = mDataSize_;
-				return;
-			}
-			HYBRID_CHECK(inOutDataSize <= mDataSize_);
-			mStream_.seekg(0);
-			mStream_.read((char*)buffer, inOutDataSize);
-		}
+		void Read(void* buffer, size_t& inOutDataSize);
 
-		void Save(const char* str, size_t nStr)
-		{
-			HYBRID_CHECK(mUsage_ == EFileUsage::SAVE);
-			mStream_.write(str, nStr);
-		}
+		void Save(const char* str, size_t nStr);
+
+		long long GetModifyTime();
 
 	protected:
 		std::fstream mStream_;
