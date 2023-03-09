@@ -1,4 +1,6 @@
 #include "Common.hlsli"
+#include "DeferredShadingCommon.hlsli"
+
 
 struct VertexIn
 {
@@ -13,21 +15,33 @@ struct VertexOut
 	float2 st : TEXCOORD;
 };
 
-Texture2D BaseColorMap : register(t0);
-SamplerState BaseColorSampler : register(s0);
+Texture2D tGBufferA : register(t0);
+SamplerState tGBufferASampler : register(s0);
 
-Texture2D EmissiveMap : register(t1);
-SamplerState EmissiveMapSampler : register(s1);
+Texture2D tGBufferB : register(t1);
+SamplerState tGBufferBSampler : register(s1);
 
-Texture2D NormalMap : register(t2);
-SamplerState NormalMapSampler : register(s2);
+Texture2D tGBufferC : register(t2);
+SamplerState tGBufferCSampler : register(s2);
 
-Texture2D MiscMap : register(t3);
-SamplerState MiscMapSampler : register(s3);
+Texture2D tGBufferD : register(t3);
+SamplerState tGBufferDSampler : register(s3);
 
-Texture2D<float> DepthMap : register(t4);
-SamplerState DepthMapSampler : register(s4);
+Texture2D<float> tGBufferE : register(t4);
+SamplerState tGBufferESampler : register(s4);
 
+
+GBufferData SampleGBuffer(float2 tc)
+{
+	GBufferData GBuffer = DecodeGBuffer(
+        tGBufferA.Sample(tGBufferASampler, tc),
+        tGBufferB.Sample(tGBufferBSampler, tc),
+        tGBufferC.Sample(tGBufferCSampler, tc),
+        tGBufferD.Sample(tGBufferDSampler, tc),
+        tGBufferE.Sample(tGBufferESampler, tc)
+    );
+    return GBuffer;
+}
 
 VertexOut VS(VertexIn vIn)
 {
@@ -39,18 +53,13 @@ VertexOut VS(VertexIn vIn)
     return vOut;
 }
 
-
 float4 PS(VertexOut pIn) : SV_Target
 {
-	float4 baseColor = BaseColorMap.Sample(BaseColorSampler, pIn.st);
-	float shadingModel = baseColor.w;
-	float4 emissive = EmissiveMap.Sample(EmissiveMapSampler, pIn.st);
-	float4 normal = NormalMap.Sample(NormalMapSampler, pIn.st);
-	float4 misc = MiscMap.Sample(MiscMapSampler, pIn.st);
-	float metallic = misc.x;
-	float roughness = misc.y;
-	float anisotropic = misc.z;
-	float clearCoat = misc.w;
-	float depth = DepthMap.Sample(DepthMapSampler, pIn.st);
-	return float4(baseColor.xyz * emissive.xyz, 1) * roughness;
+	GBufferData GBuffer = SampleGBuffer(pIn.st);
+	float3 baseColor = GBuffer.BaseColor;
+	int shadingModel = GBuffer.ShadingModelID;
+	float roughness = GBuffer.Roughness;
+	float3 worldNormal = GBuffer.WorldNormal;
+	float depth = GBuffer.LinearDepth;
+	return float4(baseColor.xyz, 1) * roughness;
 }

@@ -54,11 +54,11 @@ namespace Eggy
 			backBufferDesc.Height,
 		};
 		
-		SetOutput(builder, GBufferDescHigh, 0); // GBufferA: BaseColor, Shading Model
-		SetOutput(builder, GBufferDescHigh, 1); // GBufferB: Emissive
-		SetOutput(builder, GBufferDescLow, 2); // GBufferC: normal.xyz, sheen
-		SetOutput(builder, GBufferDescLow, 3); // GBufferD: metallic, roughness, anisotropic, clearCoat 
-		SetOutput(builder, GBufferDepth, 4); // GBufferE: depth
+		SetOutput(builder, GBufferDescLow, 0); // GBufferA: WorldNormal
+		SetOutput(builder, GBufferDescLow, 1); // GBufferB: Metallic, Specular, Roughness, ShadingModel
+		SetOutput(builder, GBufferDescLow, 2); // GBufferC: BaseColor, AO
+		SetOutput(builder, GBufferDescLow, 3); // GBufferD: CustomData
+		SetOutput(builder, GBufferDepth, 4); // GBufferE: LinearDepth
 	}
 
 }

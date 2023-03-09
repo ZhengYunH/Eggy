@@ -18,11 +18,11 @@ namespace Eggy
 		Sample(builder, scenePass->GetOutput(3));
 		Sample(builder, scenePass->GetOutput(4));
 
-		mBatch.SetRenderTarget("BaseColorMap", scenePass->GetOutput(0));
-		mBatch.SetRenderTarget("EmissiveMap", scenePass->GetOutput(1));
-		mBatch.SetRenderTarget("NormalMap", scenePass->GetOutput(2));
-		mBatch.SetRenderTarget("MiscMap", scenePass->GetOutput(3));
-		mBatch.SetRenderTarget("DepthMap", scenePass->GetOutput(4));
+		mBatch.SetRenderTarget("tGBufferA", scenePass->GetOutput(0));
+		mBatch.SetRenderTarget("tGBufferB", scenePass->GetOutput(1));
+		mBatch.SetRenderTarget("tGBufferC", scenePass->GetOutput(2));
+		mBatch.SetRenderTarget("tGBufferD", scenePass->GetOutput(3));
+		mBatch.SetRenderTarget("tGBufferE", scenePass->GetOutput(4));
 
 		auto backBufferDesc = Pipeline->GetBackBuffer(builder);
 		RenderTargetDesc rtDesc{

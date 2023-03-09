@@ -1,4 +1,6 @@
 #include "Common.hlsli"
+#include "DeferredShadingCommon.hlsli"
+
 
 cbuffer Shader : register(b1)
 {
@@ -54,21 +56,14 @@ VertexOut VS(VertexIn vIn)
 PixelOutput PS(VertexOut pIn)
 {
     PixelOutput output;
-    float4 baseColor = BaseMap.Sample(BaseMapSampler, pIn.st);
-    float4 emissive = pIn.color;
-    float3 normal = pIn.normal;
-    float sheen = 0;
-    float metallic = 0; 
-    float roughness = Roughness;
-    float anisotropic = 0;
-    float clearCoat = 0;
-    float depth = pIn.posH.z;
+    int ShadingModelID = 1;
 
-    output.GBufferA = baseColor;
-    output.GBufferB = emissive;
-    output.GBufferC = float4(normal, sheen);
-    output.GBufferD = float4(metallic, roughness, anisotropic, clearCoat);
-    output.GBufferE = depth;
+    GBufferData GBuffer = GetInitialGBufferData(ShadingModelID);
+    GBuffer.BaseColor = BaseMap.Sample(BaseMapSampler, pIn.st).rgb;
+    GBuffer.ShadingModelID = ShadingModelID;
+    GBuffer.Roughness = Roughness;
+    GBuffer.LinearDepth = pIn.posH.z;
 
+    EncodeGBuffer(GBuffer, output.GBufferA, output.GBufferB, output.GBufferC, output.GBufferD, output.GBufferE);
     return output;
 }
