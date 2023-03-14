@@ -30,6 +30,8 @@ struct VertexOut
     float3 normal : NORMAL;
     float4 color : COLOR;
     float2 st : TEXCOORD;
+    float3 WorldPosition : TEXCOORD1;
+    float3 WorldNormal: TEXCOORD2;
 };
 
 struct PixelOutput
@@ -45,9 +47,12 @@ VertexOut VS(VertexIn vIn)
 {
     VertexOut vOut;
     vOut.posH = mul(float4(vIn.pos, 1.0f), cModel);
+    vOut.WorldPosition = vOut.posH.xyz;
+    vOut.WorldNormal = normalize(mul(float4(vIn.normal, 0.0f), cModel).xyz);
+
     vOut.posH = mul(vOut.posH, cView);
     vOut.posH = mul(vOut.posH, cProj);
-    vOut.color = DebugColor;
+    vOut.color = cDebugColor;
     vOut.normal = vIn.normal;
     vOut.st = 1 - vIn.st;
     return vOut;
@@ -62,7 +67,7 @@ PixelOutput PS(VertexOut pIn)
     GBuffer.BaseColor = BaseMap.Sample(BaseMapSampler, pIn.st).rgb;
     GBuffer.ShadingModelID = ShadingModelID;
     GBuffer.Roughness = Roughness;
-    GBuffer.LinearDepth = pIn.posH.z;
+    GBuffer.LinearDepth = length(pIn.WorldPosition - cViewPos) * cCameraInfo.w;
 
     EncodeGBuffer(GBuffer, output.GBufferA, output.GBufferB, output.GBufferC, output.GBufferD, output.GBufferE);
     return output;

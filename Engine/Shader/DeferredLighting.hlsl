@@ -1,6 +1,4 @@
-#include "Common.hlsli"
-#include "DeferredShadingCommon.hlsli"
-
+#include "ShadingModel.hlsli"
 
 struct VertexIn
 {
@@ -13,6 +11,7 @@ struct VertexOut
 {
 	float4 posH : SV_POSITION;
 	float2 st : TEXCOORD;
+	float3 ScreenVector : TEXCOORD1;
 };
 
 Texture2D tGBufferA : register(t0);
@@ -43,6 +42,11 @@ GBufferData SampleGBuffer(float2 tc)
     return GBuffer;
 }
 
+float3 HomScreenVector(float2 st)
+{
+	return cWBasisZ.xyz + (cWBasisX.xyz * st.x) + (cWBasisY.xyz * st.y);
+}
+
 VertexOut VS(VertexIn vIn)
 {
     VertexOut vOut;
@@ -50,16 +54,25 @@ VertexOut VS(VertexIn vIn)
 	vPos.y = 1 - vPos.y;
     vOut.posH = float4(vPos.xy * 2 - 1, vPos.z, 1.0);
     vOut.st = vIn.st;
+	vOut.ScreenVector = HomScreenVector(vIn.st);
     return vOut;
 }
 
 float4 PS(VertexOut pIn) : SV_Target
 {
+	LightingResult LResult;
+	LResult.DiffuseLighting = float3(0, 0, 0);
+	LResult.SpecularLighting = float3(0, 0, 0);
+
 	GBufferData GBuffer = SampleGBuffer(pIn.st);
-	float3 baseColor = GBuffer.BaseColor;
-	int shadingModel = GBuffer.ShadingModelID;
-	float roughness = GBuffer.Roughness;
-	float3 worldNormal = GBuffer.WorldNormal;
-	float depth = GBuffer.LinearDepth;
-	return float4(baseColor.xyz, 1) * roughness;
+	GBuffer.ViewDir = normalize(pIn.ScreenVector);
+	float3 WorldPosition = cViewPos + pIn.ScreenVector * GBuffer.LinearDepth;
+	for(int i = 0; i < LightCount; i = i + 1)
+	{
+		LightingData LitData = GetLightDataByLight(Lights[i], WorldPosition);
+		IntegrateBxDF(LResult, GBuffer, LitData);
+	}
+
+	float3 baseColor = LResult.DiffuseLighting + LResult.SpecularLighting;
+	return float4(baseColor, 1);
 }

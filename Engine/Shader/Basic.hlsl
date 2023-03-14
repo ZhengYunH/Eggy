@@ -28,20 +28,20 @@ struct VertexOut
     float3 normal : NORMAL;
     float4 color : COLOR;
     float2 st : TEXCOORD0;
-    float3 worldPosition : TEXCOORD1;
-    float3 worldNormal: TEXCOORD2;
+    float3 WorldPosition : TEXCOORD1;
+    float3 WorldNormal: TEXCOORD2;
 };
 
 VertexOut VS(VertexIn vIn)
 {
     VertexOut vOut;
     vOut.posH = mul(float4(vIn.pos, 1.0f), cModel);
-    vOut.worldPosition = vOut.posH.xyz;
-    vOut.worldNormal = normalize(mul(float4(vIn.normal, 0.0f), cModel).xyz);
+    vOut.WorldPosition = vOut.posH.xyz;
+    vOut.WorldNormal = normalize(mul(float4(vIn.normal, 0.0f), cModel).xyz);
 
     vOut.posH = mul(vOut.posH, cView);
     vOut.posH = mul(vOut.posH, cProj);
-    vOut.color = DebugColor;
+    vOut.color = cDebugColor;
     vOut.normal = vIn.normal;
     vOut.st = 1 - vIn.st;
     return vOut;
@@ -51,11 +51,11 @@ float3 ShadingByDirectLight(VertexOut pIn, LightData light)
 {
     float3 ambient = light.Ambient;
     
-    float diff = max(dot(-light.Direction, pIn.worldNormal), 0.0);
+    float diff = max(dot(-light.Direction, pIn.WorldNormal), 0.0);
     float3 diffuse = diff * light.Diffuse;
 
-    float3 viewDir = normalize(ViewPos - pIn.worldPosition);
-    float3 reflectDir = reflect(light.Direction, pIn.worldNormal);
+    float3 viewDir = normalize(cViewPos - pIn.WorldPosition);
+    float3 reflectDir = reflect(light.Direction, pIn.WorldNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
     float3 specular = spec * light.Specular;
 
@@ -66,16 +66,16 @@ float3 ShadingByPointLight(VertexOut pIn, LightData light)
 {
     float3 ambient = light.Ambient;
 
-    float3 lightDir = normalize(light.Position - pIn.worldPosition);
-    float diff = max(dot(lightDir, pIn.worldNormal), 0.0);
+    float3 lightDir = normalize(light.Position - pIn.WorldPosition);
+    float diff = max(dot(lightDir, pIn.WorldNormal), 0.0);
     float3 diffuse = diff * light.Diffuse;
 
-    float3 viewDir = normalize(ViewPos - pIn.worldPosition);
-    float3 reflectDir = reflect(light.Direction, pIn.worldNormal);
+    float3 viewDir = normalize(cViewPos - pIn.WorldPosition);
+    float3 reflectDir = reflect(light.Direction, pIn.WorldNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
     float3 specular = spec * light.Specular;
 
-    float distance = length(light.Position - pIn.worldPosition);
+    float distance = length(light.Position - pIn.WorldPosition);
     float constantFactor = light.Misc0;
     float linearFactor = light.Misc1;
     float quadraticFactor = light.Misc2;
@@ -87,7 +87,7 @@ float3 ShadingBySpotLight(VertexOut pIn, LightData light)
 {
     float3 ambient = light.Ambient;
 
-    float3 lightDir = normalize(light.Position - pIn.worldPosition);
+    float3 lightDir = normalize(light.Position - pIn.WorldPosition);
     float theta = dot(lightDir, normalize(light.Direction));
     float cutoff = light.Misc0;
     float outCutOff = light.Misc1;
@@ -96,11 +96,11 @@ float3 ShadingBySpotLight(VertexOut pIn, LightData light)
     float epsilon = cutoff - outCutOff;
     float intensity = clamp((theta - outCutOff) / epsilon, 0.0, 1.0);
 
-    float diff = max(dot(pIn.worldNormal, lightDir), 0.0) * intensity;
+    float diff = max(dot(pIn.WorldNormal, lightDir), 0.0) * intensity;
     float3 diffuse = diff * light.Diffuse;
 
-    float3 viewDir = normalize(ViewPos - pIn.worldPosition);
-    float3 reflectDir = reflect(light.Direction, pIn.worldNormal);
+    float3 viewDir = normalize(cViewPos - pIn.WorldPosition);
+    float3 reflectDir = reflect(light.Direction, pIn.WorldNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16) * intensity;
     float3 specular = spec * light.Specular;
     return ambient + diffuse + specular;
