@@ -55,7 +55,7 @@ namespace Eggy
 		void handleMouseMove(int32_t x, int32_t y, float deltaTime);
 
 	public:
-		void tick(float deltaTime);
+		void Tick(float deltaTime);
 		void setTransform(const Matrix4x3& mat) { mTransform_ = mat; }
 		void reset() {
 			mTransform_.SetIdentity();
@@ -67,6 +67,14 @@ namespace Eggy
 		Matrix4x3 getViewMatrix() const;
 		const Matrix4x4& getProjMatrix() const;
 		const float getFov() { return mFov_; }
+		const Vector4& GetWBasisX() const { return mWBasisX_; }
+		const Vector4& GetWBasisY() const { return mWBasisY_; }
+		const Vector4& GetWBasisZ() const { return mWBasisZ_; }
+		const float GetNearPlane() const { HYBRID_CHECK(mNear_ > 0); return mNear_; }
+		const float GetFarPlane() const { HYBRID_CHECK(mFar_ > 0); return mFar_; }
+
+	protected:
+		void SetupData();
 
 	public:
 		void updateProjMatrix();
@@ -74,6 +82,7 @@ namespace Eggy
 	private:
 		Matrix4x3 mTransform_;
 		Matrix4x4 mProjMatrix_;
+		Matrix4x3 mViewMatrix_;
 
 	private:
 		uint64_t mPressingKeyBit_{ 0 };
@@ -88,6 +97,9 @@ namespace Eggy
 	public:
 		float mScreenHeight_{ -1.0f };
 		float mScreenWidth_{ -1.0f };
+		Vector4 mWBasisX_;
+		Vector4 mWBasisY_;
+		Vector4 mWBasisZ_;
 	};
 }
 

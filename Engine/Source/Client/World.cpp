@@ -73,7 +73,7 @@ namespace Eggy
 		transf.SetTranslation(transf.GetTranslation() + Vector3(0, isForward ? dt : -dt, 0));
 		entity->SetTransform(transf);
 
-		mMainCamera_->tick(Engine::Get()->GetDeltaTime());
+		mMainCamera_->Tick(Engine::Get()->GetDeltaTime());
 	}
 
 }

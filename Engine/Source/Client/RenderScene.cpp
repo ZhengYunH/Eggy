@@ -30,9 +30,15 @@ namespace Eggy
 	void RenderScene::EndFrame()
 	{
 		auto& globalConstant = mContext_->GetGlobalConstant();
-		globalConstant.ProjectTransform = GetCamera()->getProjMatrix();
-		globalConstant.ViewTransform = GetCamera()->getViewMatrix();
-		globalConstant.ViewPos = GetCamera()->GetTransform().GetTranslation();
+		Camera* camera = GetCamera();
+		HYBRID_CHECK(camera);
+		globalConstant.ProjectTransform = camera->getProjMatrix();
+		globalConstant.ViewTransform = camera->getViewMatrix();
+		globalConstant.CamData.ViewPos = camera->GetTransform().GetTranslation();
+		globalConstant.CamData.BasisX = camera->GetWBasisX();
+		globalConstant.CamData.BasisY = camera->GetWBasisY();
+		globalConstant.CamData.BasisZ = camera->GetWBasisZ();
+		globalConstant.CamData.Info = Vector4(camera->GetNearPlane(), camera->GetFarPlane(), 1.0 / camera->GetNearPlane(), 1.0 / camera->GetFarPlane());
 		mContext_->PrepareBatchData();
 		mPipeline_->Consolidate();
 	}

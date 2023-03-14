@@ -31,12 +31,6 @@ namespace Eggy
 	using uint32 = uint32_t;
 }
 
-namespace Eggy
-{
-	extern const uint32 SCREEN_INIT_WIDTH;
-	extern const uint32 SCREEN_INIT_HEIGHT;
-	extern const uint32 SCREEN_REFRESH_RATE;
-}
 
 namespace Eggy
 {

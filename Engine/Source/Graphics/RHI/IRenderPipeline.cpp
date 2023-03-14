@@ -212,9 +212,13 @@ namespace Eggy
 	{
 		mParams_->SetMatrix4x4("cView", mConstant_.ViewTransform);
 		mParams_->SetMatrix4x4("cProj", mConstant_.ProjectTransform);
-		Vector3 viewPos = mConstant_.ViewPos;
-		mParams_->SetFloat("ViewPos", 0, 3, mConstant_.ViewPos.GetPointer());
-		mParams_->SetFloat("DebugColor", 0, 4, mConstant_.Color.GetPointer());
+		mParams_->SetFloat("cViewPos", 0, 3, mConstant_.CamData.ViewPos.GetPointer());
+		mParams_->SetFloat("cWBasisX", 0, 4, mConstant_.CamData.BasisX.GetPointer());
+		mParams_->SetFloat("cWBasisY", 0, 4, mConstant_.CamData.BasisY.GetPointer());
+		mParams_->SetFloat("cWBasisZ", 0, 4, mConstant_.CamData.BasisZ.GetPointer());
+		mParams_->SetFloat("cCameraInfo", 0, 4, mConstant_.CamData.Info.GetPointer());
+
+		mParams_->SetFloat("cDebugColor", 0, 4, mConstant_.Color.GetPointer());
 
 		int lightSize = (int)mLights_.size();
 		mLightParams_->SetStruct("Lights", 0, (uint16)mLights_.size(), (const void**)mLights_.data());

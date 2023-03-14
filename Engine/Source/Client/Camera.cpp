@@ -1,4 +1,6 @@
 #include "Camera.h"
+#include "Core/System/ConfigSystem.h"
+
 
 namespace Eggy
 {
@@ -16,8 +18,8 @@ namespace Eggy
 	{
 		mTransform_.SetIdentity();
 		mTransform_.LookAt(Vector3(0.f, 0.f, -5.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
-		mScreenHeight_ = static_cast<float>(SCREEN_INIT_HEIGHT);
-		mScreenWidth_ = static_cast<float>(SCREEN_INIT_WIDTH);
+		mScreenHeight_ = static_cast<float>(ConfigSystem::Get()->GetGlobalConfig("AppHeight", 600));
+		mScreenWidth_ = static_cast<float>(ConfigSystem::Get()->GetGlobalConfig("AppWidth", 800));
 		updateProjMatrix();
 
 		BindInputEvent(KeyDown, this, Camera::EventKeyDown);
@@ -162,7 +164,7 @@ namespace Eggy
 		}
 	}
 
-	void Camera::tick(float deltaTime)
+	void Camera::Tick(float deltaTime)
 	{
 		if (mPressingKeyBit_)
 		{
@@ -174,19 +176,45 @@ namespace Eggy
 			HANDLE_KEY(Q) mTransform_.SetTranslation(mTransform_.GetTranslation() - mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
 			HANDLE_KEY(E) mTransform_.SetTranslation(mTransform_.GetTranslation() + mTransform_.GetYAxis() * deltaTime * mMoveSpeed_);
 #undef HANDLE_KEY
-
 		}
+		SetupData();
 	}
 
 	Matrix4x3 Camera::getViewMatrix() const
 	{
-		Matrix4x3 viewMat = mTransform_.GetInverse();
-		return viewMat;
+		return mViewMatrix_;
 	}
 
-	const Eggy::Matrix4x4& Camera::getProjMatrix() const
-{
+	const Matrix4x4& Camera::getProjMatrix() const
+	{
 		return mProjMatrix_;
+	}
+
+	void Camera::SetupData()
+	{
+		mViewMatrix_ = mTransform_.GetInverse();
+
+		Vector3 vX{ mViewMatrix_.GetRow3(0) };
+		Vector3 vY{ mViewMatrix_.GetRow3(1) };
+		Vector3 vZ{ mViewMatrix_.GetRow3(2) };
+		vZ.Normalize();
+		vX.Normalize();
+		vY.Normalize();
+
+
+		float tanHalfFov = std::tan(DegreeToRadian(mFov_) * 0.5f);
+		vY *= mFar_ * tanHalfFov;
+		vX *= mFar_ * tanHalfFov * mScreenWidth_ / mScreenHeight_;
+		vZ *= mFar_;
+
+		// remapping for input in range (x:[0, 1], y:[0, 1], z:[0,1])
+		vZ = vZ - vX - vY;
+		vX *= 2;
+		vY *= 2;
+
+		mWBasisX_.x = vX.x; mWBasisX_.y = vX.y; mWBasisX_.z = vX.z; mWBasisX_.w = 0.0f;
+		mWBasisY_.x = vY.x; mWBasisY_.y = vY.y; mWBasisY_.z = vY.z; mWBasisY_.w = 0.0f;
+		mWBasisZ_.x = vZ.x; mWBasisZ_.y = vZ.y; mWBasisZ_.z = vZ.z; mWBasisZ_.w = 0.0f;
 	}
 
 	void Camera::updateProjMatrix()

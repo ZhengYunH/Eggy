@@ -14,10 +14,18 @@ namespace Eggy
 {
 	struct GlobalConstant
 	{
+		struct CameraData
+		{
+			Vector3 ViewPos;
+			Vector4 BasisX;
+			Vector4 BasisY;
+			Vector4 BasisZ;
+			Vector4 Info;
+		};
 		Matrix4x4 ViewTransform;
 		Matrix4x4 ProjectTransform;
+		CameraData CamData;
 		Vector4 Color{ 1.f,1.f,1.f,1.f };
-		Vector3 ViewPos;
 		float Brightness{ 1.0f };
 	};
 

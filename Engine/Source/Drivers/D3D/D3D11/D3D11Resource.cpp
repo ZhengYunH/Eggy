@@ -242,7 +242,8 @@ namespace Eggy
 		desc.SampleDesc.Quality = quality > 0 ? quality - 1 : 0;
 		desc.Usage = Converter::Usage(renderTarget->Usage);
 
-		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, nullptr, deviceRT->ppTex.GetAddressOf()));
+		HRESULT hr = mD3D11Device_->mDevice_->CreateTexture2D(&desc, nullptr, deviceRT->ppTex.GetAddressOf());
+		HR(hr);
 
 		D3D11_RENDER_TARGET_VIEW_DESC RTVDesc;
 		ZeroMemory(&RTVDesc, sizeof(RTVDesc));
@@ -318,7 +319,8 @@ namespace Eggy
 		desc.BindFlags = Converter::BufferType(texture->BindType);
 
 		D3D11_SUBRESOURCE_DATA initData = { texture->Data, texture->Width * GetFormatInfo(texture->Format).DataSize, texture->Width * texture->Height * GetFormatInfo(texture->Format).DataSize};
-		HR(mD3D11Device_->mDevice_->CreateTexture2D(&desc, &initData, deviceTexture->ppTex.GetAddressOf()));
+		HRESULT hr = mD3D11Device_->mDevice_->CreateTexture2D(&desc, &initData, deviceTexture->ppTex.GetAddressOf());
+		HR(hr);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 		SRVDesc.Format = Converter::Format(texture->Format);

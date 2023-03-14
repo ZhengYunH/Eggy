@@ -5,6 +5,7 @@
 #include "Client/RenderScene.h"
 #include "D3D11Shader.h"
 #include "Core/System/RenderSystem.h"
+#include "Core/System/ConfigSystem.h"
 
 
 // just for render-test, will be deleted soon
@@ -361,7 +362,7 @@ namespace Eggy
 			swapChainDesc.Flags = 0;
 
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapchainFullScreenDesc;
-			swapchainFullScreenDesc.RefreshRate.Numerator = SCREEN_REFRESH_RATE;
+			swapchainFullScreenDesc.RefreshRate.Numerator = ConfigSystem::Get()->GetGlobalConfig("ScreenRefreshRate", 60);
 			swapchainFullScreenDesc.RefreshRate.Denominator = 1;
 			swapchainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 			swapchainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -385,7 +386,7 @@ namespace Eggy
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 			swapChainDesc.Flags = 0;
 
-			swapChainDesc.BufferDesc.RefreshRate.Numerator = SCREEN_REFRESH_RATE;
+			swapChainDesc.BufferDesc.RefreshRate.Numerator = ConfigSystem::Get()->GetGlobalConfig("ScreenRefreshRate", 60);
 			swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 			swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 			swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
