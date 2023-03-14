@@ -28,6 +28,7 @@ namespace Eggy
 		R16_UINT,
 		R32_UINT,
 		R32G32F,
+		R32F,
 		END,
 	};
 

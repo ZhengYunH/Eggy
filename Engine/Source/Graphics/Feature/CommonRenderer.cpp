@@ -49,7 +49,7 @@ namespace Eggy
 		};
 
 		RenderTargetDesc GBufferDepth{
-			EFormat::D32_SFLOAT_S8X24_UINT,
+			EFormat::R32F,
 			backBufferDesc.Width,
 			backBufferDesc.Height,
 		};
