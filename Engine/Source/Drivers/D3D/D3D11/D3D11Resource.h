@@ -74,6 +74,7 @@ namespace Eggy
 
 		PipelineState* State;
 		TComPtr<ID3D11RasterizerState> ppRasterizerState;
+		TComPtr<ID3D11BlendState> ppBlendState;
 	};
 	
 	struct D3D11RenderTarget : public D3D11Resource

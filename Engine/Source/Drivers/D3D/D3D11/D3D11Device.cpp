@@ -228,12 +228,7 @@ namespace Eggy
 
 		// RS
 		{
-			mImmediateContext_->RSSetState(((D3D11PipelineState*)drawCall->Pipeline_.DeviceResource)->ppRasterizerState.Get());
-		}
-
-		// OM
-		{
-			// mImmediateContext_->OMSetBlendState();
+			mImmediateContext_->RSSetState(((D3D11PipelineState*)drawCall->PipelineState_.DeviceResource)->ppRasterizerState.Get());
 		}
 
 		// PS
@@ -307,6 +302,11 @@ namespace Eggy
 			mImmediateContext_->PSSetShader(pixelShader->ppShader.Get(), nullptr, 0);
 		}
 
+		// OM
+		{
+			float factor[4] = { 1.f, 1.f, 1.f, 1.f };
+			mImmediateContext_->OMSetBlendState(((D3D11PipelineState*)drawCall->PipelineState_.DeviceResource)->ppBlendState.Get(), factor, 0xffffffff);
+		}
 
 		// Draw
 		{

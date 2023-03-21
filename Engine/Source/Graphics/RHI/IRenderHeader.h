@@ -367,6 +367,7 @@ namespace Eggy
 			EnableScissor = false;
 			EnableMultisample = false;
 			EnableAntialiasedLine = false;
+			Blending = BlendState();
 		}
 	};
 }

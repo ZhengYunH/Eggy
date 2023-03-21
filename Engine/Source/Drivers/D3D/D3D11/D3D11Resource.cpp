@@ -218,6 +218,23 @@ namespace Eggy
 			desc.AntialiasedLineEnable = renderState.EnableAntialiasedLine;
 			mD3D11Device_->mDevice_->CreateRasterizerState(&desc, devicePipelineState->ppRasterizerState.GetAddressOf());
 		}
+
+		{
+			D3D11_BLEND_DESC desc = {};
+			auto& blendState = pipelineState->State.Blending;
+			desc.AlphaToCoverageEnable = blendState.EnableAlphaToCoverage;
+			desc.IndependentBlendEnable = blendState.EnableIndependentBlend;
+			desc.RenderTarget[0].BlendEnable = blendState.EnableBlend;
+			desc.RenderTarget[0].BlendOp = Converter::BlendOp(blendState.BlendOp);
+			desc.RenderTarget[0].BlendOpAlpha = Converter::BlendOp(blendState.BlendOpAlpha);
+			desc.RenderTarget[0].DestBlend = Converter::Blend(blendState.DestBlend);
+			desc.RenderTarget[0].DestBlendAlpha = Converter::Blend(blendState.DestBlendAlpha);
+			desc.RenderTarget[0].SrcBlend = Converter::Blend(blendState.SrcBlend);
+			desc.RenderTarget[0].SrcBlendAlpha = Converter::Blend(blendState.SrcBlendAlpha);
+			desc.RenderTarget[0].RenderTargetWriteMask = Converter::ColorWriteMask(blendState.WriteMask);
+
+			mD3D11Device_->mDevice_->CreateBlendState(&desc, devicePipelineState->ppBlendState.GetAddressOf());
+		}
 	}
 
 	void D3D11ResourceFactory::CreateRenderTarget(struct IRenderTarget* renderTarget)

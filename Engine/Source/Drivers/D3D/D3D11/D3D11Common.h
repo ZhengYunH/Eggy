@@ -186,6 +186,49 @@ namespace Eggy
 			HYBRID_CHECK(uint32(mode) <= uint32(ECullMode::END));
 			return cullModes[uint32(mode)];
 		}
+
+		static D3D11_BLEND Blend(EBlendMode mode)
+		{
+			static D3D11_BLEND blendModes[uint32(EBlendMode::END)] = {
+				D3D11_BLEND_ZERO, // UNDEFINE
+				D3D11_BLEND_ZERO, // Zero
+				D3D11_BLEND_ONE , // One
+				D3D11_BLEND_SRC_COLOR, // SrcColor
+				D3D11_BLEND_INV_SRC_COLOR, // InvSrcColor
+				D3D11_BLEND_SRC_ALPHA, // SrcAlpha
+				D3D11_BLEND_INV_SRC_ALPHA, // InvSrcAlpha
+				D3D11_BLEND_DEST_ALPHA, // DestAlpha
+				D3D11_BLEND_INV_DEST_ALPHA, // InvDestAlpha
+				D3D11_BLEND_DEST_COLOR, // DestColor
+				D3D11_BLEND_INV_DEST_COLOR, // InvDestColor
+				D3D11_BLEND_SRC_ALPHA_SAT, // SrcAlphaSaturate
+				D3D11_BLEND_BLEND_FACTOR, // BlendFactor
+				D3D11_BLEND_INV_BLEND_FACTOR, // InvBlendFactor
+			};
+
+			HYBRID_CHECK(uint32(mode) <= uint32(EBlendMode::END));
+			return blendModes[uint32(mode)];
+		}
+
+		static D3D11_BLEND_OP BlendOp(EBlendOp op)
+		{
+			static D3D11_BLEND_OP blendOps[uint32(EBlendOp::END)] = {
+				D3D11_BLEND_OP_ADD, // UNDEFINE
+				D3D11_BLEND_OP_SUBTRACT, // Add,
+				D3D11_BLEND_OP_ADD, // Substract,
+				D3D11_BLEND_OP_REV_SUBTRACT, // RevSubstract,
+				D3D11_BLEND_OP_MIN, // Min,
+				D3D11_BLEND_OP_MAX, // Max
+			};
+
+			HYBRID_CHECK(uint32(op) <= uint32(EBlendOp::END));
+			return blendOps[uint32(op)];
+		}
+
+		static UINT8 ColorWriteMask(EColorWrite colorWrite)
+		{
+			return UINT8(colorWrite);
+		}
 		
 		static UINT SamplerCount(ESamplerQuality quality)
 		{
