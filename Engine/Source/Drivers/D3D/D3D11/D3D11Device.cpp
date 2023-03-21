@@ -231,6 +231,11 @@ namespace Eggy
 			mImmediateContext_->RSSetState(((D3D11PipelineState*)drawCall->Pipeline_.DeviceResource)->ppRasterizerState.Get());
 		}
 
+		// OM
+		{
+			// mImmediateContext_->OMSetBlendState();
+		}
+
 		// PS
 		{
 

@@ -22,10 +22,15 @@ namespace Eggy
 		Map<String, ITexture*>& GetTextures() { return mTextures_; }
 		ShadingParameterCollection* GetParameters() { return mParams_; }
 		Shader* GetShader() { return mShader_; }
+		ERenderSets GetRenderSet() const { return mRenderSet_; }
+		void SetRenderSet(ERenderSets val) { mRenderSet_ = val; }
+		void AddRenderSet(ERenderSet val) { mRenderSet_ |= ERenderSets(val); }
 
 	protected:
 		Shader* mShader_{ nullptr };
 		Map<String, ITexture*> mTextures_;
 		ShadingParameterCollection* mParams_{ nullptr };
+		ERenderSets mRenderSet_{ ERenderSets(ERenderSet::Main) };
+		
 	};
 }

@@ -29,8 +29,8 @@ namespace Eggy
 	{
 		if (token != mToken_)
 			return;
-		mMesh_ = new Mesh(mResource_->GetMesh());
-		mMaterial_ = new Material(mResource_->GetMaterial());
+		SetMesh(new Mesh(mResource_->GetMesh()));
+		SetMaterial(new Material(mResource_->GetMaterial()));
 	}
 
 }

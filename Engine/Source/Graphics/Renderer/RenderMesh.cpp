@@ -4,6 +4,12 @@
 
 namespace Eggy
 {
+	void RenderMeshElement::GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs)
+	{
+		HYBRID_CHECK(mMeshData_);
+		mMeshData_->GetVertexDesc(Descs);
+	}
+
 	RenderMeshElement* RenderMesh::GetRenderElement(size_t index) noexcept
 	{
 		HYBRID_CHECK(index < mRenderElements_.size());
@@ -15,11 +21,11 @@ namespace Eggy
 		return mRenderElements_.size();
 	}
 
-	void RenderMesh::Deserialize(class MeshResource* Resource)
+	void RenderMesh::Deserialize(List<IMeshData*>& MeshData)
 	{
-		for(IMeshData* meshData : Resource->GetGeometrys())
+		for(IMeshData* meshData : MeshData)
 		{
-			RenderMeshElement* element = new RenderMeshElement();
+			RenderMeshElement* element = new RenderMeshElement(meshData);
 			{
 				auto& vertexInfo = element->vertexInfo;
 				vertexInfo.Count = meshData->GetVertexData(vertexInfo.Data);
@@ -33,5 +39,4 @@ namespace Eggy
 			mRenderElements_.push_back(element);
 		}
 	}
-
 }

@@ -49,8 +49,108 @@ namespace Eggy
 		Unimplement();
 		return false;
 	}
-
 	const QuatMesh QuatMesh::ConstMesh;
+
+	void QuatHelperMesh::PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index)
+	{
+		Vertex = List<VertexType>({
+						{ Vector3(0.0f, 0.0f, 0.0f), mColor_ },
+						{ Vector3(0.0f, 1.0f, 0.0f), mColor_ },
+						{ Vector3(1.0f, 0.0f, 0.0f), mColor_ },
+						{ Vector3(1.0f, 1.0f, 0.0f), mColor_ }
+			});
+		Index = List<IndexType>({
+				0, 2, 1,
+				1, 2, 3
+			});
+	}
+
+	void CubeHelperMesh::PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index)
+	{
+		Vertex = List<VertexType>({
+			{ Vector3(-1.0f, -1.0f, -1.0f), mColor_ },
+			{ Vector3(-1.0f, 1.0f, -1.0f), mColor_ },
+			{ Vector3(1.0f, 1.0f, -1.0f), mColor_ },
+			{ Vector3(1.0f, -1.0f, -1.0f), mColor_ },
+			{ Vector3(-1.0f, -1.0f, 1.0f), mColor_ },
+			{ Vector3(-1.0f, 1.0f, 1.0f), mColor_ },
+			{ Vector3(1.0f, 1.0f, 1.0f), mColor_ },
+			{ Vector3(1.0f, -1.0f, 1.0f), mColor_ }
+		});
+		
+		Index = List<IndexType>({
+			0, 1, 2, 2, 3, 0,	// Front
+			4, 5, 1, 1, 0, 4,	// Left
+			1, 5, 6, 6, 2, 1,	// Top
+			7, 6, 5, 5, 4, 7,	// Back
+			3, 2, 6, 6, 7, 3,	// Right
+			4, 0, 3, 3, 7, 4	// Bottom
+		});
+	}
+
+
+	void PyramidHelperMesh::PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index)
+	{
+		Vertex = List<VertexType>({
+						{ Vector3(0.f, 2.f, 0.f), mColor_},
+						{ Vector3(1.f, 0.f, 1.f), mColor_},
+						{ Vector3(1.f, 0.f, -1.f), mColor_},
+						{ Vector3(-1.f, 0.f, -1.f), mColor_},
+						{ Vector3(-1.f, 0.f, 1.f), mColor_},
+			});
+		Index = List<IndexType>({
+				0, 1, 2,
+				0, 2, 3,
+				0, 3, 4,
+				0, 4, 1,
+				1, 2, 3,
+				1, 3, 4
+			});
+	}
+	
+
+	void SphereHelperMesh::PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index)
+	{
+		float startU = 0;
+		float endU = 2 * MATH_PI;
+
+		float startV = 0;
+		float endV = MATH_PI;
+
+		const size_t division = mDivision_;
+		const float stepU = (endU - startU) / division;
+		const float stepV = (endV - startV) / division;
+
+		for (size_t i = 0; i < division; ++i)
+		{
+			for (size_t j = 0; j < division; ++j)
+			{
+				float u = i * stepU + startU;
+				float v = j * stepV + startV;
+				float un = (i + 1 == division) ? endU : (i + 1) * stepU + startU;
+				float vn = (j + 1 == division) ? endV : (j + 1) * stepV + startV;
+
+				Vector3 p0 = _GetUnitSphereSurfacePoint(u, v) * mRadius_;
+				Vector3 p1 = _GetUnitSphereSurfacePoint(u, vn) * mRadius_;
+				Vector3 p2 = _GetUnitSphereSurfacePoint(un, v) * mRadius_;
+				Vector3 p3 = _GetUnitSphereSurfacePoint(un, vn) * mRadius_;
+
+				Vertex.push_back({ p0, mColor_ });
+				Vertex.push_back({ p1, mColor_ });
+				Vertex.push_back({ p2, mColor_ });
+				Vertex.push_back({ p3, mColor_ });
+
+				uint32_t index = static_cast<uint32_t>(Vertex.size());
+				Index.push_back(index + 0);
+				Index.push_back(index + 1);
+				Index.push_back(index + 2);
+
+				Index.push_back(index + 1);
+				Index.push_back(index + 3);
+				Index.push_back(index + 2);
+			}
+		}
+	}
 
 }
 

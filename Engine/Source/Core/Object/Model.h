@@ -17,9 +17,12 @@ namespace Eggy
 	public:
 		void SetResourceID(const Guid& resourceID);
 		virtual bool IsReady();
+		
+		void SetMesh(Mesh* mesh) { HYBRID_CHECK(!mMesh_); mMesh_ = mesh; }
 		Mesh* GetMesh() const { return mMesh_; }
-		Material* GetMaterial() const { return mMaterial_; }
 
+		void SetMaterial(Material* mat) { HYBRID_CHECK(!mMaterial_); mMaterial_ = mat; }
+		Material* GetMaterial() const { return mMaterial_; }
 	protected:
 		void _OnResourceLoaded(uint8 token);
 

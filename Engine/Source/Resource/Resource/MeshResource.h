@@ -119,98 +119,94 @@ namespace Eggy
 		static const QuatMesh ConstMesh;
 	};
 
-	template<EVertexFormat Format>
-	struct CubeMesh : public MeshData<Format>
+	enum class EHelperMesh
 	{
-		using Parent = MeshData<Format>;
-		CubeMesh() : Parent()
-		{
-			CreateMeshData();
-		}
-
-		void CreateMeshData()
-		{
-		}
+		Quat,
+		Cube,
+		Pyramid,
+		Sphere
 	};
 
-	template<>
-	struct CubeMesh<EVF_P3F_C4B_T2F> : public MeshData<EVF_P3F_C4B_T2F>
+	class HelperMesh : public MeshData<EVF_P3F_C4B>
 	{
-		using Parent = MeshData<EVF_P3F_C4B_T2F>;
-		CubeMesh() : Parent()
+	public:
+		HelperMesh()
 		{
-			CreateMeshData();
+			mColor_.u8[3] = 255 / 2;
 		}
 
-		void CreateMeshData()
+		void Consolidate()
 		{
-			SetupData(
-				List<VertexType>({
-						{ Vector3(-1.0f, -1.0f, -1.0f), Color4B(0.0f, 0.0f, 0.0f, 1.0f),  Vector2(0.0f, 0.0f)},
-						{ Vector3(-1.0f, 1.0f, -1.0f), Color4B(1.0f, 0.0f, 0.0f, 1.0f),  Vector2(0.0f, 1.0f) },
-						{ Vector3(1.0f, 1.0f, -1.0f), Color4B(1.0f, 1.0f, 0.0f, 1.0f),  Vector2(1.0f, 1.0f) },
-						{ Vector3(1.0f, -1.0f, -1.0f), Color4B(0.0f, 1.0f, 0.0f, 1.0f),  Vector2(1.0f, 0.0f) },
-						{ Vector3(-1.0f, -1.0f, 1.0f), Color4B(0.0f, 0.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) },
-						{ Vector3(-1.0f, 1.0f, 1.0f), Color4B(1.0f, 0.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) },
-						{ Vector3(1.0f, 1.0f, 1.0f), Color4B(1.0f, 1.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) },
-						{ Vector3(1.0f, -1.0f, 1.0f), Color4B(0.0f, 1.0f, 1.0f, 1.0f),  Vector2(0.0f, 0.0f) }
-					}),
-				List<IndexType>({
-						0, 1, 2, 2, 3, 0,	// Front
-						4, 5, 1, 1, 0, 4,	// Left
-						1, 5, 6, 6, 2, 1,	// Top
-						7, 6, 5, 5, 4, 7,	// Back
-						3, 2, 6, 6, 7, 3,	// Right
-						4, 0, 3, 3, 7, 4	// Bottom
-					})
-			);
+			List<VertexType> Vertex;
+			List<IndexType> Index;
+			PrepareMeshData(Vertex, Index);
+			SetupData(Vertex, Index);
 		}
+
+		void SetColor(Color4B& color)
+		{
+			mColor_ = color;
+		}
+
+	protected:
+		virtual void PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index) = 0;
+		
+	protected:
+		Color4B mColor_{ Color4B_WRITE };
 	};
 
-	template<EVertexFormat Format>
-	struct PyramidMesh : public MeshData<Format>
+	template<EHelperMesh _T> static HelperMesh* GetHelperMesh() { return nullptr; }
+
+#define DefineHelperMesh(EMesh, MeshClass) \
+	template<> static HelperMesh* GetHelperMesh<EHelperMesh::EMesh>() \
+	{\
+		static MeshClass* G_HelperMesh = nullptr; \
+		if(!G_HelperMesh) { G_HelperMesh = new MeshClass(); G_HelperMesh->Consolidate(); } \
+		return G_HelperMesh; \
+	}
+
+	class QuatHelperMesh : public HelperMesh
 	{
-		using Parent = MeshData<Format>;
-		PyramidMesh() : Parent()
-		{
-			CreateMeshData();
-		}
-
-		void CreateMeshData()
-		{
-		}
+	protected:
+		void PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index) override;
 	};
+	DefineHelperMesh(Quat, QuatHelperMesh);
 
-	template<>
-	struct PyramidMesh<EVF_P3F_C4B> : public MeshData<EVF_P3F_C4B>
+
+	class CubeHelperMesh : public HelperMesh
 	{
-		using Parent = MeshData<EVF_P3F_C4B>;
-		PyramidMesh() : Parent()
-		{
-			CreateMeshData();
-		}
-
-		void CreateMeshData()
-		{
-			SetupData(
-				List<VertexType>({
-						{ Vector3(0.f, 2.f, 0.f), Color4B_BLACK },
-						{ Vector3(1.f, 0.f, 1.f), Color4B_WRITE },
-						{ Vector3(1.f, 0.f, -1.f), Color4B_RED },
-						{ Vector3(-1.f, 0.f, -1.f), Color4B_GREEN },
-						{ Vector3(-1.f, 0.f, 1.f), Color4B_BLUE },
-					}),
-					List<IndexType>({
-							0, 1, 2,
-							0, 2, 3,
-							0, 3, 4,
-							0, 4, 1,
-							1, 2, 3,
-							1, 3, 4
-						})
-			);
-		}
+	protected:
+		void PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index) override;
 	};
+	DefineHelperMesh(Cube, CubeHelperMesh);
+	
+
+	class PyramidHelperMesh : public HelperMesh
+	{
+	protected:
+		void PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index) override;
+
+	};
+	DefineHelperMesh(Pyramid, PyramidHelperMesh);
+
+
+	class SphereHelperMesh : public HelperMesh
+	{
+	public:
+		void SetResolution(size_t division) { mDivision_ = division; }
+
+	protected:
+		void PrepareMeshData(List<VertexType>& Vertex, List<IndexType>& Index) override;
+		Vector3 _GetUnitSphereSurfacePoint(float u, float v)
+		{
+			return Vector3(Cos(u) * Sin(v), Cos(v), Sin(u) * Sin(v));
+		}
+	private:
+		size_t mDivision_{ 24 };
+		float mRadius_{ 1.f };
+	};
+	DefineHelperMesh(Sphere, SphereHelperMesh);
+
 
 	class MeshResource : public ResourceObject
 	{

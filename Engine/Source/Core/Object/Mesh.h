@@ -13,15 +13,19 @@ namespace Eggy
 	public:
 		Mesh() {}
 		Mesh(TSharedPtr<MeshResource> resource)
+			: Mesh(resource->GetGeometrys())
 		{
-			mResource_ = resource;
-			mRenderMesh_ = new RenderMesh();
-			mRenderMesh_->Deserialize(resource.Get());
 		}
+
+		Mesh(List<IMeshData*>& MeshData)
+		{
+			mRenderMesh_ = new RenderMesh();
+			mRenderMesh_->Deserialize(MeshData);
+		}
+
 		IRenderMesh* GetRenderMesh() { return mRenderMesh_; }
 
 	protected:
-		TSharedPtr<MeshResource> mResource_;
 		IRenderMesh* mRenderMesh_{ nullptr };
 	};
 }

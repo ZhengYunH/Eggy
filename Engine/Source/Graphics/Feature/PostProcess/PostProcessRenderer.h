@@ -18,6 +18,8 @@ namespace Eggy
 
 			indexInfo.Count = QuatMesh::ConstMesh.GetIndexData(indexInfo.Data);
 			indexInfo.Stride = QuatMesh::ConstMesh.GetIndexStride();
+
+			Initialize();
 		}
 	};
 
@@ -26,7 +28,6 @@ namespace Eggy
 	public:
 		Postprocess(String shaderPath) : RenderPass()
 		{
-			mRenderElement.Initialize();
 			mInfo_.Object = new RenderObject();
 			auto shader = new Shader(shaderPath);
 			mInfo_.Material_ = new Material(shader);

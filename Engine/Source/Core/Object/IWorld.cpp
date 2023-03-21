@@ -7,6 +7,7 @@
 #include "Client/RenderScene.h"
 #include "Client/ClientScene.h" // #include "Scene.h"
 #include "Client/PrimitivesComponent.h"
+#include "Client/HelperPrimitivesComponent.h"
 #include "Client/LightComponent.h"
 
 
@@ -40,6 +41,7 @@ namespace Eggy
 		entity1->EnterWorld(this);
 		Matrix4x3 transf1;
 		transf1.SetScale(Vector3(0.5f, 0.5f, 0.5f));
+		transf1.SetTranslation(Vector3(-1.f, 0.0, 1.f));
 		entity1->SetTransform(transf1);
 		mEntities_.push_back(entity1);
 
@@ -48,16 +50,16 @@ namespace Eggy
 		prim2->LoadResource("EngineDefault/Box/Model");
 		entity2->AddComponent(prim2);
 		entity2->EnterWorld(this);
-		Matrix4x3 transf2;
-		transf2.SetTranslation(Vector3(1.f, 0, -0.5f));
-		entity2->SetTransform(transf2);
 		mEntities_.push_back(entity2);
 
 		IEntity* Light = new IEntity();
 		Matrix4x3 transf3;
 		transf3.SetPitchYawRoll(DegreeToRadian(-45.f), 0, 0);
 		transf3.SetTranslation(Vector3(0.f, 0.f, -2.5f));
+		transf3.SetScale(Vector3(0.1f, 0.1f, 0.1f));
 		Light->SetTransform(transf3);
+		auto* prim3 = new HelperPrimitvesComponent<EHelperMesh::Sphere>();
+		Light->AddComponent(prim3);
 		Light->AddComponent(new DirectionLightComponent());
 		Light->AddComponent(new SpotLightComponent());
 		Light->AddComponent(new PointLightComponent());

@@ -7,6 +7,7 @@ namespace Eggy
 	{
 		RenderPass* output = scenePass.Connect(&denotator);
 		output = lightingPass.Connect(output);
+		output = helperScenePass.Connect(output);
 		output = blurPostprocess.Connect(output);
 		output = textureToScreen.Connect(output);
 		output = imguiPass.Connect(output);

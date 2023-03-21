@@ -47,7 +47,11 @@ namespace Eggy
 			info->Material_ = material;
 			element->PrepareRenderItemInfo(context, info);
 			RenderItem* item = context->GenerateRenderItem(info);
-			context->SubmitRenderItem(ERenderSet::Main, item);
+			ERenderSets renderSet = material->GetRenderSet();
+			if(renderSet & ERenderSets(ERenderSet::Main))
+				context->SubmitRenderItem(ERenderSet::Main, item);
+			if (renderSet & ERenderSets(ERenderSet::Helper))
+				context->SubmitRenderItem(ERenderSet::Helper, item);
 		}
 	}
 

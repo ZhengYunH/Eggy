@@ -1,8 +1,8 @@
 #pragma once
 #include "Interface/IRenderScene.h"
 #include "Object/IComponent.h"
-#include "Object/Model.h"
 #include "Object/IPrimitive.h"
+#include "Object/Model.h"
 
 
 namespace Eggy

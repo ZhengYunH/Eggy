@@ -21,6 +21,8 @@ namespace Eggy
 		DeferredScenePass scenePass;
 		DeferredLightingPass lightingPass;
 
+		HelperScenePass helperScenePass;
+
 		BlurPostprocess blurPostprocess;
 
 		ImguiPass imguiPass;

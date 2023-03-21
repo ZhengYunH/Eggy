@@ -9,30 +9,18 @@ namespace Eggy
 	class RenderMeshElement : public RenderElement<EVF_P3F_N3F_T2F, uint32>
 	{
 	public:
-		RenderMeshElement() 
+		RenderMeshElement(IMeshData* md)
+			: mMeshData_(md)
 		{
 		}
+
+		void GetVertexDesc(List<IInputLayout::InputElementDesc>& Descs) override;
 
 	protected:
+		IMeshData* mMeshData_{ nullptr };
+
 	};
 
-
-	class RenderTriangleMesh : public IRenderMesh
-	{
-	public:
-		size_t GetElementsSize() noexcept override
-		{
-			return 1;
-		}
-
-		IRenderElement* GetRenderElement(size_t index) noexcept override
-		{
-			return &mElement_;
-		}
-
-	protected:
-		RenderTriangleElement mElement_;
-	};
 
 	class RenderMesh : public IRenderMesh
 	{
@@ -43,7 +31,7 @@ namespace Eggy
 
 		size_t GetElementsSize() noexcept override;
 
-		void Deserialize(class MeshResource* Resource) override;
+		void Deserialize(List<struct IMeshData*>& MeshData) override;
 
 	protected:
 		List<RenderMeshElement*> mRenderElements_;
