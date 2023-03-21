@@ -25,4 +25,12 @@ namespace Eggy
 		RenderPass* Connect(RenderPass* input);
 		void Compile(RenderGraphBuilder* builder) override;
 	};
+
+	class HelperScenePass : public RenderPass 
+	{
+	public:
+		HelperScenePass() = default;
+		RenderPass* Connect(RenderPass* input);
+		void Compile(RenderGraphBuilder* builder) override;
+	};
 }

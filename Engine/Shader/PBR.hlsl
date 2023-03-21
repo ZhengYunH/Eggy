@@ -68,6 +68,7 @@ PixelOutput PS(VertexOut pIn)
     GBuffer.ShadingModelID = ShadingModelID;
     GBuffer.Roughness = Roughness;
     GBuffer.LinearDepth = length(pIn.WorldPosition - cViewPos) * cCameraInfo.w;
+    GBuffer.WorldNormal = pIn.WorldNormal;
 
     EncodeGBuffer(GBuffer, output.GBufferA, output.GBufferB, output.GBufferC, output.GBufferD, output.GBufferE);
     return output;

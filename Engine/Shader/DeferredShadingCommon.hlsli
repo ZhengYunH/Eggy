@@ -60,7 +60,7 @@ int DecodeShadingModelID(float val)
 
 void EncodeGBuffer(GBufferData GBuffer, out float4 GBufferA, out float4 GBufferB, out float4 GBufferC, out float4 GBufferD, out float GBufferE)
 {
-    GBufferA = float4(GBuffer.WorldNormal, 0.0);
+    GBufferA = float4((float3(1.0, 1.0, 1.0) + GBuffer.WorldNormal) * 0.5, 0.0);
     GBufferB = float4(GBuffer.Metallic, GBuffer.Specular, GBuffer.Roughness, EncodeShadingModelID(GBuffer.ShadingModelID));
     GBufferC = float4(GBuffer.BaseColor, GBuffer.AO);
     GBufferD = GBuffer.CustomData;
@@ -70,7 +70,7 @@ void EncodeGBuffer(GBufferData GBuffer, out float4 GBufferA, out float4 GBufferB
 GBufferData DecodeGBuffer(float4 GBufferA, float4 GBufferB, float4 GBufferC, float4 GBufferD, float GBufferE)
 {
 	GBufferData GBuffer;
-    GBuffer.WorldNormal = GBufferA.xyz;
+    GBuffer.WorldNormal = GBufferA.xyz * 2 - 1;
 	
     GBuffer.Metallic = GBufferB.x;
     GBuffer.Specular = GBufferB.y;

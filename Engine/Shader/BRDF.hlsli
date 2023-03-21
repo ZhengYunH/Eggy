@@ -18,9 +18,10 @@ float D_GGX(float Roughness, float NoH)
 }
 
 // F-term
-float3 F_Schlick(float3 SpecularColor, float VoH)
+float3 F_Schlick(float3 F0, float VoH)
 {
-	return SpecularColor + ( saturate( half(50.0) * SpecularColor.g ) - SpecularColor ) * exp2( (half(-5.55473) * VoH - half(6.98316)) * VoH );
+    float cosTheta = max(VoH, 0);
+	return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 float F_Schlick(float F0, float F90, float u)
@@ -63,7 +64,7 @@ float3 CalculateF0(float3 BaseColor, float IoR, float Metallic)
     return F0;
 }
 
-float3 PbrBRDF(in float3 L, in float3 N, in float3 V, in float3 DiffuseColor, in float3 SpecularColor, in float Roughness)
+float3 PbrBRDF(in float3 L, in float3 N, in float3 V, in float3 DiffuseColor, in float3 SpecularColor, in float Roughness, in float Metallic)
 {
     float3 H = normalize(V + L);
     float NoH = saturate(dot(N, H));
@@ -71,7 +72,9 @@ float3 PbrBRDF(in float3 L, in float3 N, in float3 V, in float3 DiffuseColor, in
     float VoL = saturate(dot(V, L));
 
     float D = D_GGX(Roughness, NoH);
-    float3 F = F_Schlick(SpecularColor, VoH);
+    float IoR = Metallic < 0.01 ? 1.5 : 20;
+    float3 F0 = CalculateF0(Roughness, IoR, Metallic);
+    float3 F = F_Schlick(F0, VoH);
     float G = G_Schlick(Roughness, VoH, VoL);
 
     return DiffuseColor * (1 - F) + SpecularColor * (D*F*G);

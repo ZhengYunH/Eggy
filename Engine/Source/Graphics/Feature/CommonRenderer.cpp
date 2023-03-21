@@ -49,7 +49,7 @@ namespace Eggy
 		};
 
 		RenderTargetDesc GBufferDepth{
-			EFormat::R32F,
+			EFormat::R16_UNORM,
 			backBufferDesc.Width,
 			backBufferDesc.Height,
 		};
@@ -59,6 +59,20 @@ namespace Eggy
 		SetOutput(builder, GBufferDescLow, 2); // GBufferC: BaseColor, AO
 		SetOutput(builder, GBufferDescLow, 3); // GBufferD: CustomData
 		SetOutput(builder, GBufferDepth, 4); // GBufferE: LinearDepth
+	}
+
+	RenderPass* HelperScenePass::Connect(RenderPass* input)
+	{
+		AddInput(input);
+		return this;
+	}
+
+	void HelperScenePass::Compile(RenderGraphBuilder* builder)
+	{
+		Pipeline->AddDrawCallChannel(ERenderSet::Helper, this);
+
+		RenderPass* inputPass = GetInput(0);
+		SetOutput(builder, inputPass->GetOutput(0));
 	}
 
 }

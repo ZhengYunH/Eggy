@@ -14,7 +14,7 @@ void DefaultLitBxDF(in out LightingResult LitResult, in GBufferData GBuffer, in 
 
     LitResult.SpecularLighting += PbrBRDF(
         LitData.L, GBuffer.WorldNormal, GBuffer.ViewDir, 
-        GBuffer.BaseColor, GBuffer.SpecularColor, GBuffer.Roughness
+        GBuffer.BaseColor, GBuffer.SpecularColor, GBuffer.Roughness, GBuffer.Metallic
     );
 }
 
