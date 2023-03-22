@@ -69,7 +69,7 @@ namespace Eggy
 		return item;
 	}
 
-	Eggy::DrawCall* RenderContext::GenerateDrawCall(ERenderSet set, RenderItem* item)
+	DrawCall* RenderContext::GenerateDrawCall(ERenderSet set, RenderItem* item)
 	{
 		DrawCall* dp = new DrawCall();
 		dp->Item_ = item;

@@ -105,7 +105,7 @@ namespace Eggy
 				auto table = technique->GetConstantTable(EShaderConstant::Batch);
 				if(table)
 				{
-					mParams_ = new ShadingParameterCollection();
+					mParams_ = new ShadingParameterCollection(table);
 					ShadingState->GetBatch()->SetConstantBuffer(EShaderConstant::Batch, mParams_);
 				}
 			}

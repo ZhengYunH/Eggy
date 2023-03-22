@@ -35,7 +35,6 @@ namespace Eggy
 			for (auto& pair : material->GetTextures())
 			{
 				uint8 slot = 0;
-				EShaderStage stage = EShaderStage::PS;
 				if (mBatch_->GetTextureSlot(ETechnique::Shading, pair.first, slot))
 					mBatch_->mResourceBindings_->SetTexture(slot, pair.second->GetRenderTexture());
 			}
