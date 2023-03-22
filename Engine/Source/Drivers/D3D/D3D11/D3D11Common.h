@@ -214,8 +214,8 @@ namespace Eggy
 		{
 			static D3D11_BLEND_OP blendOps[uint32(EBlendOp::END)] = {
 				D3D11_BLEND_OP_ADD, // UNDEFINE
-				D3D11_BLEND_OP_SUBTRACT, // Add,
-				D3D11_BLEND_OP_ADD, // Substract,
+				D3D11_BLEND_OP_ADD, // Add,
+				D3D11_BLEND_OP_SUBTRACT, // Substract,
 				D3D11_BLEND_OP_REV_SUBTRACT, // RevSubstract,
 				D3D11_BLEND_OP_MIN, // Min,
 				D3D11_BLEND_OP_MAX, // Max

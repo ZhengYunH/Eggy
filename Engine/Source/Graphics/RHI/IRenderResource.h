@@ -228,5 +228,22 @@ namespace Eggy
 			factory->CreatePipelineState(this);
 		}
 
+		size_t Hash() const
+		{
+			size_t v = ((size_t)State.Hash[0]) + ((size_t)State.Hash[1] << 16) + ((size_t)State.Hash[2] << 24) + ((size_t)State.Hash[3] << 32);
+			return v;
+		}
+	};
+}
+
+namespace std
+{
+	using namespace Eggy;
+	template<> struct hash<PipelineState>
+	{
+		size_t operator()(PipelineState const& ps) const noexcept
+		{
+			return ps.Hash();
+		}
 	};
 }

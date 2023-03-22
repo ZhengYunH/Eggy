@@ -32,7 +32,7 @@ namespace Eggy
 
 	void RenderContext::SubmitRenderItem(ERenderSet set, RenderItem* item)
 	{
-		DrawCall* dp = GenerateDrawCall(item);
+		DrawCall* dp = GenerateDrawCall(set, item);
 		mPipeline_->AddDrawCall(set, dp);
 	}
 
@@ -69,7 +69,7 @@ namespace Eggy
 		return item;
 	}
 
-	DrawCall* RenderContext::GenerateDrawCall(RenderItem* item)
+	Eggy::DrawCall* RenderContext::GenerateDrawCall(ERenderSet set, RenderItem* item)
 	{
 		DrawCall* dp = new DrawCall();
 		dp->Item_ = item;
@@ -90,6 +90,11 @@ namespace Eggy
 		{
 			dp->GeometryBinding_ = info->GeometryBinding_; 
 			dp->GeometryBinding_->Layout.VSShader = dp->ShaderTechnique_->GetStageInstance(EShaderStage::VS)->_ShaderRenderResource;
+		}
+
+		// Pipeline State
+		{
+			dp->PipelineState_ = TranslatePipelineState(ERenderSets(set));
 		}
 		// TODO: setup Pipeline State
 		return dp;

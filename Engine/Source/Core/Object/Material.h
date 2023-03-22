@@ -4,10 +4,24 @@
 #include "Resource/MaterialResource.h"
 #include "Resource/TextureResource.h"
 #include "Graphics/RHI/Shader/ShaderParamter.h"
+#include "Core/DataType/Container/Pool.h"
 
 
 namespace Eggy
 {
+	using PipelineStatePool = TPool<PipelineState>;
+
+	static PipelineState* TranslatePipelineState(ERenderSets set)
+	{
+		PipelineState pipelineState;
+		if (set & ERenderSets(ERenderSet::Helper))
+		{
+			pipelineState.State.Blending.EnableBlend = true;
+			pipelineState.State.FillMode = EFillMode::Wireframe;
+		}
+		return PipelineStatePool::Instance().GetPoolObject(pipelineState).Get();
+	}
+
 	class Shader;
 	class Texture;
 	class Material : public IObject
@@ -31,6 +45,6 @@ namespace Eggy
 		Map<String, ITexture*> mTextures_;
 		ShadingParameterCollection* mParams_{ nullptr };
 		ERenderSets mRenderSet_{ ERenderSets(ERenderSet::Main) };
-		
 	};
 }
+

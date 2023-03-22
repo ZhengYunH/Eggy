@@ -12,7 +12,7 @@ namespace Eggy
 	{
 		mRenderElement.PrepareRenderItemInfo(context, &mInfo_);
 		RenderItem* item = context->GenerateRenderItem(&mInfo_);
-		AddDrawCall(context->GenerateDrawCall(item));
+		AddDrawCall(context->GenerateDrawCall(ERenderSet::PostProcess, item));
 	}
 
 	RenderPass* BlurPostprocess::Connect(RenderPass* input)

@@ -44,7 +44,7 @@ namespace Eggy
 		ShaderTechnique* ShaderTechnique_{ nullptr };
 		IShadingState* ShadingState_{ nullptr };
 		GeometryBinding* GeometryBinding_{ nullptr };
-		PipelineState PipelineState_;
+		PipelineState* PipelineState_;
 
 
 		bool IsMemberReady()
@@ -61,7 +61,7 @@ namespace Eggy
 			ShaderTechnique_->CreateDeviceResource(factory);
 			ShadingState_->CreateDeviceResource(factory);
 			GeometryBinding_->CreateDeviceResource(factory);
-			PipelineState_.CreateDeviceResource(factory);
+			PipelineState_->CreateDeviceResource(factory);
 		}
 
 		~DrawCall();
@@ -110,7 +110,7 @@ namespace Eggy
 
 		RenderItemInfo* AddRenderSceneInfo(RenderObject* object);
 		RenderItem* GenerateRenderItem(RenderItemInfo* info);
-		DrawCall* GenerateDrawCall(RenderItem* item);
+		DrawCall* GenerateDrawCall(ERenderSet set, RenderItem* item);
 		void RecycleDrawCall(DrawCall* dp);
 
 		void Prepare();
