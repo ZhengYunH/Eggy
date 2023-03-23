@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Config.h"
+#include "Core/Math/Vector4.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Vector2.h"
 #include "Graphics/RHI/IRenderResource.h"
@@ -60,6 +61,16 @@ namespace Eggy
 		{
 			v = (v + 1.0f) * 0.5f;
 			u32 = ARGB(v, 0.f).Argb();
+		}
+
+		Vector3 ToVector3()
+		{
+			return Vector3(u8[0], u8[1], u8[2]);
+		}
+
+		Vector4 ToVector4()
+		{
+			return Vector4(u8[0], u8[1], u8[2], u8[3]);
 		}
 
 		FORCEINLINE bool operator == (const Color4B& rhs) const noexcept

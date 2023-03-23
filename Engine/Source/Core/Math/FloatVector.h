@@ -209,6 +209,42 @@ namespace Eggy
 			return *static_cast<RealType*>(this);
 		}
 
+
+		constexpr FORCEINLINE RealType operator /(const RealType& rhs) const noexcept
+		{
+			const _ScalarType* left = GetPointer();
+			const _ScalarType* right = rhs.GetPointer();
+			RealType	ret;
+			_ScalarType* dst = ret.GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				dst[i] = left[i] / Max(right[i], std::numeric_limits<_ScalarType>::epsilon());
+			}
+			return ret;
+		}
+
+		constexpr FORCEINLINE RealType operator /(const _ScalarType& rhs) const noexcept
+		{
+			const _ScalarType* left = GetPointer();
+			RealType	ret;
+			_ScalarType* dst = ret.GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				dst[i] = left[i] / Max(rhs, std::numeric_limits<_ScalarType>::epsilon());
+			}
+			return ret;
+		}
+
+		constexpr FORCEINLINE RealType& operator /=(const _ScalarType& rhs) noexcept
+		{
+			_ScalarType* pSrc = GetPointer();
+			for (int i = 0; i < DIMENSION; ++i)
+			{
+				pSrc[i] = pSrc[i] / Max(rhs, std::numeric_limits<_ScalarType>::epsilon());
+			}
+			return *static_cast<RealType*>(this);
+		}
+
 		constexpr FORCEINLINE _ScalarType operator [](int index) const noexcept
 		{
 			HYBRID_CHECK(index < DIMENSION);
