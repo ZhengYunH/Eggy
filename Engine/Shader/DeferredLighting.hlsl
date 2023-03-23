@@ -65,9 +65,9 @@ float4 PS(VertexOut pIn) : SV_Target
 	LResult.SpecularLighting = float3(0, 0, 0);
 
 	GBufferData GBuffer = SampleGBuffer(pIn.st);
-	GBuffer.ViewDir = normalize(pIn.ScreenVector);
+	GBuffer.ViewDir = -normalize(pIn.ScreenVector);
 	float3 WorldPosition = cViewPos + pIn.ScreenVector * GBuffer.LinearDepth;
-	for(int i = 0; i < min(1, LightCount); i = i + 1)
+	for(int i = 0; i < min(5, LightCount); i = i + 1)
 	{
 		LightingData LitData = GetLightDataByLight(Lights[i], WorldPosition);
 		IntegrateBxDF(LResult, GBuffer, LitData);

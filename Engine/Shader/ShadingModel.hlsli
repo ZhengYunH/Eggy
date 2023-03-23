@@ -9,12 +9,12 @@ void DefaultLitBxDF(in out LightingResult LitResult, in GBufferData GBuffer, in 
 {
     float NoL = saturate(dot(GBuffer.WorldNormal, LitData.L));
 
-    float3 irradiance = LitData.Color * LitData.Atten * NoL;
+    float3 irradiance =  GBuffer.BaseColor * LitData.Color * LitData.Atten * NoL;
     LitResult.DiffuseLighting += irradiance;
 
     LitResult.SpecularLighting += PbrBRDF(
         LitData.L, GBuffer.WorldNormal, GBuffer.ViewDir, 
-        GBuffer.BaseColor, GBuffer.SpecularColor, GBuffer.Roughness, GBuffer.Metallic
+        GBuffer.SpecularColor, GBuffer.Roughness, GBuffer.Metallic
     );
 }
 

@@ -144,7 +144,7 @@ LightingData GetLightDataByLight(LightData ld, float3 WorldPosition)
     }
     else if(ld.LightType == EPointLight)
     {
-        data.Color = ld.Ambient / (4 * PI);
+        data.Color = ld.Ambient;// / (4 * PI);
         float3 P2L = ld.Position - WorldPosition;
         float constantFactor = ld.Misc0;
         float linearFactor = ld.Misc1;

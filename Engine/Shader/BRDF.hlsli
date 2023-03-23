@@ -64,7 +64,7 @@ float3 CalculateF0(float3 BaseColor, float IoR, float Metallic)
     return F0;
 }
 
-float3 PbrBRDF(in float3 L, in float3 N, in float3 V, in float3 DiffuseColor, in float3 SpecularColor, in float Roughness, in float Metallic)
+float3 PbrBRDF(in float3 L, in float3 N, in float3 V, in float3 SpecularColor, in float Roughness, in float Metallic)
 {
     float3 H = normalize(V + L);
     float NoH = saturate(dot(N, H));
@@ -77,7 +77,7 @@ float3 PbrBRDF(in float3 L, in float3 N, in float3 V, in float3 DiffuseColor, in
     float3 F = F_Schlick(F0, VoH);
     float G = G_Schlick(Roughness, VoH, VoL);
 
-    return DiffuseColor * (1 - F) + SpecularColor * (D*F*G);
+    return SpecularColor * (D*F*G);
 }
 
 

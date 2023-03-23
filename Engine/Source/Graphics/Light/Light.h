@@ -26,8 +26,8 @@ namespace Eggy
 			mData_.Specular = Specular;
 
 			SetConstant(1.0f);
-			SetLinear(0.7f);
-			SetQuadratic(1.8f);
+			SetLinear(0.5f);
+			SetQuadratic(0.3f);
 		}
 
 		void SetConstant(float v)
