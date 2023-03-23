@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Core/System/ConfigSystem.h"
+#include "Core/System/UISystem.h"
 
 
 namespace Eggy
@@ -178,6 +179,11 @@ namespace Eggy
 #undef HANDLE_KEY
 		}
 		SetupData();
+
+		UIPanel* panelPtr = GetDebugPanel().GetWidget();
+		panelPtr->CreateOrGetSlider<float>("WBasisX", 3, true).GetWidget()->BindData(mWBasisX_.GetPointer());
+		panelPtr->CreateOrGetSlider<float>("WBasisY", 3, true).GetWidget()->BindData(mWBasisY_.GetPointer());
+		panelPtr->CreateOrGetSlider<float>("WBasisZ", 3, true).GetWidget()->BindData(mWBasisZ_.GetPointer());
 	}
 
 	Matrix4x3 Camera::getViewMatrix() const

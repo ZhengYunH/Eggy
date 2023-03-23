@@ -1,6 +1,7 @@
 #include "ImGuiRenderer.h"
 #include "Core/Engine/Engine.h"
 #include "Core/System/InputSystem.h"
+#include "Core/System/UISystem.h"
 
 
 // TODO need more suitable solution
@@ -18,6 +19,37 @@
 
 namespace Eggy
 {
+	class ImGuiTranslator : public IUITranslator
+	{
+	public:
+		void Panel(UIPanel* panel) override
+		{
+			ImGui::Begin(panel->GetTitle().c_str());
+			auto children = panel->GetChildren();
+			for (auto& pair : children)
+			{
+				pair.second->Translate(this);
+			}
+			ImGui::End();
+		}
+
+
+		void FloatSlider(FloatSliderWidget* widget) override
+		{
+			bool readOnly = widget->ReadOnly();
+			uint8 memberSize = widget->MemberSize();
+			float* pMin = readOnly ? nullptr : &widget->Min();
+			float* pMax = readOnly ? nullptr : &widget->Max();
+
+			ImGui::BeginDisabled(readOnly);
+			{
+				ImGui::SliderScalarN(widget->GetKey().c_str(), ImGuiDataType_Float, widget->GetData(), memberSize, pMin, pMax, "%.2f");
+			}
+			ImGui::EndDisabled();
+		}
+	};
+
+
 	ImguiPass::ImguiContext* ImguiPass::Context = nullptr;
 	ImguiPass::ImguiPass() : RenderPass()
 	{
@@ -37,11 +69,11 @@ namespace Eggy
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 		// for test
-		if (true)
+		if (false)
 		{
-			/*ImGui::ShowAboutWindow();
+			ImGui::ShowAboutWindow();
 			ImGui::ShowDemoWindow();
-			ImGui::ShowUserGuide();*/
+			ImGui::ShowUserGuide();
 		}
 
 		auto& gConstant = Pipeline->GetContext()->GetGlobalConstant();
@@ -56,6 +88,17 @@ namespace Eggy
 			}
 		}
 		ImGui::End();
+		
+		// From UISystem
+		{
+			auto panels = UISystem::Get()->GetAllPanels();
+			for (auto panel : panels)
+			{
+				ImGuiTranslator translator;
+				panel->Translate(&translator);
+			}
+		}
+
 
 		gConstant.Color = ImGuiData::sUseCustomColor ? mData.cCustomColor : Vector4(1.f, 1.f, 1.f, 1.f);
 
@@ -102,11 +145,11 @@ namespace Eggy
 
 		InputSystem::Get()->MessageEvent.Bind([&](UINT msg, WPARAM wparam, LPARAM lparam) -> bool {
 			ImGui_ImplWin32_WndProcHandler(Engine::Get()->Platform->GetWindow(), msg, wparam, lparam);
-		if (IS_MOUSE_EVENT(msg) && io.WantCaptureMouse)
-			return true;
-		if (IS_KEY_EVENT(msg) && io.WantCaptureKeyboard)
-			return true;
-		return false;
-			});
+			if (IS_MOUSE_EVENT(msg) && io.WantCaptureMouse)
+				return true;
+			if (IS_KEY_EVENT(msg) && io.WantCaptureKeyboard)
+				return true;
+			return false;
+		});
 	}
 }
