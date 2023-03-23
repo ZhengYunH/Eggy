@@ -2892,28 +2892,88 @@ bool ImGui::SliderBehavior(const ImRect& bb, ImGuiID id, ImGuiDataType data_type
 
     switch (data_type)
     {
-    case ImGuiDataType_S8:  { ImS32 v32 = (ImS32)*(ImS8*)p_v;  bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, *(const ImS8*)p_min,  *(const ImS8*)p_max,  format, flags, out_grab_bb); if (r) *(ImS8*)p_v  = (ImS8)v32;  return r; }
-    case ImGuiDataType_U8:  { ImU32 v32 = (ImU32)*(ImU8*)p_v;  bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, *(const ImU8*)p_min,  *(const ImU8*)p_max,  format, flags, out_grab_bb); if (r) *(ImU8*)p_v  = (ImU8)v32;  return r; }
-    case ImGuiDataType_S16: { ImS32 v32 = (ImS32)*(ImS16*)p_v; bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, *(const ImS16*)p_min, *(const ImS16*)p_max, format, flags, out_grab_bb); if (r) *(ImS16*)p_v = (ImS16)v32; return r; }
-    case ImGuiDataType_U16: { ImU32 v32 = (ImU32)*(ImU16*)p_v; bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, *(const ImU16*)p_min, *(const ImU16*)p_max, format, flags, out_grab_bb); if (r) *(ImU16*)p_v = (ImU16)v32; return r; }
+    case ImGuiDataType_S8:
+    {
+        ImS32 v32 = (ImS32)*(ImS8*)p_v;
+        const ImS32 v_min = p_min ? *(const ImS32*)p_min : IM_S8_MIN;
+        const ImS32 v_max = p_max ? *(const ImS32*)p_max : IM_S8_MAX;
+        bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, v_min, v_max,  format, flags, out_grab_bb);
+        if (r)
+            *(ImS8*)p_v  = (ImS8)v32;
+        return r;
+    }
+    case ImGuiDataType_U8:
+    {
+        ImU32 v32 = (ImU32)*(ImU8*)p_v;
+        const ImU32 v_min = p_min ? *(const ImU32*)p_min : IM_U8_MIN;
+        const ImU32 v_max = p_max ? *(const ImU32*)p_max : IM_U8_MAX;
+        bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, v_min, v_max,  format, flags, out_grab_bb);
+        if (r)
+            *(ImU8*)p_v  = (ImU8)v32;
+        return r;
+    }
+    case ImGuiDataType_S16:
+    {
+        ImS32 v32 = (ImS32)*(ImS16*)p_v;
+        const ImS32 v_min = p_min ? *(const ImS32*)p_min : IM_S16_MIN;
+        const ImS32 v_max = p_max ? *(const ImS32*)p_max : IM_S16_MAX;
+        bool r = SliderBehaviorT<ImS32, ImS32, float>(bb, id, ImGuiDataType_S32, &v32, v_min, v_max, format, flags, out_grab_bb);
+        if (r)
+            *(ImS16*)p_v = (ImS16)v32;
+        return r;
+    }
+    case ImGuiDataType_U16:
+    {
+        ImU32 v32 = (ImU32)*(ImU16*)p_v;
+        const ImU32 v_min = p_min ? *(const ImS32*)p_min : IM_U16_MIN;
+        const ImU32 v_max = p_max ? *(const ImS32*)p_max : IM_U16_MAX;
+        bool r = SliderBehaviorT<ImU32, ImS32, float>(bb, id, ImGuiDataType_U32, &v32, v_min, v_max, format, flags, out_grab_bb);
+        if (r)
+            *(ImU16*)p_v = (ImU16)v32;
+        return r;
+    }
     case ImGuiDataType_S32:
-        IM_ASSERT(*(const ImS32*)p_min >= IM_S32_MIN / 2 && *(const ImS32*)p_max <= IM_S32_MAX / 2);
-        return SliderBehaviorT<ImS32, ImS32, float >(bb, id, data_type, (ImS32*)p_v,  *(const ImS32*)p_min,  *(const ImS32*)p_max,  format, flags, out_grab_bb);
+    {
+        const ImS32 v_min = p_min ? *(const ImS32*)p_min : IM_S32_MIN / 2;
+        const ImS32 v_max = p_max ? *(const ImS32*)p_max : IM_S32_MAX / 2;
+        IM_ASSERT(v_min >= IM_S32_MIN / 2 && v_max <= IM_S32_MAX / 2);
+        return SliderBehaviorT<ImS32, ImS32, float>(bb, id, data_type, (ImS32*)p_v, v_min, v_max, format, flags, out_grab_bb);
+    }
     case ImGuiDataType_U32:
-        IM_ASSERT(*(const ImU32*)p_max <= IM_U32_MAX / 2);
-        return SliderBehaviorT<ImU32, ImS32, float >(bb, id, data_type, (ImU32*)p_v,  *(const ImU32*)p_min,  *(const ImU32*)p_max,  format, flags, out_grab_bb);
+    {
+        const ImU32 v_min = p_min ? *(const ImU32*)p_min : IM_S32_MIN / 2;
+        const ImU32 v_max = p_max ? *(const ImU32*)p_max : IM_S32_MAX / 2;
+        IM_ASSERT(v_max <= IM_U32_MAX / 2);
+        return SliderBehaviorT<ImU32, ImS32, float>(bb, id, data_type, (ImU32*)p_v, v_min, v_max, format, flags, out_grab_bb);
+    }
     case ImGuiDataType_S64:
-        IM_ASSERT(*(const ImS64*)p_min >= IM_S64_MIN / 2 && *(const ImS64*)p_max <= IM_S64_MAX / 2);
-        return SliderBehaviorT<ImS64, ImS64, double>(bb, id, data_type, (ImS64*)p_v,  *(const ImS64*)p_min,  *(const ImS64*)p_max,  format, flags, out_grab_bb);
+    {
+        const ImS64 v_min = p_min ? *(const ImS64*)p_min : IM_S64_MIN / 2;
+        const ImS64 v_max = p_max ? *(const ImS64*)p_max : IM_S64_MAX / 2;
+        IM_ASSERT(v_min >= IM_S64_MIN / 2 && v_max <= IM_S64_MAX / 2);
+        return SliderBehaviorT<ImS64, ImS64, double>(bb, id, data_type, (ImS64*)p_v, v_min, v_max, format, flags, out_grab_bb);
+    }
     case ImGuiDataType_U64:
-        IM_ASSERT(*(const ImU64*)p_max <= IM_U64_MAX / 2);
-        return SliderBehaviorT<ImU64, ImS64, double>(bb, id, data_type, (ImU64*)p_v,  *(const ImU64*)p_min,  *(const ImU64*)p_max,  format, flags, out_grab_bb);
+    {
+        const ImU64 v_min = p_min ? *(const ImU64*)p_min : IM_S32_MIN / 2;
+        const ImU64 v_max = p_max ? *(const ImU64*)p_max : IM_U64_MAX / 2;
+        IM_ASSERT(v_max <= IM_U64_MAX / 2);
+        return SliderBehaviorT<ImU64, ImS64, double>(bb, id, data_type, (ImU64*)p_v, v_min, v_max, format, flags, out_grab_bb);
+    }
     case ImGuiDataType_Float:
-        IM_ASSERT(*(const float*)p_min >= -FLT_MAX / 2.0f && *(const float*)p_max <= FLT_MAX / 2.0f);
-        return SliderBehaviorT<float, float, float >(bb, id, data_type, (float*)p_v,  *(const float*)p_min,  *(const float*)p_max,  format, flags, out_grab_bb);
+    {
+        const float v_min = p_min ? *(const float*)p_min : -FLT_MAX / 2.0f;
+        const float v_max = p_max ? *(const float*)p_max : FLT_MAX / 2.0f;
+        IM_ASSERT(v_min >= -FLT_MAX / 2.0f && v_max <= FLT_MAX / 2.0f);
+        return SliderBehaviorT<float, float, float >(bb, id, data_type, (float*)p_v, v_min, v_max, format, flags, out_grab_bb);
+    }
     case ImGuiDataType_Double:
-        IM_ASSERT(*(const double*)p_min >= -DBL_MAX / 2.0f && *(const double*)p_max <= DBL_MAX / 2.0f);
-        return SliderBehaviorT<double, double, double>(bb, id, data_type, (double*)p_v, *(const double*)p_min, *(const double*)p_max, format, flags, out_grab_bb);
+    {
+        const double v_min = p_min ? *(const double*)p_min : -DBL_MAX / 2.0f;
+        const double v_max = p_max ? *(const double*)p_max : DBL_MAX / 2.0f;
+        IM_ASSERT(v_min >= -DBL_MAX / 2.0f && v_max <= DBL_MAX / 2.0f);
+        return SliderBehaviorT<double, double, double>(bb, id, data_type, (double*)p_v, v_min, v_max, format, flags, out_grab_bb);
+    }
     case ImGuiDataType_COUNT: break;
     }
     IM_ASSERT(0);
@@ -2985,7 +3045,8 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
         MarkItemEdited(id);
 
     // Render grab
-    if (grab_bb.Max.x > grab_bb.Min.x)
+    bool was_disabled = (g.CurrentItemFlags & ImGuiItemFlags_Disabled) != 0;
+    if (!was_disabled &&  grab_bb.Max.x > grab_bb.Min.x)
         window->DrawList->AddRectFilled(grab_bb.Min, grab_bb.Max, GetColorU32(g.ActiveId == id ? ImGuiCol_SliderGrabActive : ImGuiCol_SliderGrab), style.GrabRounding);
 
     // Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
