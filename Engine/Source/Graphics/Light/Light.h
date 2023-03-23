@@ -6,24 +6,22 @@ namespace Eggy
 	class DirectionLight : public ILight
 	{
 	public:
-		DirectionLight(Vector3 Direction, Vector3 Ambient, Vector3 Diffuse, Vector3 Specular) : ILight(ELight::DirectionLight)
+		DirectionLight(Vector3 Direction, Vector3 Color, float Intensity) : ILight(ELight::DirectionLight)
 		{
 			mData_.Direction = Direction.GetNormalized();
-			mData_.Ambient = Ambient;
-			mData_.Diffuse = Diffuse;
-			mData_.Specular = Specular;
+			mData_.Color = Color;
+			mData_.Intensity = Intensity;
 		}
 	};
 
 	class PointLight : public ILight
 	{
 	public:
-		PointLight(Vector3 Position, Vector3 Ambient, Vector3 Diffuse, Vector3 Specular) : ILight(ELight::PointLight)
+		PointLight(Vector3 Position, Vector3 Color, float Intensity) : ILight(ELight::PointLight)
 		{
 			mData_.Position = Position;
-			mData_.Ambient = Ambient;
-			mData_.Diffuse = Diffuse;
-			mData_.Specular = Specular;
+			mData_.Color = Color;
+			mData_.Intensity = Intensity;
 
 			SetConstant(1.0f);
 			SetLinear(0.5f);
@@ -49,13 +47,12 @@ namespace Eggy
 	class SpotLight : public ILight
 	{
 	public:
-		SpotLight(Vector3 Position, Vector3 Direction, Vector3 Ambient, Vector3 Diffuse, Vector3 Specular) : ILight(ELight::SpotLight)
+		SpotLight(Vector3 Position, Vector3 Direction, Vector3 Color, float Intensity) : ILight(ELight::SpotLight)
 		{
 			mData_.Position = Position;
 			mData_.Direction = Direction.GetNormalized();
-			mData_.Ambient = Ambient;
-			mData_.Diffuse = Diffuse;
-			mData_.Specular = Specular;
+			mData_.Color = Color;
+			mData_.Intensity = Intensity;
 
 			SetCutOff(15.f);
 			SetOutCutoff(20.f);

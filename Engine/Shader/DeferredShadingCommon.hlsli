@@ -138,13 +138,13 @@ LightingData GetLightDataByLight(LightData ld, float3 WorldPosition)
 
     if(ld.LightType == EDirectionLight)
     {
-        data.Color = ld.Ambient;
+        data.Color = ld.Color * ld.Intensity;
         data.Atten = 1;
         data.L = -ld.Direction;
     }
     else if(ld.LightType == EPointLight)
     {
-        data.Color = ld.Ambient;// / (4 * PI);
+        data.Color = ld.Color * ld.Intensity / (4 * PI);
         float3 P2L = ld.Position - WorldPosition;
         float constantFactor = ld.Misc0;
         float linearFactor = ld.Misc1;
@@ -158,7 +158,7 @@ LightingData GetLightDataByLight(LightData ld, float3 WorldPosition)
     {
         float3 P2L = ld.Position - WorldPosition;
         float phi = dot(normalize(P2L), -ld.Direction);
-        data.Color = ld.Ambient * phi / (4 * PI);
+        data.Color = ld.Color * ld.Intensity * phi / (4 * PI);
         float distance = max(1.0, length(P2L));
         data.Atten = 1.0 / (distance * distance);
         data.L = normalize(P2L);

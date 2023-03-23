@@ -35,14 +35,17 @@ struct LightData
 {
     int LightType;
     float3 Position;
-    float Misc0;
+    
+    float Intensity;
     float3 Direction;
+    
+    float Misc0;
+    float3 Color;
+
     float Misc1;
-    float3 Ambient;
     float Misc2;
-    float3 Diffuse;
     float Misc3;
-    float3 Specular;
+    float Misc4;
 };
 
 cbuffer Light : register(b3)

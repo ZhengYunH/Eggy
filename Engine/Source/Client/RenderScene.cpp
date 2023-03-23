@@ -38,7 +38,7 @@ namespace Eggy
 		globalConstant.CamData.BasisX = camera->GetWBasisX();
 		globalConstant.CamData.BasisY = camera->GetWBasisY();
 		globalConstant.CamData.BasisZ = camera->GetWBasisZ();
-		globalConstant.CamData.Info = Vector4(camera->GetNearPlane(), camera->GetFarPlane(), 1.0f / camera->GetNearPlane(), 1.0f / camera->GetFarPlane());
+		globalConstant.CamData.Info = Vector4(camera->GetNearPlane(), camera->GetFarPlane(), 1.0f / camera->GetFarPlane(), camera->getFov());
 		mContext_->PrepareBatchData();
 		mPipeline_->Consolidate();
 	}

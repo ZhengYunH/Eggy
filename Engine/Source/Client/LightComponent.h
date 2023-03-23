@@ -2,6 +2,7 @@
 #include "Interface/IRenderScene.h"
 #include "Object/IComponent.h"
 #include "Graphics/Light/Light.h"
+#include "Graphics/Renderer/VertexFactory.h"
 
 
 namespace Eggy
@@ -16,6 +17,9 @@ namespace Eggy
 	protected:
 		void PostInitialize() override;
 		virtual void InitLightData() = 0;
+		
+		Color4B mColor_{ Color4B_WRITE };
+		float mIntensity_{ 1.0f };
 		ILight* mLight_{ nullptr };
 	};
 

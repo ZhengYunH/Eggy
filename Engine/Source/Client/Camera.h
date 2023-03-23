@@ -94,7 +94,7 @@ namespace Eggy
 		int32_t mLastMousePositionX, mLastMousePositionY;
 		float mFov_{ 45.f };
 		float mNear_{ 0.01f };
-		float mFar_{ 5000.f };
+		float mFar_{ 1500.f };
 		float mMoveSpeed_{ 1.f };
 		bool mPerspective_{ true };
 		Vector3	mRotator_;

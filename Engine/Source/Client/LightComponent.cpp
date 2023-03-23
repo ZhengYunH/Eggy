@@ -27,10 +27,7 @@ namespace Eggy
 	{
 		IEntity* parent = GetParent();
 		auto transform = parent->GetTransform();
-		Vector3 ambient(1.0f, 1.0f, 1.0f);
-		Vector3 diffuse(0.4f, 0.4f, 0.4f);
-		Vector3 specular(0.5f, 0.5f, 0.5f);
-		mLight_ = new DirectionLight(transform.GetZAxis(), ambient, diffuse, specular);
+		mLight_ = new DirectionLight(transform.GetZAxis(), mColor_.ToVector3() / 255.f, mIntensity_);
 	}
 
 	void PointLightComponent::InitLightData()
@@ -38,10 +35,7 @@ namespace Eggy
 		IEntity* parent = GetParent();
 		auto transform = parent->GetTransform();
 
-		Vector3 ambient(1.0f, 1.0f, 1.0f);
-		Vector3 diffuse(0.4f, 0.4f, 0.4f);
-		Vector3 specular(0.5f, 0.5f, 0.5f);
-		PointLight* pointLight = new PointLight(transform.GetTranslation(), ambient, diffuse, specular);
+		PointLight* pointLight = new PointLight(transform.GetTranslation(), mColor_.ToVector3() / 255.f, mIntensity_ * 4 * MATH_PI);
 		mLight_ = pointLight;
 
 	}
@@ -50,11 +44,7 @@ namespace Eggy
 	{
 		IEntity* parent = GetParent();
 		auto transform = parent->GetTransform();
-
-		Vector3 ambient(1.0f, 1.0f, 1.0f);
-		Vector3 diffuse(0.4f, 0.4f, 0.4f);
-		Vector3 specular(0.5f, 0.5f, 0.5f);
-		SpotLight* spotLight = new SpotLight(transform.GetTranslation(), transform.GetZAxis(), ambient, diffuse, specular);
+		SpotLight* spotLight = new SpotLight(transform.GetTranslation(), transform.GetZAxis(), mColor_.ToVector3() / 255.f, mIntensity_ * 4 * MATH_PI);
 		mLight_ = spotLight;
 	}
 }

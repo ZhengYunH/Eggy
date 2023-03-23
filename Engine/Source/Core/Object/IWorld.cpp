@@ -60,8 +60,8 @@ namespace Eggy
 		Light->SetTransform(transf3);
 		auto* prim3 = new HelperPrimitvesComponent<EHelperMesh::Sphere>();
 		Light->AddComponent(prim3);
-		//Light->AddComponent(new DirectionLightComponent());
-		//Light->AddComponent(new SpotLightComponent());
+		Light->AddComponent(new DirectionLightComponent());
+		Light->AddComponent(new SpotLightComponent());
 		Light->AddComponent(new PointLightComponent());
 		Light->EnterWorld(this);
 		mEntities_.push_back(entity2);
