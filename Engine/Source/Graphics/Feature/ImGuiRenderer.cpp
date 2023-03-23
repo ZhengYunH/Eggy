@@ -43,7 +43,17 @@ namespace Eggy
 
 			ImGui::BeginDisabled(readOnly);
 			{
-				ImGui::SliderScalarN(widget->GetKey().c_str(), ImGuiDataType_Float, widget->GetData(), memberSize, pMin, pMax, "%.2f");
+				bool changed = false;
+				if (readOnly)
+				{
+					changed = ImGui::SliderScalarN(widget->GetKey().c_str(), ImGuiDataType_Float, widget->GetData(), memberSize, pMin, pMax, "%.2f");
+				}
+				else
+				{
+					changed = ImGui::DragScalarN(widget->GetKey().c_str(), ImGuiDataType_Float, widget->GetData(), memberSize, widget->Speed(), pMin, pMax, "%.2f");
+				}
+				if (changed)
+					widget->ValueChanged.BoardCast();
 			}
 			ImGui::EndDisabled();
 		}

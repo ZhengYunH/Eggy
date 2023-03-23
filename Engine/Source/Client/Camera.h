@@ -5,6 +5,7 @@
 #include "Core/Math/Matrix4x4.h"
 #include "Core/Engine/Engine.h"
 #include "Core/System/InputSystem.h"
+#include "Core/System/UISystem.h"
 
 
 namespace Eggy
@@ -76,6 +77,9 @@ namespace Eggy
 	protected:
 		void SetupData();
 
+	protected:
+		void OnRotatorChanged();
+
 	public:
 		void updateProjMatrix();
 
@@ -93,6 +97,7 @@ namespace Eggy
 		float mFar_{ 5000.f };
 		float mMoveSpeed_{ 1.f };
 		bool mPerspective_{ true };
+		Vector3	mRotator_;
 
 	public:
 		float mScreenHeight_{ -1.0f };

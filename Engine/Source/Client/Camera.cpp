@@ -1,6 +1,5 @@
 #include "Camera.h"
 #include "Core/System/ConfigSystem.h"
-#include "Core/System/UISystem.h"
 
 
 namespace Eggy
@@ -34,6 +33,14 @@ namespace Eggy
 		BindInputEvent(MidMouseUp, this, Camera::EventMidMouseUp);
 		BindInputEvent(MouseMove, this, Camera::EventMouseMove);
 		BindInputEvent(MouseWheel, this, Camera::EventMouseWheel);
+
+		auto rotatorPtr = GetDebugPanel().GetWidget()->CreateOrGetSlider<float>("Rotator", 3, false).GetWidget();
+		rotatorPtr->ValueChanged.Bind([this]() {
+			this->OnRotatorChanged();
+		});
+		rotatorPtr->Min(-179.99f);
+		rotatorPtr->Max(179.99f);
+		rotatorPtr->BindData(mRotator_.GetPointer());
 	}
 
 	void Camera::handleInputKeyDown(WPARAM key)
@@ -200,9 +207,9 @@ namespace Eggy
 	{
 		mViewMatrix_ = mTransform_.GetInverse();
 
-		Vector3 vX{ mViewMatrix_.GetRow3(0) };
-		Vector3 vY{ mViewMatrix_.GetRow3(1) };
-		Vector3 vZ{ mViewMatrix_.GetRow3(2) };
+		Vector3 vX{ mTransform_.GetRow3(0) };
+		Vector3 vY{ mTransform_.GetRow3(1) };
+		Vector3 vZ{ mTransform_.GetRow3(2) };
 		vZ.Normalize();
 		vX.Normalize();
 		vY.Normalize();
@@ -221,6 +228,15 @@ namespace Eggy
 		mWBasisX_.x = vX.x; mWBasisX_.y = vX.y; mWBasisX_.z = vX.z; mWBasisX_.w = 0.0f;
 		mWBasisY_.x = vY.x; mWBasisY_.y = vY.y; mWBasisY_.z = vY.z; mWBasisY_.w = 0.0f;
 		mWBasisZ_.x = vZ.x; mWBasisZ_.y = vZ.y; mWBasisZ_.z = vZ.z; mWBasisZ_.w = 0.0f;
+
+		mRotator_.x = RadianToDegree(mTransform_.GetPitch());
+		mRotator_.y = RadianToDegree(mTransform_.GetYaw());
+		mRotator_.z = RadianToDegree(mTransform_.GetRoll());
+	}
+
+	void Camera::OnRotatorChanged()
+	{
+		mTransform_.SetPitchYawRoll(DegreeToRadian(mRotator_.x), DegreeToRadian(mRotator_.y), DegreeToRadian(mRotator_.z));
 	}
 
 	void Camera::updateProjMatrix()

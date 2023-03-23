@@ -3,6 +3,7 @@
 #include "Core/Interface/ISystem.h"
 #include "Core/Reflection/Reflection.h"
 #include "DataType/SharedObject.h"
+#include "Core/Engine/Event/Event.h"
 
 
 namespace Eggy
@@ -126,6 +127,12 @@ namespace Eggy
 		_T& Max() { return mMax_; }
 		void Max(_T val) { mMax_ = val; }
 
+		_T& Speed() { return mSpeed_; }
+		void Speed(_T val) { mSpeed_ = val; }
+
+	public:
+		Event<> ValueChanged;
+
 	protected:
 		_T* mDataBinding_{ nullptr };
 		uint8 mMemberSize_{ 1 };
@@ -133,6 +140,8 @@ namespace Eggy
 
 		_T mMin_{ std::numeric_limits<_T>::min() };
 		_T mMax_{ std::numeric_limits<_T>::max() };
+
+		_T mSpeed_{ _T(1) };
 	};
 
 	template<> struct WidgetTraits<FloatSliderWidget>
