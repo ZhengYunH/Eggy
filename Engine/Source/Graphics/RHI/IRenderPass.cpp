@@ -120,7 +120,7 @@ namespace Eggy
 		{
 			auto batch = dp->ShadingState_->GetBatch();
 			// Bind Global Constant
-			dp->ShadingState_->GetBatch()->SetConstantBuffer(EShaderConstant::Global, Pipeline->GetContext()->GetParameters());
+			dp->ShadingState_->GetBatch()->SetConstantBuffer(EShaderConstant::Global, Pipeline->GetContext()->GetGlobalParameters());
 			dp->ShadingState_->GetBatch()->SetConstantBuffer(EShaderConstant::Light, Pipeline->GetContext()->GetLightParameters());
 
 			// Bind Texture(RT Type)

@@ -10,8 +10,9 @@ namespace Eggy
 	{
 		CollectionLights();
 
-		RenderPass* output = mPipeline_->Setup(&mBuilder_);
 		mBuilder_.Prepare();
+
+		RenderPass* output = mPipeline_->Setup(&mBuilder_);
 		mBuilder_.ResolveConnection(output, mPipeline_->GetRenderPasses());
 		mPipeline_->Compile(&mBuilder_);
 		mBuilder_.Resolve();
@@ -43,7 +44,7 @@ namespace Eggy
 		mPipeline_->mContext_ = this;
 		auto collection = ShaderCollectionFactory::Instance().GetCollection("Basic");
 		auto globalTable = collection->GetShaderTechnique(ETechnique::Shading)->GetConstantTable(EShaderConstant::Global);
-		mParams_ = new ShadingParameterCollection(globalTable);
+		mGlobalParams_ = new ShadingParameterCollection(globalTable);
 
 		auto lightTable = collection->GetShaderTechnique(ETechnique::Shading)->GetConstantTable(EShaderConstant::Light);
 		mLightParams_ = new ShadingParameterCollection(lightTable);
@@ -215,15 +216,15 @@ namespace Eggy
 
 	void RenderContext::PrepareBatchData()
 	{
-		mParams_->SetMatrix4x4("cView", mConstant_.ViewTransform);
-		mParams_->SetMatrix4x4("cProj", mConstant_.ProjectTransform);
-		mParams_->SetFloat("cViewPos", 0, 3, mConstant_.CamData.ViewPos.GetPointer());
-		mParams_->SetFloat("cWBasisX", 0, 4, mConstant_.CamData.BasisX.GetPointer());
-		mParams_->SetFloat("cWBasisY", 0, 4, mConstant_.CamData.BasisY.GetPointer());
-		mParams_->SetFloat("cWBasisZ", 0, 4, mConstant_.CamData.BasisZ.GetPointer());
-		mParams_->SetFloat("cCameraInfo", 0, 4, mConstant_.CamData.Info.GetPointer());
+		mGlobalParams_->SetMatrix4x4("cView", mConstant_.ViewTransform);
+		mGlobalParams_->SetMatrix4x4("cProj", mConstant_.ProjectTransform);
+		mGlobalParams_->SetFloat("cViewPos", 0, 3, mConstant_.CamData.ViewPos.GetPointer());
+		mGlobalParams_->SetFloat("cWBasisX", 0, 4, mConstant_.CamData.BasisX.GetPointer());
+		mGlobalParams_->SetFloat("cWBasisY", 0, 4, mConstant_.CamData.BasisY.GetPointer());
+		mGlobalParams_->SetFloat("cWBasisZ", 0, 4, mConstant_.CamData.BasisZ.GetPointer());
+		mGlobalParams_->SetFloat("cCameraInfo", 0, 4, mConstant_.CamData.Info.GetPointer());
 
-		mParams_->SetFloat("cDebugColor", 0, 4, mConstant_.Color.GetPointer());
+		mGlobalParams_->SetFloat("cDebugColor", 0, 4, mConstant_.Color.GetPointer());
 
 		int lightSize = (int)mLights_.size();
 		mLightParams_->SetStruct("Lights", 0, (uint16)mLights_.size(), (const void**)mLights_.data());

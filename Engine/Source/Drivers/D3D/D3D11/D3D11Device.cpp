@@ -140,10 +140,10 @@ namespace Eggy
 		auto pipeline = Engine::Get()->GetClientScene()->GetRenderScene()->GetPipeline();
 
 		// Update Global Uniform
-		pipeline->GetContext()->GetParameters()->CreateDeviceResource(GetResourceFactory());
+		pipeline->GetContext()->GetGlobalParameters()->CreateDeviceResource(GetResourceFactory());
 		pipeline->GetContext()->GetLightParameters()->CreateDeviceResource(GetResourceFactory());
 
-		_UpdateConstantBuffer(pipeline->GetContext()->GetParameters());
+		_UpdateConstantBuffer(pipeline->GetContext()->GetGlobalParameters());
 		_UpdateConstantBuffer(pipeline->GetContext()->GetLightParameters());
 		for (auto renderPass : pipeline->GetRenderPasses())
 		{

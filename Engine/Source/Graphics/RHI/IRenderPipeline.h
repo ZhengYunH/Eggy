@@ -118,7 +118,7 @@ namespace Eggy
 		void SubmitRenderItem(ERenderSet set, RenderItem* item);
 		void PrepareBatchData();
 		GlobalConstant& GetGlobalConstant() { return mConstant_; }
-		ShadingParameterCollection* GetParameters() { return mParams_; }
+		ShadingParameterCollection* GetGlobalParameters() { return mGlobalParams_; }
 		ShadingParameterCollection* GetLightParameters() { return mLightParams_; }
 		List<ILight*>& GetLights() { return mLights_; }
 		void CollectionLights();
@@ -128,7 +128,7 @@ namespace Eggy
 		RenderPipeline* mPipeline_;
 		RenderGraphBuilder mBuilder_;
 		List<RenderItemInfo*> mRenderInfoItems_;
-		ShadingParameterCollection* mParams_;
+		ShadingParameterCollection* mGlobalParams_;
 		ShadingParameterCollection* mLightParams_;
 		GlobalConstant mConstant_;
 		List<ILight*> mLights_;
