@@ -1,4 +1,5 @@
 #include "LightComponent.h"
+#include "Client/World.h"
 
 
 namespace Eggy
@@ -10,12 +11,14 @@ namespace Eggy
 
 	void LightComponent::EnterWorld()
 	{
-		GetParent()->GetWorld()->GetRenderScene()->AddLight(mLight_);
+		auto world = static_cast<World*>(GetParent()->GetWorld());
+		world->GetRenderScene()->AddLight(mLight_);
 	}
 
 	void LightComponent::LeaveWorld()
 	{
-		GetParent()->GetWorld()->GetRenderScene()->DelLight(mLight_);
+		auto world = static_cast<World*>(GetParent()->GetWorld());
+		world->GetRenderScene()->DelLight(mLight_);
 	}
 
 	String LightComponent::GetName() const

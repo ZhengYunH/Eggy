@@ -23,8 +23,6 @@ namespace Eggy
 		virtual void Tick() {};
 		List<IPrimitive*>& GetPrimitives() { return mPrimitives_; }
 
-		virtual IRenderScene* GetRenderScene() = 0;
-
 		virtual void StartLogicFrame() = 0;
 		virtual void EndLogicFrame() = 0;
 

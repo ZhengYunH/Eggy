@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Core/Object/IEntity.h"
 #include "Resource/ResourceModule.h"
+#include "Engine/Dispatcher/ObjectDispatcher.h"
 
 
 namespace Eggy
@@ -60,6 +61,8 @@ namespace Eggy
 
 	void World::Tick()
 	{
+		GObjectDispatcher->Dispatch();
+
 		static bool isForward = true;
 
 		IEntity* entity = *(mEntities_.cbegin());

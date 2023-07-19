@@ -4,7 +4,6 @@
 #include "Graphics/Light/Light.h"
 #include "Graphics/Renderer/VertexFactory.h"
 
-
 namespace Eggy
 {
 	class LightComponent : public IComponent
